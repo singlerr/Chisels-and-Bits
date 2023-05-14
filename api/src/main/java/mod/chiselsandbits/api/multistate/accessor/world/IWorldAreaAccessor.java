@@ -32,8 +32,8 @@ public interface IWorldAreaAccessor extends IAreaAccessor, IWorldObject
      */
     default Stream<BlockPos> coveredAreaStream()
     {
-        final BlockPos startPos = new BlockPos(getInWorldStartPoint());
-        final BlockPos endPos = new BlockPos(getInWorldEndPoint());
+        final BlockPos startPos = getInWorldStartBlockPoint();
+        final BlockPos endPos = getInWorldEndBlockPoint();
 
         //Short circuit the stream builder if the area covered is exactly one block.
         if (startPos.equals(endPos))

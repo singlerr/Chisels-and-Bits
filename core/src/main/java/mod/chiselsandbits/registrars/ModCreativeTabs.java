@@ -50,7 +50,7 @@ public final class ModCreativeTabs
                 builder -> {
                     builder.icon(() -> new ItemStack(ModItems.ITEM_CHISEL_NETHERITE.get()));
                     builder.title(LocalStrings.ChiselsAndBitsName.getText());
-                    builder.displayItems((flags, output, permission) -> {
+                    builder.displayItems((parameters, output) -> {
                         output.accept(new ItemStack(ModItems.ITEM_CHISEL_STONE.get()));
                         output.accept(new ItemStack(ModItems.ITEM_CHISEL_IRON.get()));
                         output.accept(new ItemStack(ModItems.ITEM_CHISEL_GOLD.get()));
@@ -82,7 +82,7 @@ public final class ModCreativeTabs
                     builder.icon(() -> new ItemStack(ModItems.ITEM_BLOCK_BIT.get()));
                     builder.title(LocalStrings.CreativeTabBits.getText());
                     builder.type(CreativeModeTab.Type.SEARCH);
-                    builder.displayItems((flags, output, permissions) -> IPlatformRegistryManager.getInstance().getBlockRegistry().getValues()
+                    builder.displayItems((parameters, output) -> IPlatformRegistryManager.getInstance().getBlockRegistry().getValues()
                             .forEach(block -> {
                                 if (block instanceof ChiseledBlock)
                                     return;
@@ -119,7 +119,7 @@ public final class ModCreativeTabs
                 builder -> {
                     builder.icon(() -> new ItemStack(ModItems.PATTERN_SCANNER.get()));
                     builder.title(LocalStrings.CreativeTabClipboard.getText());
-                    builder.displayItems((flags, output, permissions) -> output.acceptAll(
+                    builder.displayItems((parameters, output) -> output.acceptAll(
                             ICreativeClipboardManager.getInstance().getClipboard()
                                     .stream()
                                     .map(IMultiStateItemStack::toBlockStack)

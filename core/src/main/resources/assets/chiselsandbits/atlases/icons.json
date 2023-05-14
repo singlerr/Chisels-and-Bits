@@ -2,7 +2,7 @@
     "sources": [
         {
             "type": "directory",
-            "source": "icon",
+            "source": "icons",
             "prefix": ""
         }
     ]

@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.client.screen.widget;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  * All chisels and bits widgets inherit from this class.
  * Most notably provides init support, invoked when the window itself has its init method called.
  */
-public class AbstractChiselsAndBitsWidget extends AbstractWidget implements IChiselsAndBitsWidget
+public abstract class AbstractChiselsAndBitsWidget extends AbstractWidget implements IChiselsAndBitsWidget
 {
     /**
      * Creates a new widget.

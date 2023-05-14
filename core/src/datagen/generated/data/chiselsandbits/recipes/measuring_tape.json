@@ -19,5 +19,6 @@
   ],
   "result": {
     "item": "chiselsandbits:measuring_tape"
-  }
+  },
+  "show_notification": true
 }

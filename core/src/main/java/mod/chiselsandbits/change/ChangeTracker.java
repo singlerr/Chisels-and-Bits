@@ -155,17 +155,14 @@ public class ChangeTracker implements IChangeTracker
     public void deserializeNBT(final CompoundTag nbt)
     {
         this.changes.clear();
-        this.changes.addAll(nbt.getList("changes", Tag.TAG_COMPOUND).stream().map(CombinedChange::new).collect(Collectors.toList()));
+        this.changes.addAll(nbt.getList("changes", Tag.TAG_COMPOUND).stream().map(CombinedChange::new).toList());
         this.currentIndex = nbt.getInt("index");
     }
 
     private void sendUpdate() {
         if (player != null && player instanceof ServerPlayer serverPlayer && !serverPlayer.getLevel().isClientSide())
         {
-            ChiselsAndBits.getInstance().getNetworkChannel().sendToPlayer(
-              new ChangeTrackerUpdatedPacket(this.serializeNBT()),
-              serverPlayer
-            );
+            ChangeTrackerSyncManager.getInstance().add(this, serverPlayer);
         }
     }
 }

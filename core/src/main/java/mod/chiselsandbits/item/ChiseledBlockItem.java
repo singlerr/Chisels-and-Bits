@@ -2,6 +2,7 @@ package mod.chiselsandbits.item;
 
 import com.google.common.base.Suppliers;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
@@ -74,7 +75,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
                                  .multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector());
 
               final Vec3 indexPos = pos.multiply(1 / 4d, 1/4d, 1/4d);
-              final Vec3i index = new Vec3i(indexPos.x(), indexPos.y(), indexPos.z());
+              final Vec3i index = VectorUtils.toInteger(indexPos.x(), indexPos.y(), indexPos.z());
 
               final int size = StateEntrySize.current().getBitsPerBlockSide() / 4;
               final int blockInformationIndex = index.getX() + (index.getY() * size) + (index.getZ() * size * size);

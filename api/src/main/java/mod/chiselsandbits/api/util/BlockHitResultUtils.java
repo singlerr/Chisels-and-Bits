@@ -37,7 +37,7 @@ public class BlockHitResultUtils
         );
 
         final Vec3 scaledHitCenterVector = hitCenterVector.multiply(scaleSize);
-        final Vec3 scaledHitCenterVectorFloor = Vec3.atLowerCornerOf(new BlockPos(scaledHitCenterVector));
+        final Vec3 scaledHitCenterVectorFloor = Vec3.atLowerCornerOf(VectorUtils.toBlockPos(scaledHitCenterVector));
 
         final Vec3 lowerLeftCornerOfTargetedObject = scaledHitCenterVectorFloor.multiply(objectSize);
         return lowerLeftCornerOfTargetedObject.add(halfSize);

@@ -20,6 +20,7 @@ import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.api.util.IQuadFunction;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
@@ -75,7 +76,7 @@ public class ConnectedMaterialChiselingMode extends AbstractCustomRegistryEntry 
           IQuadFunction.fourthIdentity(),
           position -> IMutatorFactory.getInstance().in(
             context.getWorld(),
-            new BlockPos(position)
+            VectorUtils.toBlockPos(position)
           ),
           direction -> Vec3i.ZERO
         );
@@ -183,8 +184,8 @@ public class ConnectedMaterialChiselingMode extends AbstractCustomRegistryEntry 
           },
           position -> IMutatorFactory.getInstance().covering(
             context.getWorld(),
-            new BlockPos(position.subtract(1, 1, 1)),
-            new BlockPos(position.add(1, 1, 1))
+            VectorUtils.toBlockPos(position.subtract(1, 1, 1)),
+            VectorUtils.toBlockPos(position.add(1, 1, 1))
           ),
           direction -> new Vec3i(
             direction.getNormal().getX() * depth,
@@ -239,7 +240,7 @@ public class ConnectedMaterialChiselingMode extends AbstractCustomRegistryEntry 
 
               if (missingBitCount == 0)
               {
-                  final BlockPos heightPos = new BlockPos(mutator.getInWorldEndPoint());
+                  final BlockPos heightPos = mutator.getInWorldEndBlockPoint();
                   if (heightPos.getY() >= context.getWorld().getMaxBuildHeight())
                   {
                       context.setError(LocalStrings.ChiselAttemptFailedAttemptTooHigh.getText());
@@ -298,10 +299,10 @@ public class ConnectedMaterialChiselingMode extends AbstractCustomRegistryEntry 
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        final BlockPos hitPos = new BlockPos(hitVector);
+        final BlockPos hitPos = VectorUtils.toBlockPos(hitVector);
         final Vec3 hitBlockPosVector = Vec3.atLowerCornerOf(hitPos);
         final Vec3 inBlockHitVector = hitVector.subtract(hitBlockPosVector);
-        final Vec3i selectedPosition = new Vec3i(
+        final Vec3i selectedPosition = VectorUtils.toInteger(
           inBlockHitVector.x() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.y() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.z() * StateEntrySize.current().getBitsPerBlockSide()
@@ -332,7 +333,7 @@ public class ConnectedMaterialChiselingMode extends AbstractCustomRegistryEntry 
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        final BlockPos hitPos = new BlockPos(hitVector);
+        final BlockPos hitPos = VectorUtils.toBlockPos(hitVector);
         final Vec3 hitBlockPosVector = Vec3.atLowerCornerOf(hitPos);
         final Vec3 inBlockHitVector = hitVector.subtract(hitBlockPosVector);
 
@@ -349,7 +350,7 @@ public class ConnectedMaterialChiselingMode extends AbstractCustomRegistryEntry 
           .map(Direction::getNormal)
           .forEach(offsets::add);
 
-        final Vec3i selectedPosition = new Vec3i(
+        final Vec3i selectedPosition = VectorUtils.toInteger(
           inBlockHitVector.x() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.y() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.z() * StateEntrySize.current().getBitsPerBlockSide()
@@ -507,7 +508,7 @@ public class ConnectedMaterialChiselingMode extends AbstractCustomRegistryEntry 
         @Override
         public boolean test(final IStateEntryInfo iStateEntryInfo)
         {
-            final Vec3i position = new Vec3i(
+            final Vec3i position = VectorUtils.toInteger(
               iStateEntryInfo.getStartPoint().x() * StateEntrySize.current().getBitsPerBlockSide(),
               iStateEntryInfo.getStartPoint().y() * StateEntrySize.current().getBitsPerBlockSide(),
               iStateEntryInfo.getStartPoint().z() * StateEntrySize.current().getBitsPerBlockSide()

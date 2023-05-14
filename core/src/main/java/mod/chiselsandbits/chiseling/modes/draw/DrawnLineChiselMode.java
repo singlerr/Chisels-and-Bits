@@ -163,7 +163,7 @@ public class DrawnLineChiselMode extends AbstractCustomRegistryEntry implements 
             }
 
             if (missingBitCount == 0) {
-                final BlockPos heightPos = new BlockPos(mutator.getInWorldEndPoint());
+                final BlockPos heightPos = mutator.getInWorldEndBlockPoint();
                 if (heightPos.getY() >= context.getWorld().getMaxBuildHeight()) {
                     Component component = (Component.translatable("build.tooHigh", context.getWorld().getMaxBuildHeight() - 1)).withStyle(ChatFormatting.RED);
                     playerEntity.sendSystemMessage(component);
@@ -224,7 +224,7 @@ public class DrawnLineChiselMode extends AbstractCustomRegistryEntry implements 
         if (!(stateFilter instanceof LineAreaFilter lineAreaFilter))
             return Shapes.empty();
 
-        final BlockPos offset = VectorUtils.invert(new BlockPos(mutator.getInWorldStartPoint()));
+        final BlockPos offset = VectorUtils.invert(mutator.getInWorldEndBlockPoint());
 
         final List<Vec3> startPoints = lineAreaFilter.included.stream().map(v -> v.multiply(StateEntrySize.current().getSizePerBitScalingVector())).toList();
         return VoxelShapeUtils.batchCombine(Shapes.empty(), BooleanOp.OR, true, startPoints.stream()

@@ -158,7 +158,7 @@ public class DrawnCubeChiselMode extends AbstractCustomRegistryEntry implements 
 
             if (missingBitCount == 0)
             {
-                final BlockPos heightPos = new BlockPos(mutator.getInWorldEndPoint());
+                final BlockPos heightPos = mutator.getInWorldEndBlockPoint();
                 if (heightPos.getY() >= context.getWorld().getMaxBuildHeight())
                 {
                     Component component = (Component.translatable("build.tooHigh", context.getWorld().getMaxBuildHeight() - 1)).withStyle(ChatFormatting.RED);

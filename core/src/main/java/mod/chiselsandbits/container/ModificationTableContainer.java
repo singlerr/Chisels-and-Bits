@@ -161,7 +161,7 @@ public class ModificationTableContainer extends AbstractContainerMenu
         if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipe.get())) {
             ModificationTableRecipe modificationTableRecipe = this.recipes.get(this.selectedRecipe.get());
             this.inventory.setRecipeUsed(modificationTableRecipe);
-            this.outputInventorySlot.set(modificationTableRecipe.assemble(this.inputInventory));
+            this.outputInventorySlot.set(modificationTableRecipe.assemble(this.inputInventory, this.world.registryAccess()));
         } else {
             this.outputInventorySlot.set(ItemStack.EMPTY);
         }

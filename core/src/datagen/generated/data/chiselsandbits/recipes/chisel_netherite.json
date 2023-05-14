@@ -15,5 +15,6 @@
   ],
   "result": {
     "item": "chiselsandbits:chisel_netherite"
-  }
+  },
+  "show_notification": true
 }

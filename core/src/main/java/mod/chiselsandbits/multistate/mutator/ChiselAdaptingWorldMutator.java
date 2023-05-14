@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
@@ -167,7 +168,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
           blockInformation,
           getWorld(),
           getPos(),
-          new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(),
+          VectorUtils.toBlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(),
             StateEntrySize.current().getBitsPerBlockSide(),
             StateEntrySize.current().getBitsPerBlockSide())),
           this::setInAreaTarget,

@@ -66,6 +66,9 @@ public class FabricPluginDiscoverer implements IPluginDiscoverer {
                     } catch (IOException e) {
                         LOGGER.debug("Failed to read class for plugin detection: %s".formatted(classFile.toAbsolutePath()), e);
                         continue;
+                    } catch (IllegalArgumentException iae) {
+                        LOGGER.warn("Failed to read class for plugin detection, it has an unsupported ASM Version: %s".formatted(classFile.toAbsolutePath()), iae);
+                        continue;
                     }
 
                     final ModClassVisitor modClassVisitor = new ModClassVisitor();

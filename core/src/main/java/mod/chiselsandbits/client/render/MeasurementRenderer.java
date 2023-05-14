@@ -163,9 +163,9 @@ public final class MeasurementRenderer
         matrixStack.translate(-fontRenderer.width(size) * 0.5, 0, 0);
         RenderSystem.disableDepthTest();
         MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        fontRenderer.drawInBatch(size.getString(), 0, 0, measurement.getMode().getColor().getTextColor(), false, matrixStack.last().pose(), buffer, true, 0, 15728880);
+        fontRenderer.drawInBatch(size.getString(), 0, 0, measurement.getMode().getColor().getTextColor(), false, matrixStack.last().pose(), buffer, Font.DisplayMode.SEE_THROUGH, 0, 15728880);
         matrixStack.translate(-fontRenderer.width(owner) * 0.5, -fontRenderer.lineHeight, 0);
-        fontRenderer.drawInBatch(owner.getString(), 0, 0, measurement.getMode().getColor().getTextColor(), false, matrixStack.last().pose(), buffer, true, 0, 15728880);
+        fontRenderer.drawInBatch(owner.getString(), 0, 0, measurement.getMode().getColor().getTextColor(), false, matrixStack.last().pose(), buffer, Font.DisplayMode.SEE_THROUGH, 0, 15728880);
         buffer.endBatch();
         RenderSystem.enableDepthTest();
         matrixStack.popPose();

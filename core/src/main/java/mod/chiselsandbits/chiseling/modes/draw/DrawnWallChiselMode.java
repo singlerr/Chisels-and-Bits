@@ -181,7 +181,7 @@ public class DrawnWallChiselMode extends AbstractCustomRegistryEntry implements 
             }
 
             if (missingBitCount == 0) {
-                final BlockPos heightPos = new BlockPos(mutator.getInWorldEndPoint());
+                final BlockPos heightPos = mutator.getInWorldEndBlockPoint();
                 if (heightPos.getY() >= context.getWorld().getMaxBuildHeight()) {
                     Component component = (Component.translatable("build.tooHigh", context.getWorld().getMaxBuildHeight() - 1)).withStyle(ChatFormatting.RED);
                     playerEntity.sendSystemMessage(component);
@@ -249,7 +249,7 @@ public class DrawnWallChiselMode extends AbstractCustomRegistryEntry implements 
         if (!(stateFilter instanceof WallAreaFilter lineAreaFilter))
             return Shapes.empty();
 
-        final BlockPos offset = VectorUtils.invert(new BlockPos(mutator.getInWorldStartPoint()));
+        final BlockPos offset = VectorUtils.invert(mutator.getInWorldEndBlockPoint());
 
         final List<Vec3i> startPoints = lineAreaFilter.anchors;
         return VoxelShapeUtils.batchCombine(Shapes.empty(), BooleanOp.OR, true, startPoints.stream()
@@ -307,10 +307,10 @@ public class DrawnWallChiselMode extends AbstractCustomRegistryEntry implements 
 
         private WallAreaFilter(Vec3 startPoint, Vec3 endPoint, Direction.Axis axis, int extensionWidth) {
             final Vec3 origin = startPoint.multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector());
-            this.origin = new Vec3i(origin.x(), origin.y(), origin.z());
+            this.origin = VectorUtils.toInteger(origin.x(), origin.y(), origin.z());
 
             final Vec3 magnitude = endPoint.multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector()).subtract(origin);
-            final Vec3i normalizedMagnitude = new Vec3i(magnitude.x(), magnitude.y(), magnitude.z());
+            final Vec3i normalizedMagnitude = VectorUtils.toInteger(magnitude.x(), magnitude.y(), magnitude.z());
             this.height = normalizedMagnitude.getY();
             this.magnitude = new Vec3(normalizedMagnitude.getX(), 0, normalizedMagnitude.getZ());
 
@@ -342,7 +342,7 @@ public class DrawnWallChiselMode extends AbstractCustomRegistryEntry implements 
             }
 
             final Vec3 pos = inWorldStateEntryInfo.getInWorldStartPoint().multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector());
-            final Vec3i candidatePos = new Vec3i(pos.x(), this.origin.getY(), pos.z());
+            final Vec3i candidatePos = VectorUtils.toInteger(pos.x(), this.origin.getY(), pos.z());
 
             final boolean included = this.included.contains(candidatePos);
             if (height < 0) {

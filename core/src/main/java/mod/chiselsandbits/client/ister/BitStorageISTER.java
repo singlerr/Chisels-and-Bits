@@ -11,9 +11,9 @@ import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransform;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
@@ -35,7 +35,7 @@ public class BitStorageISTER extends BlockEntityWithoutLevelRenderer
     @Override
     public void renderByItem(
       final @NotNull ItemStack stack,
-      final @NotNull TransformType transformType,
+      final @NotNull ItemDisplayContext transformType,
       final PoseStack matrixStack,
       final @NotNull MultiBufferSource buffer,
       final int combinedLight,

@@ -199,7 +199,6 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         poseStack.translate(centerX, centerY, 0);
-        RenderSystem.disableTexture();
 
         final float itemArcAngle = sectionArcAngle / selectableItemCount;
 
@@ -293,7 +292,6 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
             currentlyHoveredModeCallback.accept(null);
         }
 
-        RenderSystem.enableTexture();
         modes.forEach(mode -> {
             if (mode.isActive())
             {
@@ -302,11 +300,14 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
                 renderModeIcon(poseStack, innerRadius, outerRadius, itemTargetAngle, iconScaleFactor, iconTextSpacer, mode, fontRenderer);
             }
         });
-        RenderSystem.disableTexture();
 
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
         poseStack.popPose();
-        RenderSystem.enableTexture();
+    }
+
+    @Override
+    public void renderWidget(@NotNull PoseStack p_268228_, int p_268034_, int p_268009_, float p_268085_) {
+
     }
 
     private static float calculateMouseAngle(final float mouseX, final float mouseY, final float centerX, final float centerY)

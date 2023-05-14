@@ -126,7 +126,7 @@ public class GuiBagFontRenderer extends Font
       final boolean dropShadow,
       final @NotNull Matrix4f matrix,
       final @NotNull MultiBufferSource buffer,
-      final boolean transparentIn,
+      final @NotNull DisplayMode displayMode,
       final int colorBackgroundIn,
       final int packedLight)
     {
@@ -143,7 +143,7 @@ public class GuiBagFontRenderer extends Font
             x += offsetX;
             y += offsetY;
 
-            return super.drawInBatch(convertText(text), x, y, color, dropShadow, stack.last().pose(), buffer, transparentIn, colorBackgroundIn, packedLight);
+            return super.drawInBatch(convertText(text), x, y, color, dropShadow, stack.last().pose(), buffer, displayMode, colorBackgroundIn, packedLight);
         }
         finally
         {

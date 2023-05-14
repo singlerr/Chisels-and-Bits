@@ -36,7 +36,7 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
 
     @SuppressWarnings("deprecation")
     @Override
-    public void renderButton(final @NotNull PoseStack poseStack, final int mouseX, final int mouseY, final float partialTicks)
+    public void renderWidget(final @NotNull PoseStack poseStack, final int mouseX, final int mouseY, final float partialTicks)
     {
         fill(poseStack, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, ColorUtils.pack(139));
         fill(poseStack, this.getX(), this.getY(), this.getX() + this.width - 1, this.getY() + this.height - 1, ColorUtils.pack(55));
@@ -47,7 +47,7 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
 
         if (!snapshotBlockStack.isEmpty()) {
             poseStack.pushPose();
-            renderRotateableItemAndEffectIntoGui();
+            renderRotateableItemAndEffectIntoGui(poseStack);
             poseStack.popPose();
         }
 
@@ -55,8 +55,7 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
     }
 
     @SuppressWarnings({"deprecation", "ConstantConditions"})
-    public void renderRotateableItemAndEffectIntoGui(
-    ) {
+    public void renderRotateableItemAndEffectIntoGui(@NotNull PoseStack poseStack) {
         final int x = this.getX() + this.width / 2 - 8;
         final int y = this.getY() + this.height / 2 - 8;
         final BakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getModel(
@@ -66,7 +65,6 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
           0
         );
 
-        final PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.pushPose();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -75,15 +73,11 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-        final float blitOffset = Minecraft.getInstance().getItemRenderer().blitOffset;
         poseStack.translate((float)x, (float)y, 150);
         poseStack.translate(8.0F, 8.0F, 0.0F);
         poseStack.mulPose(TransformationUtils.quatFromXYZ(this.facingVector.toVector3f(), false));
         poseStack.scale(scaleFactor, scaleFactor, scaleFactor);
         poseStack.translate(-8.0F, -8.0F, 0.0F);
-
-        poseStack.translate(0,0, -100-blitOffset);
-        RenderSystem.applyModelViewMatrix();
 
         MultiBufferSource.BufferSource irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
         boolean flag = !bakedmodel.usesBlockLight();
@@ -91,7 +85,7 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
             Lighting.setupForFlatItems();
         }
 
-        Minecraft.getInstance().getItemRenderer().renderGuiItem(snapshotBlockStack, 0, 0, bakedmodel);
+        Minecraft.getInstance().getItemRenderer().renderGuiItem(poseStack, snapshotBlockStack, 0, 0, bakedmodel);
 
         irendertypebuffer$impl.endBatch();
         RenderSystem.enableDepthTest();

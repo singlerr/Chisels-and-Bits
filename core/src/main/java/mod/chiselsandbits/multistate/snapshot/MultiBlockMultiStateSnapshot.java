@@ -77,7 +77,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public boolean isInside(final Vec3 inAreaTarget)
     {
-        final BlockPos inAreaOffset = new BlockPos(inAreaTarget);
+        final BlockPos inAreaOffset = VectorUtils.toBlockPos(inAreaTarget);
 
         return isInside(inAreaOffset, inAreaTarget.subtract(Vec3.atLowerCornerOf(inAreaOffset)));
     }
@@ -85,7 +85,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
-        final BlockPos targetPos = new BlockPos(startPoint).offset(inAreaBlockPosOffset);
+        final BlockPos targetPos = VectorUtils.toBlockPos(startPoint).offset(inAreaBlockPosOffset);
 
         return snapshots.containsKey(targetPos) && snapshots.get(targetPos).isInside(BlockPos.ZERO, inBlockTarget);
     }
@@ -118,7 +118,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
                  .map(positionMutator::mutate)
                  .map(position -> Vec3.atLowerCornerOf(position).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
                  .map(position -> {
-                     final BlockPos blockPos = new BlockPos(position);
+                     final BlockPos blockPos = VectorUtils.toBlockPos(position);
                      final Vec3 inBlockOffset = position.subtract(Vec3.atLowerCornerOf(blockPos));
 
                      return getInBlockTarget(blockPos, inBlockOffset);
@@ -138,7 +138,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
               final Vec3i target = positionMutator.mutate(blockPos);
               final Vec3 scaledTarget = Vec3.atLowerCornerOf(target).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
 
-              final BlockPos blockTarget = new BlockPos(scaledTarget);
+              final BlockPos blockTarget = VectorUtils.toBlockPos(scaledTarget);
               final Vec3 inBlockOffset = scaledTarget.subtract(Vec3.atLowerCornerOf(blockPos));
 
               Optional<IStateEntryInfo> targetCandidate = getInBlockTarget(blockPos, inBlockOffset);
@@ -156,7 +156,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public Optional<IStateEntryInfo> getInAreaTarget(final Vec3 inAreaTarget)
     {
-        final BlockPos inAreaOffset = new BlockPos(inAreaTarget);
+        final BlockPos inAreaOffset = VectorUtils.toBlockPos(inAreaTarget);
 
         return getInBlockTarget(inAreaOffset, inAreaTarget.subtract(Vec3.atLowerCornerOf(inAreaOffset)));
     }
@@ -171,7 +171,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
-        final BlockPos targetPos = new BlockPos(startPoint).offset(inAreaBlockPosOffset);
+        final BlockPos targetPos = VectorUtils.toBlockPos(startPoint).offset(inAreaBlockPosOffset);
 
         if (!snapshots.containsKey(targetPos))
         {
@@ -201,7 +201,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     {
         final Vec3 workingTarget = inAreaTarget.add(this.startPoint);
 
-        final BlockPos offset = new BlockPos(workingTarget);
+        final BlockPos offset = VectorUtils.toBlockPos(workingTarget);
         final Vec3 inBlockTarget = new Vec3(
           workingTarget.x() - offset.getX(),
           workingTarget.y() - offset.getY(),
@@ -249,7 +249,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     {
         final Vec3 workingTarget = inAreaTarget.add(this.startPoint);
 
-        final BlockPos offset = new BlockPos(workingTarget);
+        final BlockPos offset = VectorUtils.toBlockPos(workingTarget);
         final Vec3 inBlockTarget = new Vec3(
           workingTarget.x() - offset.getX(),
           workingTarget.y() - offset.getY(),
@@ -408,7 +408,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
                                                                       e -> {
                                                                           final Vec3 offSetPos = Vec3.atLowerCornerOf(e.getKey()).subtract(center);
                                                                           final Vec3 rotatedOffset = VectorUtils.rotateMultipleTimes90Degrees(offSetPos, axis, rotationCount);
-                                                                          return new BlockPos(startPoint.add(rotatedOffset));
+                                                                          return VectorUtils.toBlockPos(startPoint.add(rotatedOffset));
                                                                       },
                                                                       e -> {
                                                                           final IMultiStateSnapshot clone = e.getValue().clone();

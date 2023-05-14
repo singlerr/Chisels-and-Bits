@@ -122,9 +122,9 @@ public class ChunkSectionUtils
                         rotatedVector = VectorUtils.rotate90Degrees(rotatedVector, axis);
                     }
 
-                    final BlockPos sourcePos = new BlockPos(workingVector);
+                    final BlockPos sourcePos = VectorUtils.toBlockPos(workingVector);
                     final Vec3 offsetPos = rotatedVector.add(centerVector).multiply(1000,1000,1000);
-                    final BlockPos targetPos = new BlockPos(new Vec3(Math.round(offsetPos.x()), Math.round(offsetPos.y()), Math.round(offsetPos.z())).multiply(1/1000d,1/1000d,1/1000d));
+                    final BlockPos targetPos = VectorUtils.toBlockPos(new Vec3(Math.round(offsetPos.x()), Math.round(offsetPos.y()), Math.round(offsetPos.z())).multiply(1/1000d,1/1000d,1/1000d));
 
                     target.setBlockState(
                       targetPos.getX(),

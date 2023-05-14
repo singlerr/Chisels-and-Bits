@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRenderer;
 import mod.chiselsandbits.api.config.IClientConfiguration;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.render.ModRenderTypes;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
@@ -42,7 +43,7 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
         double yView = Vec3.y();
         double zView = Vec3.z();
 
-        final BlockPos inWorldStartPos = new BlockPos(currentContextSnapshot.getMutator().get().getInWorldStartPoint());
+        final BlockPos inWorldStartPos = currentContextSnapshot.getMutator().get().getInWorldStartBlockPoint();
         final VoxelShape boundingShape = VoxelShapeManager.getInstance()
           .get(currentContextSnapshot.getMutator().get(),
             currentContextSnapshot.getModeOfOperandus().isChiseling() ? CollisionType.NONE_AIR : CollisionType.ALL, //TODO: Handle the sphere shape adapter somehow...

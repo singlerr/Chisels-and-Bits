@@ -110,7 +110,7 @@ public class ChiseledBlockBakedModelManager {
                                     accessor,
                                     targetOffset -> {
                                         final Vec3 nominalTargetOffset = Vec3.ZERO.add(targetOffset);
-                                        final BlockPos nominalTargetBlockOffset = new BlockPos(nominalTargetOffset);
+                                        final BlockPos nominalTargetBlockOffset = VectorUtils.toBlockPos(nominalTargetOffset);
                                         final Vec3 inBlockOffset = nominalTargetOffset.subtract(Vec3.atLowerCornerOf(nominalTargetBlockOffset));                                        final Vec3 inBlockOffsetTarget = VectorUtils.makePositive(inBlockOffset);
 
                                         final Direction offsetDirection = Direction.getNearest(

@@ -28,10 +28,10 @@ public class TagGeneratorEventHandler
 
         ForgeBlockTagsProvider forgeBlockTags = new ForgeBlockTagsProvider(packOutput, lookupProvider, existingFileHelper);
         event.getGenerator().addProvider(true, forgeBlockTags);
-        event.getGenerator().addProvider(true, new ForgeItemTagsProvider(packOutput, lookupProvider, forgeBlockTags, existingFileHelper));
+        event.getGenerator().addProvider(true, new ForgeItemTagsProvider(packOutput, lookupProvider, forgeBlockTags.contentsGetter(), existingFileHelper));
 
         ModBlockTagGenerator modBlockTags = new ModBlockTagGenerator(packOutput, lookupProvider, existingFileHelper);
         event.getGenerator().addProvider(true, modBlockTags);
-        event.getGenerator().addProvider(true, new ModItemTagGenerator(packOutput, lookupProvider, modBlockTags, existingFileHelper));
+        event.getGenerator().addProvider(true, new ModItemTagGenerator(packOutput, lookupProvider, modBlockTags.contentsGetter(), existingFileHelper));
     }
 }

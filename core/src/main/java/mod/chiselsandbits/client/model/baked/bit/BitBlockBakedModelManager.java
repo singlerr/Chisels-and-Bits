@@ -17,6 +17,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -100,7 +101,7 @@ public class BitBlockBakedModelManager
         if (blockInformation.isAir() || blockInformation == null)
         {
             if (alternativeStacks.isEmpty()) {
-                ModCreativeTabs.BITS.get().buildContents(FeatureFlags.VANILLA_SET, false);
+                ModCreativeTabs.BITS.get().buildContents(new CreativeModeTab.ItemDisplayParameters(FeatureFlags.VANILLA_SET, false, level.registryAccess()));
                 this.alternativeStacks.addAll(ModCreativeTabs.BITS.get().getDisplayItems());
             }
 

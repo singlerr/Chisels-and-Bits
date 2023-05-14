@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
@@ -147,7 +148,7 @@ public class SimpleSnapshot implements IMultiStateSnapshot
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(),
+        final BlockPos inAreaPos = VectorUtils.toBlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(),
           StateEntrySize.current().getBitsPerBlockSide(),
           StateEntrySize.current().getBitsPerBlockSide()));
 
@@ -213,7 +214,7 @@ public class SimpleSnapshot implements IMultiStateSnapshot
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(),
+        final BlockPos inAreaPos = VectorUtils.toBlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(),
           StateEntrySize.current().getBitsPerBlockSide(),
           StateEntrySize.current().getBitsPerBlockSide()));
 
@@ -280,7 +281,7 @@ public class SimpleSnapshot implements IMultiStateSnapshot
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(),
+        final BlockPos inAreaPos = VectorUtils.toBlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(),
           StateEntrySize.current().getBitsPerBlockSide(),
           StateEntrySize.current().getBitsPerBlockSide()));
 

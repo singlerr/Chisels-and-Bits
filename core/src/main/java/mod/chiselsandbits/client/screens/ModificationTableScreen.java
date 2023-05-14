@@ -73,7 +73,7 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
         int recipesTop = this.topPos + 14;
         int recipeIndexOffsetMax = this.recipeIndexOffset + 12;
         this.renderButtons(matrixStack, x, y, recipesLeft, recipesTop, recipeIndexOffsetMax);
-        this.drawRecipesItems(recipesLeft, recipesTop, recipeIndexOffsetMax);
+        this.drawRecipesItems(matrixStack, recipesLeft, recipesTop, recipeIndexOffsetMax);
 
         if (this.lastRenderedSelectedRecipeIndex != this.menu.getSelectedRecipe() && this.hasItemsInInputSlot) {
             this.lastRenderedSelectedRecipeIndex = this.menu.getSelectedRecipe();
@@ -121,7 +121,7 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
 
     }
 
-    private void drawRecipesItems(int recipesLeft, int recipesTop, int recipeIndexOffsetMax) {
+    private void drawRecipesItems(final PoseStack poseStack, int recipesLeft, int recipesTop, int recipeIndexOffsetMax) {
         List<ModificationTableRecipe> list = this.menu.getRecipeList();
 
         for(int offset = this.recipeIndexOffset; offset < recipeIndexOffsetMax && offset < this.menu.getRecipeListSize(); ++offset) {
@@ -131,7 +131,7 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
             int itemY = recipesTop + rowIndex * 18 + 2;
             if (this.minecraft != null)
             {
-                this.minecraft.getItemRenderer().renderAndDecorateItem(list.get(offset).getCraftingBlockResult(this.menu.inputInventory), itemX, itemY);
+                this.minecraft.getItemRenderer().renderAndDecorateItem(poseStack, list.get(offset).getCraftingBlockResult(this.menu.inputInventory), itemX, itemY);
             }
         }
 

@@ -20,6 +20,7 @@ import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.api.util.LambdaExceptionUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -181,10 +182,10 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        final BlockPos hitPos = new BlockPos(hitVector);
+        final BlockPos hitPos = VectorUtils.toBlockPos(hitVector);
         final Vec3 hitBlockPosVector = Vec3.atLowerCornerOf(hitPos);
         final Vec3 inBlockHitVector = hitVector.subtract(hitBlockPosVector);
-        final Vec3i selectedPosition = new Vec3i(
+        final Vec3i selectedPosition = VectorUtils.toInteger(
           inBlockHitVector.x() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.y() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.z() * StateEntrySize.current().getBitsPerBlockSide()
@@ -217,7 +218,7 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        final BlockPos hitPos = new BlockPos(hitVector);
+        final BlockPos hitPos = VectorUtils.toBlockPos(hitVector);
         final Vec3 hitBlockPosVector = Vec3.atLowerCornerOf(hitPos);
         final Vec3 inBlockHitVector = hitVector.subtract(hitBlockPosVector);
 
@@ -226,7 +227,7 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
 
         final Set<Vec3i> validPositions = new HashSet<>();
 
-        final Vec3i selectedPosition = new Vec3i(
+        final Vec3i selectedPosition = VectorUtils.toInteger(
           inBlockHitVector.x() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.y() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.z() * StateEntrySize.current().getBitsPerBlockSide()
@@ -252,7 +253,7 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
         worldAccessor.stream()
           .filter(state -> state.getBlockInformation().equals(targetedInfo.get().getBlockInformation()))
           .map(state -> state.getStartPoint().multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector()))
-          .map(position -> new Vec3i(
+          .map(position -> VectorUtils.toInteger(
             position.x(),
             position.y(),
             position.z()
@@ -321,7 +322,7 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
         @Override
         public boolean test(final IStateEntryInfo iStateEntryInfo)
         {
-            final Vec3i position = new Vec3i(
+            final Vec3i position = VectorUtils.toInteger(
               iStateEntryInfo.getStartPoint().x() * StateEntrySize.current().getBitsPerBlockSide(),
               iStateEntryInfo.getStartPoint().y() * StateEntrySize.current().getBitsPerBlockSide(),
               iStateEntryInfo.getStartPoint().z() * StateEntrySize.current().getBitsPerBlockSide()

@@ -2,6 +2,7 @@ package mod.chiselsandbits.api.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector4f;
@@ -186,5 +187,29 @@ public class VectorUtils
           left.y() / right.y(),
           left.z() / right.z()
         );
+    }
+
+    public static BlockPos toBlockPos(final Vec3 vec3) {
+        final int x = (int) Math.floor(vec3.x());
+        final int y = (int) Math.floor(vec3.y());
+        final int z = (int) Math.floor(vec3.z());
+
+        return new BlockPos(x, y, z);
+    }
+
+    public static Vec3i toInteger(final Vec3 vec3) {
+        final int x = (int) Math.floor(vec3.x());
+        final int y = (int) Math.floor(vec3.y());
+        final int z = (int) Math.floor(vec3.z());
+
+        return new Vec3i(x, y, z);
+    }
+
+    public static Vec3i toInteger(final double x, final double y, final double z) {
+        final int xInt = (int) Math.floor(x);
+        final int yInt = (int) Math.floor(y);
+        final int zInt = (int) Math.floor(z);
+
+        return new Vec3i(xInt, yInt, zInt);
     }
 }

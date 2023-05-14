@@ -3,6 +3,7 @@ package mod.chiselsandbits.recipe;
 import com.communi.suggestu.scena.core.item.IDyeItemHelper;
 import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
@@ -33,7 +34,8 @@ public class BagDyeingRecipe extends CustomRecipe
 
     @Override
     public @NotNull ItemStack assemble(
-      @NotNull CraftingContainer inv)
+            @NotNull CraftingContainer inv,
+            @NotNull final RegistryAccess registryAccess)
     {
         Result output = getOutput(inv);
 

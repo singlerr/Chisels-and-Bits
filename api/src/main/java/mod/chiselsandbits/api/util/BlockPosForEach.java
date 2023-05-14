@@ -4,9 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class BlockPosForEach
 {
@@ -38,8 +35,8 @@ public class BlockPosForEach
     }
 
     public static void forEachInRange(final Vec3 min, final Vec3 max, final Consumer<BlockPos> consumer) {
-        final BlockPos minPos = new BlockPos(min);
-        final BlockPos maxPos = new BlockPos(max);
+        final BlockPos minPos = VectorUtils.toBlockPos(min);
+        final BlockPos maxPos = VectorUtils.toBlockPos(max);
 
         forEachInRange(
           minPos.getX(), minPos.getY(), minPos.getZ(),

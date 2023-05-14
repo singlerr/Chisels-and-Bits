@@ -70,8 +70,8 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public IAreaShapeIdentifier createNewShapeIdentifier()
     {
-        final BlockPos startBlockPos = new BlockPos(getInWorldStartPoint());
-        final BlockPos endBlockPos = new BlockPos(getInWorldEndPoint());
+        final BlockPos startBlockPos = getInWorldStartBlockPoint();
+        final BlockPos endBlockPos = getInWorldEndBlockPoint();
         Stream<BlockPos> positionStream = startBlockPos.equals(endBlockPos) ? Stream.of(startBlockPos) : BlockPosStreamProvider.getForRange(
           startBlockPos.getX(), startBlockPos.getY(), startBlockPos.getZ(),
           endBlockPos.getX(), endBlockPos.getY(), endBlockPos.getZ()
@@ -105,7 +105,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
         if (!isInside(inAreaTarget))
             return Optional.empty();
 
-        final BlockPos exactPosition = new BlockPos(inAreaTarget);
+        final BlockPos exactPosition = VectorUtils.toBlockPos(inAreaTarget);
         final Vec3 exactInBlockOffset = inAreaTarget.subtract(
           exactPosition.getX(),
           exactPosition.getY(),
@@ -160,8 +160,8 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public IMultiStateSnapshot createSnapshot()
     {
-        final BlockPos startBlockPos = new BlockPos(getInWorldStartPoint());
-        final BlockPos endBlockPos = new BlockPos(getInWorldEndPoint());
+        final BlockPos startBlockPos = getInWorldStartBlockPoint();
+        final BlockPos endBlockPos = getInWorldEndBlockPoint();
 
         Stream<BlockPos> positionStream = startBlockPos.equals(endBlockPos) ? Stream.of(startBlockPos) : BlockPosStreamProvider.getForRange(
           startBlockPos.getX(), startBlockPos.getY(), startBlockPos.getZ(),
@@ -191,7 +191,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
                  .map(positionMutator::mutate)
                  .map(position -> Vec3.atLowerCornerOf(position).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
                  .map(position -> {
-                     final BlockPos blockPos = new BlockPos(position);
+                     final BlockPos blockPos = VectorUtils.toBlockPos(position);
                      final Vec3 inBlockOffset = position.subtract(Vec3.atLowerCornerOf(blockPos));
 
                      return getInBlockTarget(blockPos, inBlockOffset);
@@ -271,7 +271,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
             throw new IllegalArgumentException(String.format("The in area target is larger then the allowed size:%s", inAreaTarget));
         }
 
-        final BlockPos blockPosTarget = new BlockPos(actualTarget);
+        final BlockPos blockPosTarget = VectorUtils.toBlockPos(actualTarget);
 
         final Vec3 inBlockPosTarget = actualTarget.subtract(Vec3.atLowerCornerOf(blockPosTarget));
         final ChiselAdaptingWorldMutator innerMutator = new ChiselAdaptingWorldMutator(
@@ -284,7 +284,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public void setInBlockTarget(final IBlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
-        final BlockPos startPos = new BlockPos(getInWorldStartPoint());
+        final BlockPos startPos = getInWorldStartBlockPoint();
         final BlockPos targetPos = startPos.offset(inAreaBlockPosOffset);
         final Vec3 target = Vec3.atLowerCornerOf(targetPos).add(inBlockTarget);
 
@@ -333,7 +333,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
             throw new IllegalArgumentException(String.format("The in area target is larger then the allowed size:%s", inAreaTarget));
         }
 
-        final BlockPos blockPosTarget = new BlockPos(actualTarget);
+        final BlockPos blockPosTarget = VectorUtils.toBlockPos(actualTarget);
 
         final Vec3 inBlockPosTarget = actualTarget.subtract(Vec3.atLowerCornerOf(blockPosTarget));
         final ChiselAdaptingWorldMutator innerMutator = new ChiselAdaptingWorldMutator(
@@ -352,7 +352,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
-        final BlockPos startPos = new BlockPos(getInWorldStartPoint());
+        final BlockPos startPos = getInWorldStartBlockPoint();
         final BlockPos targetPos = startPos.offset(inAreaBlockPosOffset);
         final Vec3 target = Vec3.atLowerCornerOf(targetPos).add(inBlockTarget);
 
@@ -453,12 +453,12 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public VoxelShape provideShape(final CollisionType type, final BlockPos offset, final boolean simplify)
     {
-        final VoxelShape areaShape = Shapes.create(getInWorldBoundingBox().move(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).move(offset));
+        final VoxelShape areaShape = Shapes.create(getInWorldBoundingBox().move(VectorUtils.invert(getInWorldStartBlockPoint())).move(offset));
         final VoxelShape containedShape = BlockPosStreamProvider.getForRange(
           getInWorldStartPoint(), getInWorldEndPoint()
         ).map(blockPos -> new ChiselAdaptingWorldMutator(
           getWorld(), blockPos))
-                                            .map(a -> IVoxelShapeManager.getInstance().get(a, new BlockPos(a.getInWorldStartPoint()).offset(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).offset(offset),
+                                            .map(a -> IVoxelShapeManager.getInstance().get(a, a.getInWorldStartBlockPoint().offset(VectorUtils.invert(getInWorldStartBlockPoint())).offset(offset),
                                               type, simplify))
                                             .reduce(
                                               Shapes.empty(),

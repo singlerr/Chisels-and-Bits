@@ -90,7 +90,7 @@ public class ChangeTrackerOperationsWidget extends AbstractChiselsAndBitsWidget
     }
 
     @Override
-    public void renderButton(final @NotNull PoseStack matrixStack, final int mouseX, final int mouseY, final float partialTick)
+    public void renderWidget(final @NotNull PoseStack matrixStack, final int mouseX, final int mouseY, final float partialTick)
     {
 
     }

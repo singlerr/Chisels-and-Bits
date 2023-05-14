@@ -15,5 +15,6 @@
   ],
   "result": {
     "item": "chiselsandbits:chisel_gold"
-  }
+  },
+  "show_notification": true
 }

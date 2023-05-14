@@ -15,5 +15,6 @@
   ],
   "result": {
     "item": "chiselsandbits:chisel_stone"
-  }
+  },
+  "show_notification": true
 }

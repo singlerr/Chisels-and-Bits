@@ -7,6 +7,7 @@ import mod.chiselsandbits.client.util.TransformationUtils;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.item.ItemDisplayContext;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -55,14 +56,14 @@ public abstract class BaseBakedPerspectiveSmartModel extends BaseSmartModel impl
     }
 
     @Override
-    public BakedModel handlePerspective(final ItemTransforms.TransformType cameraTransformType, final PoseStack mat)
+    public BakedModel handlePerspective(final ItemDisplayContext cameraTransformType, final PoseStack mat)
     {
         doCameraTransformForType(cameraTransformType, mat, true);
 
         return this;
     }
 
-    private void doCameraTransformForType(final ItemTransforms.TransformType cameraTransformType, final PoseStack mat, final boolean requiresStackPush)
+    private void doCameraTransformForType(final ItemDisplayContext cameraTransformType, final PoseStack mat, final boolean requiresStackPush)
     {
         switch (cameraTransformType)
         {
@@ -103,7 +104,7 @@ public abstract class BaseBakedPerspectiveSmartModel extends BaseSmartModel impl
         }
 
         @Override
-        public @NotNull ItemTransform getTransform(final @NotNull TransformType transformType)
+        public @NotNull ItemTransform getTransform(final @NotNull ItemDisplayContext transformType)
         {
             return new ItemTransform(
               new Vector3f(),

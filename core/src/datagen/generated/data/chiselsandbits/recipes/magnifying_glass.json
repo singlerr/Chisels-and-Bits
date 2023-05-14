@@ -19,5 +19,6 @@
   ],
   "result": {
     "item": "chiselsandbits:magnifying_glass"
-  }
+  },
+  "show_notification": true
 }

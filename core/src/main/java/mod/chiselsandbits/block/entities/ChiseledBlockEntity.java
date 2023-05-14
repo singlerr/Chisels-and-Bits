@@ -197,7 +197,8 @@ public class ChiseledBlockEntity extends BlockEntity implements
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
+        final Vec3 exactAreaPos = inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
+        final BlockPos inAreaPos = VectorUtils.toBlockPos(exactAreaPos);
 
         final IBlockInformation blockInformation = this.storage.getBlockInformation(
                 inAreaPos.getX(),
@@ -423,7 +424,8 @@ public class ChiseledBlockEntity extends BlockEntity implements
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
+        final Vec3 exactAreaPos = inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
+        final BlockPos inAreaPos = VectorUtils.toBlockPos(exactAreaPos);
 
         final IBlockInformation information = this.storage.getBlockInformation(
                 inAreaPos.getX(),
@@ -501,7 +503,8 @@ public class ChiseledBlockEntity extends BlockEntity implements
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
+        final Vec3 exactAreaPos = inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
+        final BlockPos inAreaPos = VectorUtils.toBlockPos(exactAreaPos);
 
         if (getLevel() == null) {
             return;

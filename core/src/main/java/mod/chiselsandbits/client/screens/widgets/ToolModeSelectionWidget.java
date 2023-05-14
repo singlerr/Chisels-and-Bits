@@ -157,6 +157,11 @@ public class ToolModeSelectionWidget<M extends IToolMode<G>, G extends IToolMode
         //This is a wrapping widget.
     }
 
+    @Override
+    public void renderWidget(@NotNull PoseStack p_268228_, int p_268034_, int p_268009_, float p_268085_) {
+
+    }
+
     private void nextPage() {
         if (!nextMode.isActive())
             return;

@@ -40,6 +40,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -532,7 +533,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     private void ensureAvailableBitStacksAreLoaded()
     {
         if (availableBitStacks.isEmpty()) {
-            ModCreativeTabs.BITS.get().buildContents(FeatureFlagSet.of(), false);
+            ModCreativeTabs.BITS.get().buildContents(new CreativeModeTab.ItemDisplayParameters(FeatureFlagSet.of(), false, null));
             availableBitStacks.addAll(
                     ModCreativeTabs.BITS.get().getDisplayItems()
             );

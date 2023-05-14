@@ -156,7 +156,7 @@ public class Vector2f {
         if ((double)f < 1.0E-5D) {
             return false;
         } else {
-            float f1 = Mth.fastInvSqrt(f);
+            float f1 = (float) Mth.fastInvSqrt(f);
             this.x *= f1;
             this.y *= f1;
             return true;

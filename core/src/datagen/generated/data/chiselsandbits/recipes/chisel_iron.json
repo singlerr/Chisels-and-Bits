@@ -15,5 +15,6 @@
   ],
   "result": {
     "item": "chiselsandbits:chisel_iron"
-  }
+  },
+  "show_notification": true
 }

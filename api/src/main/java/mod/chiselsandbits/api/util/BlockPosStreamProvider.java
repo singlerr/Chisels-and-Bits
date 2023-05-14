@@ -4,7 +4,6 @@ import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -24,7 +23,7 @@ public class BlockPosStreamProvider
     /**
      * Provides a stream of BlockPos objects within a given range which is {@code size} cubed in size.
      * The coordinates will as such (on each axis) run from 0 to {@code size - 1}.
-     *
+     * <p>
      * Internally invokes {@link #getForRange(int, int)}, with {@code 0} as the min value,
      * and {@code size - 1} as max value.
      *
@@ -48,10 +47,10 @@ public class BlockPosStreamProvider
 
     /**
      * Provides a stream of BlockPos objects within a given world object.
-     *
+     * <p>
      * This rounds the vectors down to the block positions they are in, and then extracts the minimal and maximal values
      * for each axis.
-     *
+     * <p>
      * Internally invokes {@link #getForRange(int, int, int, int, int, int)}, with the rounded down vectors as the min and max values.
      *
      * @param worldObject The world object to iterate over.
@@ -63,10 +62,10 @@ public class BlockPosStreamProvider
 
     /**
      * Provides a stream of BlockPos objects within a given world accessor.
-     *
+     * <p>
      * This rounds the vectors down to the block positions they are in, and then extracts the minimal and maximal values
      * for each axis.
-     *
+     * <p>
      * Internally invokes {@link #getForRange(int, int, int, int, int, int)}, with the rounded down vectors as the min and max values.
      *
      * @param worldAreaAccessor The world accessor to iterate over.
@@ -78,10 +77,10 @@ public class BlockPosStreamProvider
 
     /**
      * Provides a stream of BlockPos objects within a given world object.
-     *
+     * <p>
      * This rounds the vectors down to the block positions they are in, and then extracts the minimal and maximal values
      * for each axis.
-     *
+     * <p>
      * Internally invokes {@link #getForRange(int, int, int, int, int, int)}, with the rounded down vectors as the min and max values.
      *
      * @param worldObject The world object to iterate over.
@@ -99,10 +98,10 @@ public class BlockPosStreamProvider
 
     /**
      * Provides a stream of BlockPos objects within a given range from the given minimal value to the given maximal value.
-     *
+     * <p>
      * This rounds the vectors down to the block positions they are in, and then extracts the minimal and maximal values
      * for each axis.
-     *
+     * <p>
      * Internally invokes {@link #getForRange(int, int, int, int, int, int)}, with the rounded down vectors as the min and max values.
      *
      * @param min The unrounded minimal value of the block positions stream on all axis.
@@ -110,8 +109,8 @@ public class BlockPosStreamProvider
      * @return The block position stream within the given range.
      */
     public static Stream<BlockPos> getForRange(final Vec3 min, final Vec3 max) {
-        final BlockPos minPos = new BlockPos(min);
-        final BlockPos maxPos = new BlockPos(max);
+        final BlockPos minPos = VectorUtils.toBlockPos(min);
+        final BlockPos maxPos = VectorUtils.toBlockPos(max);
 
         return getForRange(
           minPos.getX(), minPos.getY(), minPos.getZ(),
@@ -121,7 +120,7 @@ public class BlockPosStreamProvider
 
     /**
      * Provides a stream of BlockPos objects within a given range from the given minimal value to the given maximal value.
-     *
+     * <p>
      * Internally this calls {@link #getForRange(Vec3, Vec3)}, with vectors constructed from the minimal and maximal values.
      * All of its logic (so the rounding) is as such also applied.
      *
@@ -143,7 +142,7 @@ public class BlockPosStreamProvider
 
     /**
      * Provides a stream of BlockPos objects within a given range from the given minimal value to the given maximal value.
-     *
+     * <p>
      * If the minimal and maximal values are the same, then the stream will contain only one block position.
      *
      * @param minX The minimal value of the X coordinate.

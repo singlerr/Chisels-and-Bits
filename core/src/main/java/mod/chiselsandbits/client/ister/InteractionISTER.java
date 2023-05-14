@@ -10,10 +10,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
@@ -35,7 +35,7 @@ public class InteractionISTER extends BlockEntityWithoutLevelRenderer
     @Override
     public void renderByItem(
       final @NotNull ItemStack stack,
-      final @NotNull TransformType transformType,
+      final @NotNull ItemDisplayContext transformType,
       final @NotNull PoseStack matrixStack,
       final @NotNull MultiBufferSource buffer,
       final int combinedLight,
@@ -61,8 +61,8 @@ public class InteractionISTER extends BlockEntityWithoutLevelRenderer
 
         float partialTicks = Minecraft.getInstance().getFrameTime();
 
-        boolean leftHand = transformType == TransformType.FIRST_PERSON_LEFT_HAND;
-        boolean firstPerson = leftHand || transformType == TransformType.FIRST_PERSON_RIGHT_HAND;
+        boolean leftHand = transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
+        boolean firstPerson = leftHand || transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
 
         matrixStack.pushPose();
         matrixStack.translate(.5f, .5f, .5f);
@@ -72,7 +72,7 @@ public class InteractionISTER extends BlockEntityWithoutLevelRenderer
         if (item.isInteracting(stack)) {
             matrixStack.pushPose();
 
-            if (transformType == TransformType.GUI) {
+            if (transformType == ItemDisplayContext.GUI) {
                 matrixStack.translate(0.0F, .2f, 1.0F);
                 matrixStack.scale(.75f, .75f, .75f);
             } else {
@@ -90,13 +90,13 @@ public class InteractionISTER extends BlockEntityWithoutLevelRenderer
             if (time / (float) stack.getUseDuration() < 0.8F) {
                 float bobbing = -Mth.abs(Mth.cos(time / item.getBobbingTickCount() * (float) Math.PI) * 0.1F);
 
-                if (transformType == TransformType.GUI)
+                if (transformType == ItemDisplayContext.GUI)
                     matrixStack.translate(bobbing, bobbing, 0.0F);
                 else
                     matrixStack.translate(0.0f, bobbing, 0.0F);
             }
 
-            itemRenderer.render(stack, TransformType.NONE, false, matrixStack, buffer, combinedLight, combinedOverlay, innerModel);
+            itemRenderer.render(stack, ItemDisplayContext.NONE, false, matrixStack, buffer, combinedLight, combinedOverlay, innerModel);
 
             matrixStack.popPose();
         }
@@ -114,12 +114,12 @@ public class InteractionISTER extends BlockEntityWithoutLevelRenderer
 
         if (!item.isInteracting(stack))
         {
-            itemRenderer.render(stack, TransformType.NONE, false, matrixStack, buffer, combinedLight, combinedOverlay, innerModel);
+            itemRenderer.render(stack, ItemDisplayContext.NONE, false, matrixStack, buffer, combinedLight, combinedOverlay, innerModel);
         }
         else
         {
             final ItemStack target = item.getInteractionTarget(stack);
-            itemRenderer.renderStatic(target, TransformType.NONE, combinedLight, combinedOverlay, matrixStack, buffer, 0);
+            itemRenderer.renderStatic(target, ItemDisplayContext.NONE, combinedLight, combinedOverlay, matrixStack, buffer, null, 0);
         }
 
         matrixStack.popPose();

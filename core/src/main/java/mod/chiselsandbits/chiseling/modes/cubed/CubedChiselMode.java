@@ -17,6 +17,7 @@ import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -166,7 +167,7 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
 
               if (missingBitCount == 0)
               {
-                  final BlockPos heightPos = new BlockPos(mutator.getInWorldEndPoint());
+                  final BlockPos heightPos = mutator.getInWorldEndBlockPoint();
                   if (heightPos.getY() >= context.getWorld().getMaxBuildHeight())
                   {
                       Component component = (Component.translatable("build.tooHigh", context.getWorld().getMaxBuildHeight() - 1)).withStyle(ChatFormatting.RED);
@@ -226,10 +227,13 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
 
         if (aligned)
         {
-            final Vec3 inBlockOffset = hitVector.subtract(Vec3.atLowerCornerOf(new BlockPos(hitVector)));
-            final BlockPos bitsInBlockOffset = new BlockPos(inBlockOffset.multiply(StateEntrySize.current().getBitsPerBlockSide(),
-              StateEntrySize.current().getBitsPerBlockSide(),
-              StateEntrySize.current().getBitsPerBlockSide()));
+            final Vec3 inBlockOffset = hitVector.subtract(Vec3.atLowerCornerOf(VectorUtils.toInteger(hitVector)));
+            final BlockPos bitsInBlockOffset = VectorUtils.toBlockPos(
+              inBlockOffset.multiply(
+                      StateEntrySize.current().getBitsPerBlockSide(),
+                      StateEntrySize.current().getBitsPerBlockSide(),
+                      StateEntrySize.current().getBitsPerBlockSide()
+              ));
 
             final BlockPos targetedSectionIndices = new BlockPos(
               bitsInBlockOffset.getX() / bitsPerSide,

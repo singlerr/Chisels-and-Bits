@@ -54,6 +54,11 @@ public class MonocleItem extends Item implements IWearableItem
         DispenserBlock.registerBehavior(this, DISPENSE_ITEM_BEHAVIOR);
     }
 
+    @Override
+    public EquipmentSlot getEquipmentSlot() {
+        return getSlot();
+    }
+
     @Nullable
     public SoundEvent getEquipSound() {
         return SoundEvents.ARMOR_EQUIP_GOLD;

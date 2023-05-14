@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
 import mod.chiselsandbits.registrars.ModRecipeTypes;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -39,7 +40,7 @@ public class ModificationTableRecipe implements Recipe<Container>
     }
 
     @Override
-    public @NotNull ItemStack assemble(final @NotNull Container inv)
+    public @NotNull ItemStack assemble(final @NotNull Container inv, final @NotNull RegistryAccess access)
     {
         return getAppliedSnapshot(inv).toItemStack().toPatternStack();
     }
@@ -78,7 +79,7 @@ public class ModificationTableRecipe implements Recipe<Container>
     }
 
     @Override
-    public @NotNull ItemStack getResultItem()
+    public @NotNull ItemStack getResultItem(final @NotNull RegistryAccess registryAccess)
     {
         return ItemStack.EMPTY;
     }

@@ -6,11 +6,13 @@ import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.metadata.IMetadataKey;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.permissions.IPermissionHandler;
+import mod.chiselsandbits.api.util.VectorUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -360,7 +362,7 @@ public class ChiselingContext implements IChiselingContext
             return getMutator().flatMap(m -> m.getInAreaTarget(inAreaTarget));
         }
 
-        final BlockPos position = new BlockPos(inAreaTarget);
+        final BlockPos position = VectorUtils.toBlockPos(inAreaTarget);
         final Vec3 inBlockOffset = inAreaTarget.subtract(position.getX(), position.getY(), position.getZ());
 
         return IMutatorFactory.getInstance().in(

@@ -17,6 +17,7 @@ import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -176,7 +177,7 @@ public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChi
               }
 
               if (missingBitCount == 0) {
-                  final BlockPos heightPos = new BlockPos(mutator.getInWorldEndPoint());
+                  final BlockPos heightPos = mutator.getInWorldEndBlockPoint();
                   if (heightPos.getY() >= context.getWorld().getMaxBuildHeight()) {
                       Component component = (Component.translatable("build.tooHigh", context.getWorld().getMaxBuildHeight() - 1)).withStyle(ChatFormatting.RED);
                       playerEntity.sendSystemMessage(component);
@@ -219,7 +220,7 @@ public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChi
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        final Vec3 hitBlockPosVector = Vec3.atLowerCornerOf(new BlockPos(hitVector));
+        final Vec3 hitBlockPosVector = Vec3.atLowerCornerOf(VectorUtils.toBlockPos(hitVector));
         final Vec3 inBlockHitVector = hitVector.subtract(hitBlockPosVector);
         final Vec3 inBlockBitVector = inBlockHitVector.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
 
@@ -239,7 +240,7 @@ public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChi
 
     private void includeDownAxis(final IChiselingContext context, final Vec3 hitBlockPosVector, final Vec3 inBlockBitVector)
     {
-        final BlockPos position = new BlockPos(hitBlockPosVector);
+        final BlockPos position = VectorUtils.toBlockPos(hitBlockPosVector);
         context.include(position, clampVectorToBlock(new Vec3(0, inBlockBitVector.y() - depth, 0).add(Vec3.atLowerCornerOf(Direction.UP.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
         context.include(position, clampVectorToBlock(new Vec3(15.5, inBlockBitVector.y() - depth, 15.5).add(Vec3.atLowerCornerOf(Direction.UP.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 
@@ -249,7 +250,7 @@ public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChi
 
     private void includeUpAxis(final IChiselingContext context, final Vec3 hitBlockPosVector, final Vec3 inBlockBitVector)
     {
-        final BlockPos position = new BlockPos(hitBlockPosVector);
+        final BlockPos position = VectorUtils.toBlockPos(hitBlockPosVector);
         context.include(position, clampVectorToBlock(new Vec3(0, inBlockBitVector.y() + depth, 0).add(Vec3.atLowerCornerOf(Direction.DOWN.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
         context.include(position, clampVectorToBlock(new Vec3(15.5, inBlockBitVector.y() + depth, 15.5).add(Vec3.atLowerCornerOf(Direction.DOWN.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 
@@ -259,7 +260,7 @@ public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChi
 
     private void includeNorthAxis(final IChiselingContext context, final Vec3 hitBlockPosVector, final Vec3 inBlockBitVector)
     {
-        final BlockPos position = new BlockPos(hitBlockPosVector);
+        final BlockPos position = VectorUtils.toBlockPos(hitBlockPosVector);
         context.include(position, clampVectorToBlock(new Vec3(0, 0, inBlockBitVector.z() - depth).add(Vec3.atLowerCornerOf(Direction.SOUTH.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
         context.include(position, clampVectorToBlock(new Vec3(15.5, 15.5, inBlockBitVector.z() - depth).add(Vec3.atLowerCornerOf(Direction.SOUTH.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 
@@ -269,7 +270,7 @@ public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChi
 
     private void includeSouthAxis(final IChiselingContext context, final Vec3 hitBlockPosVector, final Vec3 inBlockBitVector)
     {
-        final BlockPos position = new BlockPos(hitBlockPosVector);
+        final BlockPos position = VectorUtils.toBlockPos(hitBlockPosVector);
         context.include(position, clampVectorToBlock(new Vec3(0, 0, inBlockBitVector.z() + depth).add(Vec3.atLowerCornerOf(Direction.NORTH.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
         context.include(position, clampVectorToBlock(new Vec3(15.5, 15.5, inBlockBitVector.z() + depth).add(Vec3.atLowerCornerOf(Direction.NORTH.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 
@@ -279,7 +280,7 @@ public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChi
 
     private void includeWestAxis(final IChiselingContext context, final Vec3 hitBlockPosVector, final Vec3 inBlockBitVector)
     {
-        final BlockPos position = new BlockPos(hitBlockPosVector);
+        final BlockPos position = VectorUtils.toBlockPos(hitBlockPosVector);
         context.include(position, clampVectorToBlock(new Vec3(inBlockBitVector.x() - depth, 0, 0).add(Vec3.atLowerCornerOf(Direction.EAST.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
         context.include(position, clampVectorToBlock(new Vec3(inBlockBitVector.x() - depth, 15.5, 15.5).add(Vec3.atLowerCornerOf(Direction.EAST.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 
@@ -289,7 +290,7 @@ public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChi
 
     private void includeEastAxis(final IChiselingContext context, final Vec3 hitBlockPosVector, final Vec3 inBlockBitVector)
     {
-        final BlockPos position = new BlockPos(hitBlockPosVector);
+        final BlockPos position = VectorUtils.toBlockPos(hitBlockPosVector);
         context.include(position, clampVectorToBlock(new Vec3(inBlockBitVector.x() + depth, 0, 0).add(Vec3.atLowerCornerOf(Direction.WEST.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
         context.include(position, clampVectorToBlock(new Vec3(inBlockBitVector.x() + depth, 15.5, 15.5).add(Vec3.atLowerCornerOf(Direction.WEST.getNormal())).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 

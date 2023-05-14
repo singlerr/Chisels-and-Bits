@@ -112,5 +112,6 @@ public final class ModEventHandler {
             }
         });
         IGameEvents.getInstance().getServerAboutToStartEvent().register(minecraftServer -> ServerStartHandler.onServerStart());
+        IGameEvents.getInstance().getServerPostTickEvent().register(minecraftServer -> ServerTickHandler.onPostServerTick());
     }
 }

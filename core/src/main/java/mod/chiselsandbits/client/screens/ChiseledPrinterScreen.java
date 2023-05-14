@@ -46,7 +46,7 @@ public class ChiseledPrinterScreen extends AbstractContainerScreen<ChiseledPrint
         if (this.menu.getToolStack().isEmpty())
             return;
 
-        this.itemRenderer.renderAndDecorateItem(this.menu.getToolStack(), this.leftPos + 81, this.topPos + 47);
+        this.itemRenderer.renderAndDecorateItem(matrixStack, this.menu.getToolStack(), this.leftPos + 81, this.topPos + 47);
 
         RenderSystem.setShaderTexture(0, GUI_TEXTURES);
         int scaledProgress = this.menu.getChiselProgressionScaled();
