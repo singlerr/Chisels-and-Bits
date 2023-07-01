@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.block.entities.ChiseledPrinterBlockEntity;
+import mod.chiselsandbits.block.entities.MateriallyChiseledConversionBlockEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
@@ -29,9 +30,9 @@ public final class ModBlockEntityTypes
         LOGGER.info("Loaded block entity configuration.");
     }
 
-    public static IRegistryObject<BlockEntityType<ChiseledBlockEntity>> CHISELED = REGISTRAR.register("chiseled", () -> BlockEntityType.Builder.of(
+    public static IRegistryObject<BlockEntityType<ChiseledBlockEntity>> CHISELED = REGISTRAR.register("chiseled_block", () -> BlockEntityType.Builder.of(
         ChiseledBlockEntity::new,
-        ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values().stream().map(IRegistryObject::get).toArray(Block[]::new)
+        ModBlocks.CHISELED_BLOCK.get()
       ).build(null)
     );
 
@@ -47,5 +48,11 @@ public final class ModBlockEntityTypes
         ChiseledPrinterBlockEntity::new,
         ModBlocks.CHISELED_PRINTER.get()
       ).build(null)
+    );
+
+    public static final IRegistryObject<BlockEntityType<MateriallyChiseledConversionBlockEntity>> MATERIAL_CHISELED_CONVERSION = REGISTRAR.register("chiseled", () -> BlockEntityType.Builder.of(
+            MateriallyChiseledConversionBlockEntity::new,
+            ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values().stream().map(IRegistryObject::get).toArray(Block[]::new)
+        ).build(null)
     );
 }

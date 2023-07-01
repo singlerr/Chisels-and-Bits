@@ -1,9 +1,11 @@
 package mod.chiselsandbits.client.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import mod.chiselsandbits.api.client.render.preview.placement.PlacementPreviewRenderMode;
 import mod.chiselsandbits.api.placement.PlacementResult;
 import net.minecraft.client.Minecraft;
@@ -121,7 +123,7 @@ public class ChiseledBlockGhostRenderer
               BUFFER
             );
         }
-        renderType.end(BUFFER, 0, 0, 0);
+        renderType.end(BUFFER, RenderSystem.getVertexSorting());
     }
 
     private static final float[] DIRECTIONAL_BRIGHTNESS = {0.5f, 1f, 0.7f, 0.7f, 0.6f, 0.6f};

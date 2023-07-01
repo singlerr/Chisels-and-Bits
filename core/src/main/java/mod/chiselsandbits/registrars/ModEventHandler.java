@@ -75,7 +75,7 @@ public final class ModEventHandler {
             @Override
             public Result handle(Player player, InteractionHand interactionHand, ItemStack itemStack, BlockPos blockPos, Direction direction, Result result) {
                 final ClickProcessingState state = RightClickInteractionHandler.rightClickOnBlock(
-                        player.getLevel(),
+                        player.level(),
                         player,
                         interactionHand,
                         itemStack,

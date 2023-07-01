@@ -9,7 +9,7 @@ import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.block.ChiseledBlock;
 import mod.chiselsandbits.blockinformation.BlockInformation;
-import mod.chiselsandbits.materials.MaterialManager;
+import mod.chiselsandbits.materials.LegacyMaterialManager;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.stateinfo.additional.StateVariantManager;
@@ -27,7 +27,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.NotNull;
@@ -118,18 +117,6 @@ public class EligibilityManager implements IEligibilityManager
                 final boolean tickingBehavior = blk.isRandomlyTicking(blockInformation.getBlockState()) && IServerConfiguration.getInstance().getBlackListRandomTickingBlocks().get();
                 boolean hasBehavior = (blk instanceof EntityBlock || tickingBehavior);
 
-                final Material remappedMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(
-                  blockInformation.getBlockState().getMaterial()
-                );
-                final boolean supportedMaterial = ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.containsKey(remappedMaterial);
-
-                if (!supportedMaterial) {
-                    return new EligibilityAnalysisResult(
-                      false,
-                      false,
-                      TranslationUtils.build(LocalStrings.ChiselSupportGenericNotSupported));
-                }
-
                 if (blkClass.isAnnotationPresent(IgnoreBlockLogic.class))
                 {
                     isFullBlock = true;
@@ -138,7 +125,7 @@ public class EligibilityManager implements IEligibilityManager
                     itemExistsOrNotSpecialDrops = true;
                 }
 
-                if (info.isCompatible() && noCustomCollision && info.getHardness() >= -0.01f && isFullBlock && supportedMaterial && !hasBehavior && itemExistsOrNotSpecialDrops)
+                if (info.isCompatible() && noCustomCollision && info.getHardness() >= -0.01f && isFullBlock && !hasBehavior && itemExistsOrNotSpecialDrops)
                 {
                     return new EligibilityAnalysisResult(
                       true,

@@ -139,7 +139,7 @@ public class BagContainer extends AbstractContainerMenu
             }
             else if (!held.isEmpty() && slot.hasItem() && slot.mayPlace(held))
             {
-                if (held.getItem() == slotStack.getItem() && held.getDamageValue() == slotStack.getDamageValue() && ItemStack.tagMatches(held, slotStack))
+                if (held.getItem() == slotStack.getItem() && held.getDamageValue() == slotStack.getDamageValue() && ItemStack.isSameItemSameTags(held, slotStack))
                 {
                     final ItemStack newStackSlot = slotStack.copy();
                     newStackSlot.setCount(newStackSlot.getCount() + held.getCount());
@@ -185,7 +185,7 @@ public class BagContainer extends AbstractContainerMenu
             }
             else if (!held.isEmpty() && slot.hasItem() && slot.mayPlace(held))
             {
-                if (held.getItem() == slotStack.getItem() && held.getDamageValue() == slotStack.getDamageValue() && ItemStack.tagMatches(held, slotStack))
+                if (held.getItem() == slotStack.getItem() && held.getDamageValue() == slotStack.getDamageValue() && ItemStack.isSameItemSameTags(held, slotStack))
                 {
                     final ItemStack newStackSlot = slotStack.copy();
                     newStackSlot.setCount(newStackSlot.getCount() + 1);

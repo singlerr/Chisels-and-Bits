@@ -160,7 +160,7 @@ public class ChangeTracker implements IChangeTracker
     }
 
     private void sendUpdate() {
-        if (player != null && player instanceof ServerPlayer serverPlayer && !serverPlayer.getLevel().isClientSide())
+        if (player != null && player instanceof ServerPlayer serverPlayer && !serverPlayer.level().isClientSide())
         {
             ChangeTrackerSyncManager.getInstance().add(this, serverPlayer);
         }

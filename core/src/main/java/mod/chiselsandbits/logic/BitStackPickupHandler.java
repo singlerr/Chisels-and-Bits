@@ -1,7 +1,6 @@
 package mod.chiselsandbits.logic;
 
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItem;
@@ -35,7 +34,7 @@ public class BitStackPickupHandler
                     entityItem.remove(Entity.RemovalReason.DISCARDED);
                 }
 
-                player.level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                player.level().playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
                 return true;
             }
         }

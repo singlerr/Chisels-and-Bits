@@ -23,14 +23,13 @@ import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
 import mod.chiselsandbits.item.ChiseledBlockItem;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
-import mod.chiselsandbits.materials.MaterialManager;
+import mod.chiselsandbits.materials.LegacyMaterialManager;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.NotImplementedException;
@@ -323,12 +322,7 @@ public class SimpleSnapshot implements IMultiStateSnapshot
     public IMultiStateItemStack toItemStack()
     {
         final IBlockInformation primaryState = determinePrimaryState();
-        final Material blockMaterial = primaryState.getBlockState().getMaterial();
-        final Material conversionMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(blockMaterial);
-
-        final Supplier<ChiseledBlockItem> convertedItemProvider =
-          ModItems.MATERIAL_TO_ITEM_CONVERSIONS.getOrDefault(conversionMaterial, ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(Material.STONE));
-        final ChiseledBlockItem chiseledBlockItem = convertedItemProvider.get();
+        final ChiseledBlockItem chiseledBlockItem = ModItems.CHISELED_BLOCK.get();
 
         return new SingleBlockMultiStateItemStack(chiseledBlockItem, this.chunkSection.createSnapshot());
     }

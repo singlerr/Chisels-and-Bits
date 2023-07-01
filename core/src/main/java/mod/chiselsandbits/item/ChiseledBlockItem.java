@@ -205,7 +205,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
         final IAreaAccessor source = this.createItemStack(heldStack);
         final Vec3 target = getTargetedPosition(heldStack, playerEntity, blockRayTraceResult);
         final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().covering(
-          playerEntity.level,
+          playerEntity.level(),
           target,
           target.add(1,1,1));
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();

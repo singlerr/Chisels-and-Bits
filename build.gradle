@@ -218,7 +218,7 @@ subprojects { subProject ->
 
     subProject.java.toolchain.languageVersion.set(JavaLanguageVersion.of(project.javaVersion))
 
-    subProject.tasks.jar.baseName = "${rootProject.name}-${subProject.name}"
+    subProject.tasks.jar.archiveBaseName = "${rootProject.name}-${subProject.name}"
     subProject.configureJarManifest(subProject.tasks.jar)
     subProject.tasks.jar.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 

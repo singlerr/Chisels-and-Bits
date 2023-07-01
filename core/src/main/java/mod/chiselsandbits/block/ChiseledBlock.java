@@ -50,6 +50,7 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -202,11 +203,10 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     }
 
     @Override
-    public boolean shouldCheckWeakPower(final BlockState state, final LevelReader levelReader, final BlockPos pos, final Direction side)
-    {
-        return getBlockEntity(levelReader, pos)
-                 .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().shouldCheckWeakPower())
-                 .orElse(false);
+    public boolean shouldCheckWeakPower(BlockState blockState, SignalGetter signalGetter, BlockPos blockPos, Direction direction) {
+        return getBlockEntity(signalGetter, blockPos)
+                .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().shouldCheckWeakPower())
+                .orElse(false);
     }
 
     @Override
@@ -306,13 +306,6 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
         }
 
         super.onRemove(state, worldIn, pos, newState, isMoving);
-    }
-
-    @NotNull
-    @Override
-    public PushReaction getPistonPushReaction(@NotNull final BlockState state)
-    {
-        return PushReaction.BLOCK;
     }
 
     @Override

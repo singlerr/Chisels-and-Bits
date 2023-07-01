@@ -24,7 +24,7 @@ public class RayTracingUtils
      * @return The raytrace result.
      */
     public static HitResult rayTracePlayer(final Player playerEntity) {
-        final double reachAttributeValue = IEntityInformationManager.getInstance().getReachDistance(playerEntity);
+        final double reachAttributeValue = IEntityInformationManager.getInstance().getBlockReachDistance(playerEntity);
         final double reachDistance = playerEntity.isCreative() ? reachAttributeValue : reachAttributeValue - 0.5D;
 
         return playerEntity.pick(reachDistance, 0.5f, true);

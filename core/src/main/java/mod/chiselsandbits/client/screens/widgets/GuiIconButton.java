@@ -4,7 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.client.screen.widget.AbstractChiselsAndBitsButton;
 import mod.chiselsandbits.client.icon.IconManager;
-import net.minecraft.client.gui.GuiComponent;
+import mod.chiselsandbits.client.icon.IconSpriteUploader;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.GameRenderer;
@@ -53,7 +54,7 @@ public class GuiIconButton extends AbstractChiselsAndBitsButton
     }
 
     @Override
-    public void renderWidget(final @NotNull PoseStack matrixStack, final int mouseX, final int mouseY, final float partialTicks)
+    public void renderWidget(final @NotNull GuiGraphics guiGraphics, final int mouseX, final int mouseY, final float partialTicks)
     {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
@@ -61,11 +62,11 @@ public class GuiIconButton extends AbstractChiselsAndBitsButton
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        blitNineSliced(matrixStack, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getTextureY());
+        guiGraphics.blitNineSliced(WIDGETS_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getTextureY());
 
         IconManager.getInstance().bindTexture();
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        blit(matrixStack, getX() + 2, getY() + 2, 0, 16,16, icon);
+        guiGraphics.blit(IconSpriteUploader.TEXTURE_MAP_NAME, getX() + 2, getY() + 2, 0, 16,16, icon);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
     }

@@ -1,12 +1,11 @@
 package mod.chiselsandbits.client.screens.components.toasts;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.util.IWithColor;
 import mod.chiselsandbits.api.util.IWithIcon;
 import mod.chiselsandbits.api.util.IWithText;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.renderer.GameRenderer;
@@ -27,18 +26,18 @@ public class ChiselsAndBitsNotificationToast<T extends IWithColor & IWithIcon & 
     private ChiselsAndBitsNotificationToast(final T contents) {this.contents = contents;}
 
     @Override
-    public @NotNull Visibility render(final @NotNull PoseStack poseStack, final @NotNull ToastComponent toastComponent, final long time)
+    public @NotNull Visibility render(final @NotNull GuiGraphics guiGraphics, final @NotNull ToastComponent toastComponent, final long time)
     {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, TEXTURE);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        toastComponent.blit(poseStack, 0, 0, 0, 0, this.width(), this.height());
+        guiGraphics.blit(TEXTURE, 0, 0, 0, 0, this.width(), this.height());
 
         List<FormattedCharSequence> list = toastComponent.getMinecraft().font.split(contents.getText(), 125);
         int textColor = 16746751;
         if (list.size() == 1)
         {
-            toastComponent.getMinecraft().font.draw(poseStack, list.get(0), 30.0F, 18.0F, -1);
+            guiGraphics.drawString(toastComponent.getMinecraft().font, contents.getText(), 30, 12, -1);
         }
         else
         {
@@ -47,14 +46,14 @@ public class ChiselsAndBitsNotificationToast<T extends IWithColor & IWithIcon & 
 
             for (FormattedCharSequence formattedcharsequence : list)
             {
-                toastComponent.getMinecraft().font.draw(poseStack, formattedcharsequence, 30.0F, (float) verticalOffset, 16777215 | fontColor);
+                guiGraphics.drawString(toastComponent.getMinecraft().font, formattedcharsequence, 30, verticalOffset, 16777215 | fontColor);
                 verticalOffset += 9;
             }
         }
 
-        poseStack.pushPose();
-        poseStack.translate(8,8,0); //TODO Check if this is correct
-        poseStack.pushPose();
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(8,8,0);
+        guiGraphics.pose().pushPose();
 
         RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         RenderSystem.setShaderColor(
@@ -64,10 +63,10 @@ public class ChiselsAndBitsNotificationToast<T extends IWithColor & IWithIcon & 
           (float) contents.getAlphaChannel()
         );
         RenderSystem.setShaderTexture(0, contents.getIcon());
-        GuiComponent.blit(poseStack, 0, 0, 16,16, 0, 0, 18, 18, 18, 18);
+        guiGraphics.blit(TEXTURE, 0, 0, 16,16, 0, 0, 18, 18, 18, 18);
 
-        poseStack.popPose();
-        poseStack.popPose();
+        guiGraphics.pose().popPose();
+        guiGraphics.pose().popPose();
 
         return time >= 5000L ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
     }

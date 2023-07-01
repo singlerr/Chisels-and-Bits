@@ -64,7 +64,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.lighting.LayerLightEngine;
+import net.minecraft.world.level.lighting.LightEngine;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CubeVoxelShape;
@@ -1592,7 +1592,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
                             } else if (blockState.getBlockState().getFluidState().getAmount() == 8) {
                                 return false;
                             } else {
-                                int i = LayerLightEngine.getLightBlockInto(
+                                int i = LightEngine.getLightBlockInto(
                                         new SingleBlockWorldReader(blockState, positionSupplier.get(), this.worldReaderSupplier.get()),
                                         Blocks.GRASS_BLOCK.defaultBlockState(),
                                         this.positionSupplier.get().below(),
@@ -1741,7 +1741,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
                         } else if (blockInformation.getBlockState().getFluidState().getAmount() == 8) {
                             return false;
                         } else {
-                            int i = LayerLightEngine.getLightBlockInto(
+                            int i = LightEngine.getLightBlockInto(
                                     new SingleBlockWorldReader(blockInformation, positionSupplier.get(), this.worldReaderSupplier.get()),
                                     Blocks.GRASS_BLOCK.defaultBlockState(),
                                     this.positionSupplier.get().below(),

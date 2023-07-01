@@ -1,13 +1,12 @@
 package mod.chiselsandbits.chiseling.conversion;
 
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
-import mod.chiselsandbits.materials.MaterialManager;
+import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.Material;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public class ConversionManager implements IConversionManager
 {
@@ -21,13 +20,10 @@ public class ConversionManager implements IConversionManager
     @Override
     public Optional<Block> getChiseledVariantOf(final Block block)
     {
-        final Material material = block.defaultBlockState().getMaterial();
-        final Material workingMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(material);
-
-        if (!ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.containsKey(workingMaterial))
+        if (!IEligibilityManager.getInstance().canBeChiseled(IBlockInformation.create(block)))
             return Optional.empty();
 
-        return Optional.of(ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.get(workingMaterial)).map(Supplier::get);
+        return Optional.ofNullable(ModBlocks.CHISELED_BLOCK.get());
     }
 
     private ConversionManager()

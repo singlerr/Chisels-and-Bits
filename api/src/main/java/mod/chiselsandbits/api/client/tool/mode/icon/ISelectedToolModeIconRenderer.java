@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.client.tool.mode.icon;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -21,8 +21,8 @@ public interface ISelectedToolModeIconRenderer
      * Invoked to render the stacks tool mode icon in the given itemstack.
      * This is invoked already translated to the top left pixel of the slot in question.
      *
-     * @param matrixStack The matrix stack.
-     * @param stack The stack.
+     * @param guiGraphics The matrix stack.
+     * @param stack       The stack.
      */
-    void render(PoseStack matrixStack, ItemStack stack);
+    void render(GuiGraphics guiGraphics, ItemStack stack);
 }

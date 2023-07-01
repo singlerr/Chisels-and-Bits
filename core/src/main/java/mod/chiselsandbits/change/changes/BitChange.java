@@ -69,11 +69,11 @@ public class BitChange implements IChange
     {
         load();
 
-        final BlockEntity tileEntity = player.level.getBlockEntity(blockPos);
+        final BlockEntity tileEntity = player.level().getBlockEntity(blockPos);
         if (!(tileEntity instanceof final IMultiStateBlockEntity multiStateBlockEntity)) {
-            final BlockState state = player.level.getBlockState(blockPos);
+            final BlockState state = player.level().getBlockState(blockPos);
             final Optional<IStateVariant> additionalStateInfo = IStateVariantManager.getInstance().getStateVariant(
-              state, Optional.ofNullable(player.level.getBlockEntity(blockPos))
+              state, Optional.ofNullable(player.level().getBlockEntity(blockPos))
             );
             final BlockInformation currentState = new BlockInformation(state, additionalStateInfo);
 
@@ -88,12 +88,12 @@ public class BitChange implements IChange
     {
         load();
 
-        final BlockEntity tileEntity = player.level.getBlockEntity(blockPos);
+        final BlockEntity tileEntity = player.level().getBlockEntity(blockPos);
         if (!(tileEntity instanceof final IMultiStateBlockEntity multiStateBlockEntity))
         {
-            final BlockState state = player.level.getBlockState(blockPos);
+            final BlockState state = player.level().getBlockState(blockPos);
             final Optional<IStateVariant> additionalStateInfo = IStateVariantManager.getInstance().getStateVariant(
-              state, Optional.ofNullable(player.level.getBlockEntity(blockPos))
+              state, Optional.ofNullable(player.level().getBlockEntity(blockPos))
             );
             final BlockInformation currentState = new BlockInformation(state, additionalStateInfo);
 
@@ -111,15 +111,15 @@ public class BitChange implements IChange
         if (!canUndo(player))
             throw new IllegalChangeAttempt();
 
-        BlockEntity tileEntity = player.level.getBlockEntity(blockPos);
+        BlockEntity tileEntity = player.level().getBlockEntity(blockPos);
         if (!(tileEntity instanceof IMultiStateBlockEntity)) {
-            BlockState currentState = player.level.getBlockState(blockPos);
+            BlockState currentState = player.level().getBlockState(blockPos);
             final Optional<Block> convertedState = IConversionManager.getInstance().getChiseledVariantOf(currentState);
             if (convertedState.isEmpty())
                 throw new IllegalChangeAttempt();
 
-            player.level.setBlock(blockPos, convertedState.get().defaultBlockState(), Block.UPDATE_ALL);
-            tileEntity = player.level.getBlockEntity(blockPos);
+            player.level().setBlock(blockPos, convertedState.get().defaultBlockState(), Block.UPDATE_ALL);
+            tileEntity = player.level().getBlockEntity(blockPos);
             if (!(tileEntity instanceof IMultiStateBlockEntity))
                 throw new IllegalChangeAttempt();
         }
@@ -173,9 +173,9 @@ public class BitChange implements IChange
         if (!canRedo(player))
             throw new IllegalChangeAttempt();
 
-        BlockEntity tileEntity = player.level.getBlockEntity(blockPos);
+        BlockEntity tileEntity = player.level().getBlockEntity(blockPos);
         if (!(tileEntity instanceof IMultiStateBlockEntity)) {
-            BlockState currentState = player.level.getBlockState(blockPos);
+            BlockState currentState = player.level().getBlockState(blockPos);
             BlockState initializationState = currentState;
             if (currentState.isAir()) {
                 currentState = Blocks.STONE.defaultBlockState();
@@ -185,8 +185,8 @@ public class BitChange implements IChange
             if (convertedState.isEmpty())
                 throw new IllegalChangeAttempt();
 
-            player.level.setBlock(blockPos, convertedState.get().defaultBlockState(), Block.UPDATE_ALL);
-            tileEntity = player.level.getBlockEntity(blockPos);
+            player.level().setBlock(blockPos, convertedState.get().defaultBlockState(), Block.UPDATE_ALL);
+            tileEntity = player.level().getBlockEntity(blockPos);
             if (!(tileEntity instanceof IMultiStateBlockEntity))
                 throw new IllegalChangeAttempt();
         }
