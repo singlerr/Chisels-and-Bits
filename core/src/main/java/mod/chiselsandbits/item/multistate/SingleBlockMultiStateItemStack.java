@@ -1,11 +1,8 @@
 package mod.chiselsandbits.item.multistate;
 
-import com.communi.suggestu.scena.core.registries.deferred.IRegistryObject;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.api.util.VectorUtils;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
@@ -23,10 +20,11 @@ import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosForEach;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.item.ChiseledBlockItem;
-import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.storage.IStorageEngine;
 import mod.chiselsandbits.storage.IStorageHandler;
@@ -42,12 +40,15 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -405,16 +406,8 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
             //We were created with a pattern item, instead of the block item
             //Create a new item, and copy the nbt.
             final IBlockInformation primaryState = statistics.getPrimaryState();
-            final Material blockMaterial = primaryState.getBlockState().getMaterial();
-            final Material conversionMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(blockMaterial);
 
-            IRegistryObject<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(conversionMaterial);
-            if (convertedItemProvider == null)
-            {
-                convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(MaterialManager.getInstance().getDefaultMaterial());
-            }
-            final ChiseledBlockItem chiseledBlockItem = convertedItemProvider.get();
-
+            final ChiseledBlockItem chiseledBlockItem = ModItems.CHISELED_BLOCK.get();
             final ItemStack blockStack = new ItemStack(chiseledBlockItem);
             blockStack.setTag(sourceStack.getOrCreateTag().copy());
 

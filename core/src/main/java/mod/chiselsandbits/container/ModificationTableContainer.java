@@ -49,7 +49,7 @@ public class ModificationTableContainer extends AbstractContainerMenu
     public ModificationTableContainer(int windowIdIn, Inventory playerInventoryIn, final ContainerLevelAccess worldPosCallableIn) {
         super(ModContainerTypes.MODIFICATION_TABLE.get(), windowIdIn);
         this.worldPosCallable = worldPosCallableIn;
-        this.world = playerInventoryIn.player.level;
+        this.world = playerInventoryIn.player.level();
         this.inputInventorySlot = this.addSlot(new Slot(this.inputInventory, 0, 20, 33));
         this.outputInventorySlot = this.addSlot(new Slot(this.inventory, 1, 143, 33) {
             /**
@@ -60,8 +60,8 @@ public class ModificationTableContainer extends AbstractContainerMenu
             }
 
             public void onTake(@NotNull Player thePlayer, @NotNull ItemStack stack) {
-                stack.onCraftedBy(thePlayer.level, thePlayer, stack.getCount());
-                ModificationTableContainer.this.inventory.awardUsedRecipes(thePlayer);
+                stack.onCraftedBy(thePlayer.level(), thePlayer, stack.getCount());
+                ModificationTableContainer.this.inventory.awardUsedRecipes(thePlayer, List.of(ModificationTableContainer.this.inputInventorySlot.getItem()));
                 ItemStack itemstack = ModificationTableContainer.this.inputInventorySlot.remove(1);
                 if (!itemstack.isEmpty()) {
                     ModificationTableContainer.this.updateRecipeResultSlot();
@@ -197,7 +197,7 @@ public class ModificationTableContainer extends AbstractContainerMenu
             Item item = itemstack1.getItem();
             itemstack = itemstack1.copy();
             if (index == 1) {
-                item.onCraftedBy(itemstack1, playerIn.level, playerIn);
+                item.onCraftedBy(itemstack1, playerIn.level(), playerIn);
                 if (!this.moveItemStackTo(itemstack1, 2, 38, true)) {
                     return ItemStack.EMPTY;
                 }

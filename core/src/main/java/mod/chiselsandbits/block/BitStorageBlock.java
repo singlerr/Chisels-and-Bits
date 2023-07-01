@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
@@ -129,8 +130,7 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
     }
 
     @Override
-    public @NotNull List<ItemStack> getDrops(final @NotNull BlockState state, final LootContext.Builder builder)
-    {
+    public @NotNull List<ItemStack> getDrops(final @NotNull BlockState state, final LootParams.Builder builder) {
         if (builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY) == null)
         {
             return Lists.newArrayList();
@@ -187,7 +187,10 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
     @Override
     public void onBitBagInteraction(final ItemStack bitBagStack, final Player player, final BlockHitResult blockRayTraceResult)
     {
-        final BlockEntity tileEntity = player.level.getBlockEntity(blockRayTraceResult.getBlockPos());
+        if (player == null)
+            return;
+
+        final BlockEntity tileEntity = player.level().getBlockEntity(blockRayTraceResult.getBlockPos());
         if (!(tileEntity instanceof final BitStorageBlockEntity storage))
             return;
 

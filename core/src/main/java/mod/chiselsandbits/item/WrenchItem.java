@@ -85,7 +85,7 @@ public class WrenchItem extends Item implements IWithModeItem<IModificationOpera
         if (!(result instanceof final BlockHitResult blockHitResult) || result.getType() != HitResult.Type.BLOCK)
             return false;
 
-        final BlockEntity blockEntity = playerEntity.level.getBlockEntity(blockHitResult.getBlockPos());
+        final BlockEntity blockEntity = playerEntity.level().getBlockEntity(blockHitResult.getBlockPos());
         return (blockEntity instanceof IMultiStateBlockEntity);
     }
 
@@ -97,7 +97,7 @@ public class WrenchItem extends Item implements IWithModeItem<IModificationOpera
         if (!(result instanceof final BlockHitResult blockHitResult) || result.getType() != HitResult.Type.BLOCK)
             return ClickProcessingState.DENIED;
 
-        final BlockEntity blockEntity = playerEntity.level.getBlockEntity(blockHitResult.getBlockPos());
+        final BlockEntity blockEntity = playerEntity.level().getBlockEntity(blockHitResult.getBlockPos());
         if (!(blockEntity instanceof final IMultiStateBlockEntity multiStateBlockEntity))
             return ClickProcessingState.DENIED;
 

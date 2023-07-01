@@ -169,7 +169,7 @@ public class CommandManager
             }
         }
 
-        context.getSource().sendSuccess(Component.translatable(LocalStrings.CommandFillCompleted.toString()), true);
+        context.getSource().sendSuccess(() -> Component.translatable(LocalStrings.CommandFillCompleted.toString()), true);
         return 0;
     }
 
@@ -206,13 +206,13 @@ public class CommandManager
           end
         );
 
-        context.getSource().sendSuccess(Component.literal("Collected the following statistics for the requested area:"), true);
-        context.getSource().sendSuccess(Component.literal("----------------------------------------------------------"), true);
-        context.getSource().sendSuccess(Component.literal("BlockStates:"), true);
-        context.getSource().sendSuccess(Component.literal("############"), true);
+        context.getSource().sendSuccess(() -> Component.literal("Collected the following statistics for the requested area:"), true);
+        context.getSource().sendSuccess(() -> Component.literal("----------------------------------------------------------"), true);
+        context.getSource().sendSuccess(() -> Component.literal("BlockStates:"), true);
+        context.getSource().sendSuccess(() -> Component.literal("############"), true);
         mutator.createSnapshot().getStatics()
           .getStateCounts().forEach((state, count) -> {
-            context.getSource().sendSuccess(Component.literal(" > ").append(state.getBlockState().getBlock().getName()).append(Component.literal(": " + count)), true);
+            context.getSource().sendSuccess(() -> Component.literal(" > ").append(state.getBlockState().getBlock().getName()).append(Component.literal(": " + count)), true);
         });
 
         return 0;
@@ -260,7 +260,7 @@ public class CommandManager
         }
 
         final IProfilerResult result = IProfilingManager.getInstance().stopProfiling(ProfilingManager.getInstance().getProfiler());
-        result.writeAsResponse(line -> context.getSource().sendSuccess(Component.literal(line), true));
+        result.writeAsResponse(line -> context.getSource().sendSuccess(() -> Component.literal(line), true));
 
         return 0;
     }

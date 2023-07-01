@@ -213,7 +213,7 @@ public class ChiselItem extends DiggerItem implements IChiselItem, IDynamicallyH
     public boolean canUse(final Player playerEntity, @NotNull final ItemStack stack)
     {
         final boolean isAllowedToUse = ChiselingManager.getInstance().canChisel(playerEntity) && !playerEntity.getCooldowns().isOnCooldown(stack.getItem());
-        if (getMode(stack).isSingleClickUse() && !isAllowedToUse && playerEntity.getLevel().isClientSide() && IClientConfiguration.getInstance().getShowCoolDownError().get()) {
+        if (getMode(stack).isSingleClickUse() && !isAllowedToUse && playerEntity.level().isClientSide() && IClientConfiguration.getInstance().getShowCoolDownError().get()) {
             INotificationManager.getInstance().notify(
                     getMode(stack).getIcon(),
                     new Vec3(1, 0, 0),

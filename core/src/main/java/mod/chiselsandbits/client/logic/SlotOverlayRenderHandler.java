@@ -1,13 +1,13 @@
 package mod.chiselsandbits.client.logic;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.client.render.SlotOverlayRenderManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
 
 public class SlotOverlayRenderHandler
 {
-    public static void renderSlotOverlays(final PoseStack poseStack) {
+    public static void renderSlotOverlays(final GuiGraphics graphics) {
         Player player = Minecraft.getInstance().player;
         if (player == null || player.isSpectator())
             return;
@@ -18,7 +18,7 @@ public class SlotOverlayRenderHandler
             int xOffset = centerOfScreen - 90 + slotIndex * 20 + 2;
             int yOffSet = Minecraft.getInstance().getWindow().getGuiScaledHeight() - 16 - 3;
 
-            SlotOverlayRenderManager.getInstance().renderSlot(xOffset, yOffSet, poseStack, player.getInventory().items.get(slotIndex));
+            SlotOverlayRenderManager.getInstance().renderSlot(xOffset, yOffSet, graphics, player.getInventory().items.get(slotIndex));
         }
     }
 }

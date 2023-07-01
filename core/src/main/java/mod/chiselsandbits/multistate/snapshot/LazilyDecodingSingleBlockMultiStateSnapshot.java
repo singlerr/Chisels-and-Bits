@@ -4,8 +4,6 @@ import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.api.util.VectorUtils;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -20,10 +18,11 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.BlockPosForEach;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.item.ChiseledBlockItem;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
-import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.core.BlockPos;
@@ -32,15 +31,17 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -361,13 +362,8 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     {
         load();
         final IBlockInformation primaryState = determinePrimaryState();
-        final Material blockMaterial = primaryState.getBlockState().getMaterial();
-        final Material conversionMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(blockMaterial);
 
-        final Supplier<ChiseledBlockItem> convertedItemProvider =
-          ModItems.MATERIAL_TO_ITEM_CONVERSIONS.getOrDefault(conversionMaterial, ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(Material.STONE));
-        final ChiseledBlockItem chiseledBlockItem = convertedItemProvider.get();
-
+        final ChiseledBlockItem chiseledBlockItem = ModItems.CHISELED_BLOCK.get();
         return new SingleBlockMultiStateItemStack(chiseledBlockItem, this.lazyChunkSection.createSnapshot());
     }
 

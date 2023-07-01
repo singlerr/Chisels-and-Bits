@@ -13,8 +13,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -35,7 +34,7 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
 
     public ReflectionHelperBlock()
     {
-        super( Properties.of(Material.AIR) );
+        super( Properties.of() );
     }
 
     @Nullable
@@ -115,7 +114,7 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     }
 
     @Override
-    public boolean shouldCheckWeakPower(BlockState state, LevelReader levelReader, BlockPos pos, Direction side) {
+    public boolean shouldCheckWeakPower(BlockState blockState, SignalGetter signalGetter, BlockPos blockPos, Direction direction) {
         markMethod();
         return false;
     }
@@ -145,10 +144,9 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
         return 0f;
     }
 
-    @Nullable
+
     @Override
-    public List<ItemStack> getDrops(@Nullable final BlockState state, @Nullable final LootContext.Builder builder)
-    {
+    public List<ItemStack> getDrops(BlockState p_287732_, LootParams.Builder p_287596_) {
         markMethod();
         return Lists.newArrayList();
     }
