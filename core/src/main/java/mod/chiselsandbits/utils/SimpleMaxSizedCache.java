@@ -13,7 +13,7 @@ public class SimpleMaxSizedCache<K, V>
 {
 
     private final Map<K, V> cache = new HashMap<>();
-    private final Queue<K> keyQueue = new LinkedList<>();
+    private final Queue<K> keyQueue = new LinkedHashSetQueue<>();
 
     private final LongSupplier maxSizeSupplier;
 

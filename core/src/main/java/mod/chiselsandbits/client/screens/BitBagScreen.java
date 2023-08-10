@@ -3,13 +3,10 @@ package mod.chiselsandbits.client.screens;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.client.font.GuiBagFontRenderer;
 import mod.chiselsandbits.client.icon.IconManager;
 import mod.chiselsandbits.client.screens.widgets.GuiIconButton;
-import mod.chiselsandbits.client.util.GuiUtil;
 import mod.chiselsandbits.container.BagContainer;
 import mod.chiselsandbits.inventory.wrapping.WrappingInventory;
 import mod.chiselsandbits.network.packets.BagGuiPacket;
@@ -18,6 +15,7 @@ import mod.chiselsandbits.network.packets.SortBagGuiPacket;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -31,14 +29,10 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
-
 public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
 
     private static final ResourceLocation BAG_GUI_TEXTURE = new ResourceLocation(Constants.MOD_ID, "textures/gui/container/bitbag.png");
 
-    private static GuiBagFontRenderer specialFontRenderer = null;
     boolean requireConfirm = true;
     boolean dontThrow = false;
     private GuiIconButton trashBtn;
@@ -97,11 +91,11 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
 
     @Override
     public void render(
-            final @NotNull PoseStack stack,
+            final @NotNull GuiGraphics guiGraphics,
             final int mouseX,
             final int mouseY,
             final float partialTicks) {
-        this.renderBackground(stack);
+        this.renderBackground(guiGraphics);
         if (trashBtn.isMouseOver(mouseX, mouseY)) {
             if (isValidBitItem()) {
                 final Component msgNotConfirm = !getInHandItem().isEmpty() ? LocalStrings.TrashItem.getText(getInHandItem().getHoverName().getString()) : LocalStrings.Trash.getText();
@@ -112,13 +106,13 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
                 this.trashBtn.setTooltip(Tooltip.create(LocalStrings.TrashInvalidItem.getText(getInHandItem().getHoverName().getString())));
             }
         }
-        super.render(stack, mouseX, mouseY, partialTicks);
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     @SuppressWarnings("deprecation")
     @Override
     protected void renderBg(
-            final @NotNull PoseStack stack,
+            final @NotNull GuiGraphics guiGraphics,
             final float partialTicks,
             final int mouseX,
             final int mouseY) {
@@ -129,31 +123,23 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, BAG_GUI_TEXTURE);
 
-        this.blit(stack, xOffset, yOffset, 0, 0, imageWidth, imageHeight);
+        guiGraphics.blit(BAG_GUI_TEXTURE, xOffset, yOffset, 0,0, imageWidth, imageHeight);
 
         PoseStack posestack = RenderSystem.getModelViewStack();
         posestack.pushPose();
         posestack.translate(this.leftPos, this.topPos, 0.0D);
         RenderSystem.applyModelViewMatrix();
-        if (specialFontRenderer == null) {
-            specialFontRenderer = new GuiBagFontRenderer(font, IServerConfiguration.getInstance().getBagStackSize().get());
-        }
 
         hoveredBitSlot = null;
-        stack.pushPose();
+        guiGraphics.pose().pushPose();
 
         for (int slotIdx = 0; slotIdx < getBagContainer().customSlots.size(); ++slotIdx) {
             final Slot slot = getBagContainer().customSlots.get(slotIdx);
 
             final Font defaultFontRenderer = font;
 
-            try {
-                font = specialFontRenderer;
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                renderSlot(stack, slot);
-            } finally {
-                font = defaultFontRenderer;
-            }
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            renderSlot(guiGraphics, slot);
 
             if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
                 final int xDisplayPos = slot.x;
@@ -163,7 +149,7 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
                 RenderSystem.disableDepthTest();
                 RenderSystem.colorMask(true, true, true, false);
                 final int INNER_SLOT_SIZE = 16;
-                fillGradient(stack, xDisplayPos, yDisplayPos, xDisplayPos + INNER_SLOT_SIZE, yDisplayPos + INNER_SLOT_SIZE, -2130706433, -2130706433);
+                guiGraphics.fillGradient(xDisplayPos, yDisplayPos, xDisplayPos + INNER_SLOT_SIZE, yDisplayPos + INNER_SLOT_SIZE, -2130706433, -2130706433);
                 RenderSystem.colorMask(true, true, true, true);
                 RenderSystem.enableDepthTest();
             }
@@ -171,7 +157,7 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
 
         posestack.popPose();
         RenderSystem.applyModelViewMatrix();
-        stack.popPose();
+        guiGraphics.pose().popPose();
 
         if (!trashBtn.isMouseOver(mouseX, mouseY)) {
             requireConfirm = true;
@@ -207,8 +193,8 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
     }
 
     @Override
-    protected void renderLabels(final @NotNull PoseStack matrixStack, final int x, final int y) {
-        font.draw(matrixStack, Language.getInstance().getVisualOrder(ModItems.ITEM_BIT_BAG_DEFAULT.get().getName(ItemStack.EMPTY)), 8, 6, 0x404040);
-        font.draw(matrixStack, I18n.get("container.inventory"), 8, imageHeight - 93, 0x404040);
+    protected void renderLabels(final @NotNull GuiGraphics graphics, final int x, final int y) {
+        graphics.drawString(font, Language.getInstance().getVisualOrder(ModItems.ITEM_BIT_BAG_DEFAULT.get().getName(ItemStack.EMPTY)), 8, 6, 0x404040);
+        graphics.drawString(font, I18n.get("container.inventory"), 8, imageHeight - 93, 0x404040);
     }
 }

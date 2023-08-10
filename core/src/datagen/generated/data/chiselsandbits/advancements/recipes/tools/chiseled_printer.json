@@ -52,5 +52,6 @@
     "recipes": [
       "chiselsandbits:chiseled_printer"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

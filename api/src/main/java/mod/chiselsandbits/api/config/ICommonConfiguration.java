@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.config;
 
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 public interface ICommonConfiguration
@@ -28,6 +29,13 @@ public interface ICommonConfiguration
      * @return A supplier that determines the size of the collision box cache size.
      */
     Supplier<Long> getCollisionBoxCacheSize();
+
+    /**
+     * Determines the size of caches which hold class metadata.
+     *
+     * @return The class metadata cache size.
+     */
+    Supplier<Long> getClassMetadataCacheSize();
 
     /**
      * Indicates how many threads can be used to calculate and compress off-thread NBT data for saving.

@@ -50,5 +50,6 @@
     "recipes": [
       "chiselsandbits:quill"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

@@ -41,5 +41,6 @@
     "recipes": [
       "chiselsandbits:wrench"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

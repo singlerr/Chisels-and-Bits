@@ -41,5 +41,6 @@
     "recipes": [
       "chiselsandbits:bit_bag"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

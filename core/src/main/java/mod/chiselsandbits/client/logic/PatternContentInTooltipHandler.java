@@ -18,6 +18,6 @@ public class PatternContentInTooltipHandler
 
         final ItemStack renderTarget = patternItem.createItemStack(stack).toBlockStack();
 
-        Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(poseStack, renderTarget, mouseX + 4, mouseY + Minecraft.getInstance().font.lineHeight * 2 + 4);
+        //Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(poseStack, renderTarget, mouseX + 4, mouseY + Minecraft.getInstance().font.lineHeight * 2 + 4);
     }
 }

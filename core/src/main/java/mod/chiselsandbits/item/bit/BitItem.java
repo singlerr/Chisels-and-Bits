@@ -131,12 +131,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
             final String chiselModeName = stackNbt.getString(NbtConstants.CHISEL_MODE);
             try {
                 final Optional<IChiselMode> registryMode = IChiselMode.getRegistry().get(new ResourceLocation(chiselModeName));
-                if (registryMode.isEmpty())
-                {
-                    return IChiselMode.getDefaultMode();
-                }
-
-                return registryMode.get();
+                return registryMode.orElseGet(IChiselMode::getDefaultMode);
             }
             catch (IllegalArgumentException illegalArgumentException) {
                 LOGGER.error(String.format("An ItemStack got loaded with a name that is not a valid chisel mode: %s", chiselModeName));

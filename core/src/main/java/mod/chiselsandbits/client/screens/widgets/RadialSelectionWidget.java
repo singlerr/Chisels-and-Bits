@@ -7,6 +7,7 @@ import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.withmode.IRenderableMode;
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -181,7 +182,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
     }
 
     @Override
-    public void render(final @NotNull PoseStack poseStack, final int mouseX, final int mouseY, final float partialTicks)
+    public void render(final @NotNull GuiGraphics graphics, final int mouseX, final int mouseY, final float partialTicks)
     {
         final IRenderableMode current = currentlySelectedModeSupplier.get();
 
@@ -195,10 +196,10 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
         float centerX = this.getX() + (this.width / 2f);
         float centerY = this.getY() + (this.height / 2f);
 
-        poseStack.pushPose();
+        graphics.pose().pushPose();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        poseStack.translate(centerX, centerY, 0);
+        graphics.pose().translate(centerX, centerY, 0);
 
         final float itemArcAngle = sectionArcAngle / selectableItemCount;
 
@@ -233,7 +234,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
             if (mode.isActive())
             {
                 drawSelectableSection(
-                  poseStack,
+                  graphics,
                   sectionArcAngle,
                   innerRadius,
                   outerRadius,
@@ -246,7 +247,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
             else
             {
                 drawDeactivatedSection(
-                  poseStack,
+                  graphics,
                   sectionArcAngle,
                   innerRadius,
                   outerRadius,
@@ -279,7 +280,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
                 }
 
                 RenderSystem.setShaderColor(0.8F, 0.8F, 0.8F, 0.3F);
-                drawTorus(poseStack, startOfMouseArcAngle - 90, mouseArcAngle, innerRadius, outerRadius);
+                drawTorus(graphics, startOfMouseArcAngle - 90, mouseArcAngle, innerRadius, outerRadius);
             }
 
             if (hoveredItemIndex >= 0 && modes.get(hoveredItemIndex) != current)
@@ -297,16 +298,16 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
             {
                 final int modeIndex = modes.indexOf(mode);
                 final float itemTargetAngle = ((modeIndex + 0.5f) * itemArcAngle) + sectionStartAngle;
-                renderModeIcon(poseStack, innerRadius, outerRadius, itemTargetAngle, iconScaleFactor, iconTextSpacer, mode, fontRenderer);
+                renderModeIcon(graphics, innerRadius, outerRadius, itemTargetAngle, iconScaleFactor, iconTextSpacer, mode, fontRenderer);
             }
         });
 
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
-        poseStack.popPose();
+        graphics.pose().popPose();
     }
 
     @Override
-    public void renderWidget(@NotNull PoseStack p_268228_, int p_268034_, int p_268009_, float p_268085_) {
+    public void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTickTime) {
 
     }
 
@@ -333,7 +334,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
 
     @SuppressWarnings("deprecation")
     private static void drawSelectableSection(
-      @NotNull final PoseStack stack,
+      @NotNull final GuiGraphics graphics,
       final float sectionArcAngle,
       final float innerRadius,
       final float outerRadius,
@@ -350,7 +351,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
 
         RenderSystem.setShaderColor(0.3f, 0.3f, 0.3f, 0.3f);
         drawTorus(
-          stack,
+          graphics,
           sectionStartAngle,
           itemArcAngle,
           innerRadius,
@@ -361,7 +362,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
         {
             RenderSystem.setShaderColor(0.4F, 0.4F, 0.4F, 0.7F);
             drawTorus(
-              stack,
+              graphics,
               sectionStartAngle,
               itemArcAngle,
               innerRadius,
@@ -373,7 +374,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
         {
             RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 0.7F);
             drawTorus(
-              stack,
+              graphics,
               sectionStartAngle,
               itemArcAngle,
               innerRadius,
@@ -384,7 +385,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
 
     @SuppressWarnings("deprecation")
     private static void drawDeactivatedSection(
-      @NotNull final PoseStack stack,
+      @NotNull final GuiGraphics graphics,
       final float sectionArcAngle,
       final float innerRadius,
       final float outerRadius,
@@ -399,7 +400,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
 
         RenderSystem.setShaderColor(0.1f, 0.1f, 0.1f, 0.1f);
         drawTorus(
-          stack,
+          graphics,
           sectionStartAngle,
           itemArcAngle,
           innerRadius,
@@ -407,11 +408,11 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
         );
     }
 
-    private static void drawTorus(PoseStack matrix, float startAngle, float sizeAngle, float inner, float outer)
+    private static void drawTorus(GuiGraphics graphics, float startAngle, float sizeAngle, float inner, float outer)
     {
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BufferBuilder vertexBuffer = Tesselator.getInstance().getBuilder();
-        Matrix4f matrix4f = matrix.last().pose();
+        Matrix4f matrix4f = graphics.pose().last().pose();
         vertexBuffer.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION);
         float draws = DRAWS * (sizeAngle / 360F);
         for (int i = 0; i <= draws; i++)
@@ -425,7 +426,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
     }
 
     private void renderModeIcon(
-      final @NotNull PoseStack stack,
+      final @NotNull GuiGraphics graphics,
       final float innerRadius,
       final float outerRadius,
       final float itemTargetAngle,
@@ -453,7 +454,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
         final float iconStartX = itemCenterX - ((iconSize * iconScaleFactor) / 2f);
         final float iconStartY = itemCenterY - (itemHeight / 2f);
 
-        stack.pushPose();
+        graphics.pose().pushPose();
         RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         RenderSystem.setShaderColor(
           (float) mode.getColorVector().x(),
@@ -462,24 +463,24 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
           (float) mode.getAlphaChannel()
         );
         RenderSystem.setShaderTexture(0, mode.getIcon());
-        blit(stack, (int) iconStartX, (int) iconStartY, (int) (iconSize * iconScaleFactor), (int) (iconSize * iconScaleFactor), 0, 0, 18, 18, 18, 18);
-        stack.pushPose();
+        graphics.blit(mode.getIcon(), (int) iconStartX, (int) iconStartY, (int) (iconSize * iconScaleFactor), (int) (iconSize * iconScaleFactor), 0, 0, 18, 18, 18, 18);
+        graphics.pose().pushPose();
 
         if (mode.shouldRenderDisplayNameInMenu())
         {
-            stack.translate(itemCenterX, itemCenterY, 0);
-            stack.scale(0.6F * iconScaleFactor, 0.6F * iconScaleFactor, 0.6F * iconScaleFactor);
+            graphics.pose().translate(itemCenterX, itemCenterY, 0);
+            graphics.pose().scale(0.6F * iconScaleFactor, 0.6F * iconScaleFactor, 0.6F * iconScaleFactor);
 
             int offset = 0;
             for (final FormattedCharSequence line : lines)
             {
-                fontRenderer.draw(stack, line, fontRenderer.width(line) / -2f, iconTextSpacer + offset, 0xCCFFFFFF);
+                graphics.drawString(fontRenderer, line, (int) (fontRenderer.width(line) / -2f), iconTextSpacer + offset, 0xCCFFFFFF);
                 offset += fontRenderer.lineHeight;
             }
         }
 
-        stack.popPose();
-        stack.popPose();
+        graphics.pose().popPose();
+        graphics.pose().popPose();
     }
 
     @Override

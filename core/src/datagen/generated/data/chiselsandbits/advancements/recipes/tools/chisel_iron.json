@@ -39,5 +39,6 @@
     "recipes": [
       "chiselsandbits:chisel_iron"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

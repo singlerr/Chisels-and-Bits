@@ -39,5 +39,6 @@
     "recipes": [
       "chiselsandbits:chisel_gold"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

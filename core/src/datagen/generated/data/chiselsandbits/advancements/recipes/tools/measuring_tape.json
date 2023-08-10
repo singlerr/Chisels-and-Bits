@@ -50,5 +50,6 @@
     "recipes": [
       "chiselsandbits:measuring_tape"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

@@ -14,6 +14,7 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.network.packets.HeldToolModeChangedPacket;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -151,14 +152,14 @@ public class ToolModeSelectionWidget<M extends IToolMode<G>, G extends IToolMode
     }
 
     @Override
-    public void render(final @NotNull PoseStack stack, final int mouseX, final int mouseY, final float partialTickTime)
+    public void render(final @NotNull GuiGraphics stack, final int mouseX, final int mouseY, final float partialTickTime)
     {
         //Noop.
         //This is a wrapping widget.
     }
 
     @Override
-    public void renderWidget(@NotNull PoseStack p_268228_, int p_268034_, int p_268009_, float p_268085_) {
+    public void renderWidget(@NotNull GuiGraphics p_268228_, int p_268034_, int p_268009_, float p_268085_) {
 
     }
 

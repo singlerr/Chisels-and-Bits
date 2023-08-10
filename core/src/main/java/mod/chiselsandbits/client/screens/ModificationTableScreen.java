@@ -1,7 +1,6 @@
 package mod.chiselsandbits.client.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.screens.widgets.MultiStateSnapshotWidget;
@@ -9,6 +8,7 @@ import mod.chiselsandbits.container.ModificationTableContainer;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.recipe.modificationtable.ModificationTableRecipe;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -53,27 +53,27 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
         this.snapshotWidget = this.addRenderableWidget(new MultiStateSnapshotWidget(this.leftPos + 51,this.topPos + 71, 66,28, Component.translatable(Constants.MOD_ID + ".screen.widgets.multistate.preview")));
     }
 
-    public void render(@NotNull PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
-        this.renderTooltip(matrixStack, mouseX, mouseY);
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
     @SuppressWarnings("deprecation")
-    protected void renderBg(@NotNull PoseStack matrixStack, float partialTicks, int x, int y) {
-        this.renderBackground(matrixStack);
+    protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int x, int y) {
+        this.renderBackground(graphics);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE);
         int left = this.leftPos;
         int top = this.topPos;
-        this.blit(matrixStack, left, top, 0, 0, this.imageWidth, this.imageHeight);
+        graphics.blit(BACKGROUND_TEXTURE, left, top, 0, 0, this.imageWidth, this.imageHeight);
         int sliderOffset = (int)(41.0F * this.sliderProgress);
-        this.blit(matrixStack, left + 119, top + 15 + sliderOffset, this.imageWidth + (this.canScroll() ? 0 : 12), 0, 12, 15);
+        graphics.blit(BACKGROUND_TEXTURE, left + 119, top + 15 + sliderOffset, this.imageWidth + (this.canScroll() ? 0 : 12), 0, 12, 15);
         int recipesLeft = this.leftPos + 52;
         int recipesTop = this.topPos + 14;
         int recipeIndexOffsetMax = this.recipeIndexOffset + 12;
-        this.renderButtons(matrixStack, x, y, recipesLeft, recipesTop, recipeIndexOffsetMax);
-        this.drawRecipesItems(matrixStack, recipesLeft, recipesTop, recipeIndexOffsetMax);
+        this.renderButtons(graphics, x, y, recipesLeft, recipesTop, recipeIndexOffsetMax);
+        this.drawRecipesItems(graphics, recipesLeft, recipesTop, recipeIndexOffsetMax);
 
         if (this.lastRenderedSelectedRecipeIndex != this.menu.getSelectedRecipe() && this.hasItemsInInputSlot) {
             this.lastRenderedSelectedRecipeIndex = this.menu.getSelectedRecipe();
@@ -83,8 +83,8 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
         }
     }
 
-    protected void renderTooltip(@NotNull PoseStack matrixStack, int x, int y) {
-        super.renderTooltip(matrixStack, x, y);
+    protected void renderTooltip(@NotNull GuiGraphics graphics, int x, int y) {
+        super.renderTooltip(graphics, x, y);
         if (this.hasItemsInInputSlot) {
             int i = this.leftPos + 52;
             int j = this.topPos + 14;
@@ -96,14 +96,14 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
                 int j1 = i + i1 % 4 * 16;
                 int k1 = j + i1 / 4 * 18 + 2;
                 if (x >= j1 && x < j1 + 16 && y >= k1 && y < k1 + 18) {
-                    this.renderTooltip(matrixStack, list.get(l).getDisplayName(), x, y);
+                    graphics.renderTooltip(font, list.get(l).getDisplayName(), x, y);
                 }
             }
         }
 
     }
 
-    private void renderButtons(PoseStack matrixStack, int x, int y, int p_238853_4_, int p_238853_5_, int p_238853_6_) {
+    private void renderButtons(GuiGraphics graphics, int x, int y, int p_238853_4_, int p_238853_5_, int p_238853_6_) {
         for(int i = this.recipeIndexOffset; i < p_238853_6_ && i < this.menu.getRecipeListSize(); ++i) {
             int j = i - this.recipeIndexOffset;
             int k = p_238853_4_ + j % 4 * 16;
@@ -116,12 +116,12 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
                 j1 += 36;
             }
 
-            this.blit(matrixStack, k, i1 - 1, 0, j1, 16, 18);
+            graphics.blit(BACKGROUND_TEXTURE, k, i1 - 1, 0, j1, 16, 18);
         }
 
     }
 
-    private void drawRecipesItems(final PoseStack poseStack, int recipesLeft, int recipesTop, int recipeIndexOffsetMax) {
+    private void drawRecipesItems(final GuiGraphics graphics, int recipesLeft, int recipesTop, int recipeIndexOffsetMax) {
         List<ModificationTableRecipe> list = this.menu.getRecipeList();
 
         for(int offset = this.recipeIndexOffset; offset < recipeIndexOffsetMax && offset < this.menu.getRecipeListSize(); ++offset) {
@@ -131,7 +131,7 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
             int itemY = recipesTop + rowIndex * 18 + 2;
             if (this.minecraft != null)
             {
-                this.minecraft.getItemRenderer().renderAndDecorateItem(poseStack, list.get(offset).getCraftingBlockResult(this.menu.inputInventory), itemX, itemY);
+                graphics.renderItem(list.get(offset).getCraftingBlockResult(this.menu.inputInventory), itemX, itemY);
             }
         }
 

@@ -1,6 +1,5 @@
 package mod.chiselsandbits.client.screens.widgets;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
@@ -11,6 +10,7 @@ import mod.chiselsandbits.client.icon.IconManager;
 import mod.chiselsandbits.network.packets.ClearChangeTrackerPacket;
 import mod.chiselsandbits.network.packets.RequestChangeTrackerOperationPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import org.jetbrains.annotations.NotNull;
 
@@ -90,7 +90,7 @@ public class ChangeTrackerOperationsWidget extends AbstractChiselsAndBitsWidget
     }
 
     @Override
-    public void renderWidget(final @NotNull PoseStack matrixStack, final int mouseX, final int mouseY, final float partialTick)
+    public void renderWidget(final @NotNull GuiGraphics graphics, final int mouseX, final int mouseY, final float partialTick)
     {
 
     }
