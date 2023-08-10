@@ -2,6 +2,7 @@ package mod.chiselsandbits.utils;
 
 import com.communi.suggestu.saecularia.caudices.core.block.IBlockWithWorldlyProperties;
 import com.google.common.collect.Lists;
+import com.google.common.collect.MapMaker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -29,7 +30,9 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
 
     private void markMethod()
     {
-        setLastInvokedThreadLocalMethodName(new Throwable().fillInStackTrace().getStackTrace()[1].getMethodName());
+        setLastInvokedThreadLocalMethodName(
+                StackWalker.getInstance().walk(stream -> stream.findFirst().map(StackWalker.StackFrame::getMethodName).orElse("unknown"))
+        );
     }
 
     public ReflectionHelperBlock()

@@ -39,5 +39,6 @@
     "recipes": [
       "chiselsandbits:chisel_stone"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

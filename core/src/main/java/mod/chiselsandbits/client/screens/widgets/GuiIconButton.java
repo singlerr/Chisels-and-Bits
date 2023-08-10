@@ -66,7 +66,7 @@ public class GuiIconButton extends AbstractChiselsAndBitsButton
 
         IconManager.getInstance().bindTexture();
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        guiGraphics.blit(IconSpriteUploader.TEXTURE_MAP_NAME, getX() + 2, getY() + 2, 0, 16,16, icon);
+        guiGraphics.blit(getX() + 2, getY() + 2, 0, 16,16, icon);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
     }

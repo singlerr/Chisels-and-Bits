@@ -50,5 +50,6 @@
     "recipes": [
       "chiselsandbits:magnifying_glass"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

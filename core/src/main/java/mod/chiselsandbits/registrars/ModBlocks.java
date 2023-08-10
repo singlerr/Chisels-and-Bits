@@ -6,10 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import mod.chiselsandbits.api.block.IBlockConstructionManager;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.block.BitStorageBlock;
-import mod.chiselsandbits.block.ChiseledPrinterBlock;
-import mod.chiselsandbits.block.ModificationTableBlock;
-import mod.chiselsandbits.block.PatternScannerBlock;
+import mod.chiselsandbits.block.*;
 import mod.chiselsandbits.materials.LegacyMaterialManager;
 import mod.chiselsandbits.utils.ReflectionHelperBlock;
 import net.minecraft.core.registries.Registries;
@@ -102,7 +99,7 @@ public final class ModBlocks
         LegacyMaterialManager.getInstance()
           .getMaterialNames()
           .forEach((name) -> {
-              MATERIAL_TO_BLOCK_CONVERSIONS.put(name, BLOCK_REGISTRAR.register("chiseled" + name, () -> IBlockConstructionManager.getInstance().createChiseledBlock(BlockBehaviour.Properties.of()
+              MATERIAL_TO_BLOCK_CONVERSIONS.put(name, BLOCK_REGISTRAR.register("chiseled" + name, () -> new MateriallyChiseledConversionBlock(BlockBehaviour.Properties.of()
                 .strength(1.5f, 6f)
                 .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
                 .isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)

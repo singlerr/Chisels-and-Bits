@@ -1,11 +1,18 @@
 package mod.chiselsandbits.utils;
 
+import mod.chiselsandbits.api.config.ICommonConfiguration;
+import mod.chiselsandbits.config.CommonConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.units.qual.K;
 
 public class ClassUtils
 {
     private static final Logger LOGGER = LogManager.getLogger();
+
+    private record Key(Class<?> sourceClass, String methodName, Class<?>... args) {}
+
+    private static final SimpleMaxSizedCache<Key, Class<?>> CACHE = new SimpleMaxSizedCache<>(ICommonConfiguration.getInstance().getClassMetadataCacheSize()::get);
 
     private ClassUtils()
     {
@@ -17,26 +24,30 @@ public class ClassUtils
       final String methodName,
       final Class<?>... args)
     {
-        try
-        {
-            return blkClass.getMethod(methodName, args).getDeclaringClass();
-        }
-        catch (final NoSuchMethodException e)
-        {
-            // nothing here...
-        }
-        catch (final SecurityException e)
-        {
-            // nothing here..
-        }
-        catch (final Throwable e)
-        {
-            return blkClass;
-        }
+        return CACHE.get(
+                new Key(blkClass, methodName, args),
+                () -> {
+                    try
+                    {
+                        return blkClass.getMethod(methodName, args).getDeclaringClass();
+                    }
+                    catch (final NoSuchMethodException e)
+                    {
+                        // nothing here...
+                    }
+                    catch (final SecurityException e)
+                    {
+                        // nothing here..
+                    }
+                    catch (final Throwable e)
+                    {
+                        return blkClass;
+                    }
 
-        return getDeclaringClass(
-          blkClass.getSuperclass(),
-          methodName,
-          args);
+                    return getDeclaringClass(
+                            blkClass.getSuperclass(),
+                            methodName,
+                            args);
+                });
     }
 }

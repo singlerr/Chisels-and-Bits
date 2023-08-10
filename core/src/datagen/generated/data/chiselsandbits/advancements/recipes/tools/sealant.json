@@ -41,5 +41,6 @@
     "recipes": [
       "chiselsandbits:sealant"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

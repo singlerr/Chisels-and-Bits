@@ -14,8 +14,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MateriallyChiseledConversionBlock implements EntityBlock {
+public class MateriallyChiseledConversionBlock extends Block implements EntityBlock {
 
+    public MateriallyChiseledConversionBlock(Properties pProperties) {
+        super(pProperties);
+    }
 
     @Nullable
     @Override

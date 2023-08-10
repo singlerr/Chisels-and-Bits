@@ -2,6 +2,7 @@ package mod.chiselsandbits.registrars;
 
 import com.communi.suggestu.scena.core.registries.deferred.IRegistrar;
 import com.communi.suggestu.scena.core.registries.deferred.IRegistryObject;
+import com.google.common.collect.Lists;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.item.BitStorageBlockItem;
@@ -22,7 +23,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tiers;
-import org.apache.commons.compress.utils.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -78,6 +78,7 @@ public final class ModItems {
             ITEM_REGISTRAR.register("unseal", () -> new UnsealItem(new Item.Properties()));
     public static final IRegistryObject<MonocleItem> MONOCLE_ITEM =
             ITEM_REGISTRAR.register("monocle", () -> new MonocleItem(new Item.Properties()));
+
     public static final IRegistryObject<ChiseledBlockItem> CHISELED_BLOCK =
             ITEM_REGISTRAR.register("chiseled_block", () -> new ChiseledBlockItem(ModBlocks.CHISELED_BLOCK.get(), new Item.Properties()));
 

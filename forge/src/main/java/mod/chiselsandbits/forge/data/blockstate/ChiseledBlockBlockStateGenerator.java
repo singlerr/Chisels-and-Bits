@@ -39,6 +39,8 @@ public class ChiseledBlockBlockStateGenerator extends BlockStateProvider impleme
           .stream()
           .map(IRegistryObject::get)
           .forEach(this::actOnBlock);
+
+        actOnBlock(ModBlocks.CHISELED_BLOCK.get());
     }
 
     @NotNull

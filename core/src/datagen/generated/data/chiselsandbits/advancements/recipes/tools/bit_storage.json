@@ -61,5 +61,6 @@
     "recipes": [
       "chiselsandbits:bit_storage"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

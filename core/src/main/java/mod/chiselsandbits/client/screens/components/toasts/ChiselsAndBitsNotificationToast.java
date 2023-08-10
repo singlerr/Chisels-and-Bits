@@ -63,7 +63,7 @@ public class ChiselsAndBitsNotificationToast<T extends IWithColor & IWithIcon & 
           (float) contents.getAlphaChannel()
         );
         RenderSystem.setShaderTexture(0, contents.getIcon());
-        guiGraphics.blit(TEXTURE, 0, 0, 16,16, 0, 0, 18, 18, 18, 18);
+        guiGraphics.blit(contents.getIcon(), 0, 0, 16,16, 0, 0, 18, 18, 18, 18);
 
         guiGraphics.pose().popPose();
         guiGraphics.pose().popPose();

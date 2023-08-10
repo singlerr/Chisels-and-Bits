@@ -5,13 +5,13 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.client.screen.widget.AbstractChiselsAndBitsWidget;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.ColorUtils;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -36,65 +36,38 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
 
     @SuppressWarnings("deprecation")
     @Override
-    public void renderWidget(final @NotNull PoseStack poseStack, final int mouseX, final int mouseY, final float partialTicks)
+    public void renderWidget(final @NotNull GuiGraphics graphics, final int mouseX, final int mouseY, final float partialTicks)
     {
-        fill(poseStack, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, ColorUtils.pack(139));
-        fill(poseStack, this.getX(), this.getY(), this.getX() + this.width - 1, this.getY() + this.height - 1, ColorUtils.pack(55));
-        fill(poseStack, this.getX() + 1, this.getY() + 1, this.getX() + this.width, this.getY() + this.height, ColorUtils.pack(ColorUtils.FULL_CHANNEL));
-        fill(poseStack, this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, ColorUtils.pack(ColorUtils.EMPTY_CHANNEL));
+        graphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, ColorUtils.pack(139));
+        graphics.fill(this.getX(), this.getY(), this.getX() + this.width - 1, this.getY() + this.height - 1, ColorUtils.pack(55));
+        graphics.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.width, this.getY() + this.height, ColorUtils.pack(ColorUtils.FULL_CHANNEL));
+        graphics.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, ColorUtils.pack(ColorUtils.EMPTY_CHANNEL));
 
         scissorStart();
 
         if (!snapshotBlockStack.isEmpty()) {
-            poseStack.pushPose();
-            renderRotateableItemAndEffectIntoGui(poseStack);
-            poseStack.popPose();
+            graphics.pose().pushPose();
+            renderRotateableItemAndEffectIntoGui(graphics);
+            graphics.pose().popPose();
         }
 
         scissorEnd();
     }
 
     @SuppressWarnings({"deprecation", "ConstantConditions"})
-    public void renderRotateableItemAndEffectIntoGui(@NotNull PoseStack poseStack) {
+    public void renderRotateableItemAndEffectIntoGui(@NotNull GuiGraphics graphics) {
         final int x = this.getX() + this.width / 2 - 8;
         final int y = this.getY() + this.height / 2 - 8;
-        final BakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getModel(
-          snapshotBlockStack,
-          Minecraft.getInstance().level,
-          Minecraft.getInstance().player,
-          0
-        );
 
-        poseStack.pushPose();
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+        graphics.pose().pushPose();
+        graphics.pose().translate((float)x, (float)y, 150);
+        graphics.pose().mulPose(TransformationUtils.quatFromXYZ(this.facingVector.toVector3f(), false));
+        graphics.pose().scale(scaleFactor, scaleFactor, scaleFactor);
+        graphics.pose().translate(-8.0F, -8.0F, 0.0F);
 
-        RenderSystem.enableBlend();
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        graphics.renderItem(snapshotBlockStack, 0, 0);
 
-        poseStack.translate((float)x, (float)y, 150);
-        poseStack.translate(8.0F, 8.0F, 0.0F);
-        poseStack.mulPose(TransformationUtils.quatFromXYZ(this.facingVector.toVector3f(), false));
-        poseStack.scale(scaleFactor, scaleFactor, scaleFactor);
-        poseStack.translate(-8.0F, -8.0F, 0.0F);
-
-        MultiBufferSource.BufferSource irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
-        boolean flag = !bakedmodel.usesBlockLight();
-        if (flag) {
-            Lighting.setupForFlatItems();
-        }
-
-        Minecraft.getInstance().getItemRenderer().renderGuiItem(poseStack, snapshotBlockStack, 0, 0, bakedmodel);
-
-        irendertypebuffer$impl.endBatch();
-        RenderSystem.enableDepthTest();
-        if (flag) {
-            Lighting.setupFor3DItems();
-        }
-
-        poseStack.popPose();
-        RenderSystem.applyModelViewMatrix();
+        graphics.pose().popPose();
     }
 
     public IMultiStateSnapshot getSnapshot()

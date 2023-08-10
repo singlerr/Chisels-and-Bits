@@ -1,9 +1,9 @@
 package mod.chiselsandbits.client.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.container.ChiseledPrinterContainer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -33,26 +33,26 @@ public class ChiseledPrinterScreen extends AbstractContainerScreen<ChiseledPrint
     }
 
     @Override
-    protected void renderBg(@NotNull final PoseStack matrixStack, final float partialTicks, final int x, final int y)
+    protected void renderBg(@NotNull final GuiGraphics graphics, final float partialTicks, final int x, final int y)
     {
-        renderBackground(matrixStack);
+        renderBackground(graphics);
 
         //noinspection deprecation Required.
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, GUI_TEXTURES);
-        this.blit(matrixStack, this.leftPos, this.topPos,0, 0, this.imageWidth, this.imageHeight);
+        graphics.blit(GUI_TEXTURES, this.leftPos, this.topPos,0, 0, this.imageWidth, this.imageHeight);
 
         if (this.menu.getToolStack().isEmpty())
             return;
 
-        this.itemRenderer.renderAndDecorateItem(matrixStack, this.menu.getToolStack(), this.leftPos + 81, this.topPos + 47);
+        graphics.renderItem(this.menu.getToolStack(), this.leftPos + 81, this.topPos + 47);
 
         RenderSystem.setShaderTexture(0, GUI_TEXTURES);
         int scaledProgress = this.menu.getChiselProgressionScaled();
-        matrixStack.pushPose();
-        matrixStack.translate(0,0,400);
-        this.blit(matrixStack, this.leftPos + 73 + 10 + scaledProgress, this.topPos + 49, this.imageWidth + scaledProgress, 0, 16 - scaledProgress, 16);
-        matrixStack.popPose();
+        graphics.pose().pushPose();
+        graphics.pose().translate(0,0,400);
+        graphics.blit(GUI_TEXTURES, this.leftPos + 73 + 10 + scaledProgress, this.topPos + 49, this.imageWidth + scaledProgress, 0, 16 - scaledProgress, 16);
+        graphics.pose().popPose();
     }
 }

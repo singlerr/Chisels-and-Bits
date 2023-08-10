@@ -55,8 +55,8 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
         final VoxelShape targetingShape = BlockPosStreamProvider.getForRange(
           player.isShiftKeyDown() ? targetedPoint : Vec3.atLowerCornerOf(targetedPosition) ,
           player.isShiftKeyDown() ? targetedPoint.add(0.9999, 0.9999,0.9999): Vec3.atLowerCornerOf(targetedPosition)
-        ).map(position -> player.level.getBlockState(position).getShape(
-          player.level,
+        ).map(position -> player.level().getBlockState(position).getShape(
+          player.level(),
           position
         ).move(
           position.getX() - targetedPosition.getX(),

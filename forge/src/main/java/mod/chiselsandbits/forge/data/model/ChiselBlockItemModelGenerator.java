@@ -3,9 +3,11 @@ package mod.chiselsandbits.forge.data.model;
 import com.communi.suggestu.scena.core.registries.deferred.IRegistryObject;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModBlocks;
+import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.CustomLoaderBuilder;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
@@ -21,6 +23,8 @@ import java.util.Objects;
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChiselBlockItemModelGenerator extends ItemModelProvider implements DataProvider
 {
+    private static final ResourceLocation LOADER = new ResourceLocation(Constants.MOD_ID, "chiseled_block");
+
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
@@ -37,18 +41,32 @@ public class ChiselBlockItemModelGenerator extends ItemModelProvider implements 
         ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values()
           .stream()
           .map(IRegistryObject::get)
-          .forEach(block -> actOnBlockWithLoader(new ResourceLocation(Constants.MOD_ID, "chiseled_block"), block));
+          .forEach(this::actOnBlockWithLoader);
+
+        actOnBlockWithLoader(ModBlocks.CHISELED_BLOCK.get());
+        actOnItemWithLoader(ModItems.CHISELED_BLOCK.get());
     }
 
-    public void actOnBlockWithLoader(final ResourceLocation loader, final Block block)
+    public void actOnBlockWithLoader(final Block block)
     {
         getBuilder(
                 Objects.requireNonNull(ForgeRegistries.BLOCKS.getKey(block)).getPath()
         )
           .parent(getExistingFile(new ResourceLocation("item/generated")))
-          .customLoader((itemModelBuilder, existingFileHelper) -> new CustomLoaderBuilder<>(loader, itemModelBuilder, existingFileHelper)
+          .customLoader((itemModelBuilder, existingFileHelper) -> new CustomLoaderBuilder<>(LOADER, itemModelBuilder, existingFileHelper)
           {
           });
+    }
+
+    public void actOnItemWithLoader(final Item item)
+    {
+        getBuilder(
+                Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item)).getPath()
+        )
+                .parent(getExistingFile(new ResourceLocation("item/generated")))
+                .customLoader((itemModelBuilder, existingFileHelper) -> new CustomLoaderBuilder<>(LOADER, itemModelBuilder, existingFileHelper)
+                {
+                });
     }
 
     @NotNull
