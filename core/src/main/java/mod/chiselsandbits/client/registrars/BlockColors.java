@@ -31,6 +31,10 @@ public final class BlockColors
                       new ChiseledBlockBlockColor(),
                       ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values().stream().map(IRegistryObject::get).toArray(Block[]::new)
               );
+              configuration.register(
+                      new ChiseledBlockBlockColor(),
+                      ModBlocks.CHISELED_BLOCK.get()
+              );
           }
         );
     }

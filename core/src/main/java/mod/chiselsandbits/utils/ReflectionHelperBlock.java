@@ -31,7 +31,7 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     private void markMethod()
     {
         setLastInvokedThreadLocalMethodName(
-                StackWalker.getInstance().walk(stream -> stream.findFirst().map(StackWalker.StackFrame::getMethodName).orElse("unknown"))
+                StackWalker.getInstance().walk(stream -> stream.skip(1).findFirst().map(StackWalker.StackFrame::getMethodName).orElse("unknown"))
         );
     }
 
