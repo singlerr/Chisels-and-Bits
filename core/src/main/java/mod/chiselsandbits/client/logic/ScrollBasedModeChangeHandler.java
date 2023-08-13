@@ -1,7 +1,8 @@
-package mod.chiselsandbits.logic;
+package mod.chiselsandbits.client.logic;
 
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.network.packets.HeldToolModeChangedPacket;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -22,6 +23,9 @@ public class ScrollBasedModeChangeHandler
             return false;
 
         if (!(stack.getItem() instanceof final IWithModeItem<?> toolModeItem))
+            return false;
+
+        if (!IClientConfiguration.getInstance().getShouldScrollInteractionsChangeMode().get())
             return false;
 
         final List<?> modes = Lists.newArrayList(toolModeItem.getPossibleModes());
