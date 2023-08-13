@@ -8,7 +8,7 @@ import mod.chiselsandbits.client.time.TickHandler;
 import mod.chiselsandbits.clipboard.CreativeClipboardManager;
 import mod.chiselsandbits.keys.KeyBindingManager;
 import mod.chiselsandbits.logic.MagnifyingGlassTooltipHandler;
-import mod.chiselsandbits.logic.ScrollBasedModeChangeHandler;
+import mod.chiselsandbits.client.logic.ScrollBasedModeChangeHandler;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 public final class EventHandlers {

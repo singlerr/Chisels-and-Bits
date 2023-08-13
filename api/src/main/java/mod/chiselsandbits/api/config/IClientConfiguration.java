@@ -227,4 +227,11 @@ public interface IClientConfiguration
      * @return A configuration supplier which indicates if an error notification should be shown when the player attempts to chisel during a cool down or not.
      */
     Supplier<Boolean> getShowCoolDownError();
+
+    /**
+     * Indicates if a scroll interactions should change the mode of a held item.
+     *
+     * @return A configuration supplier which indicates if a scroll interactions should change the mode of a held item.
+     */
+    Supplier<Boolean> getShouldScrollInteractionsChangeMode();
 }

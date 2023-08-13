@@ -43,6 +43,7 @@ public class ClientConfiguration implements IClientConfiguration
     private final Supplier<String>                     patternExportPath;
     private final Supplier<Boolean> showCoolDownError;
     private final Supplier<Long> cullTestingCacheSize;
+    private final Supplier<Boolean> shouldScrollInteractionsChangeMode;
 
     public ClientConfiguration()
     {
@@ -77,6 +78,7 @@ public class ClientConfiguration implements IClientConfiguration
           .availableProcessors());
         stackModelCacheSize = builder.defineLong("performance.caches.sizes.stack-models", 100, 0, Long.MAX_VALUE);
         showCoolDownError = builder.defineBoolean("settings.warnings.show-cool-down-error", false);
+        shouldScrollInteractionsChangeMode = builder.defineBoolean("settings.interactions.scrolling-changes-mode", true);
 
         builder.setup();
     }
@@ -245,5 +247,10 @@ public class ClientConfiguration implements IClientConfiguration
     @Override
     public Supplier<Boolean> getShowCoolDownError() {
         return showCoolDownError;
+    }
+
+    @Override
+    public Supplier<Boolean> getShouldScrollInteractionsChangeMode() {
+        return shouldScrollInteractionsChangeMode;
     }
 }

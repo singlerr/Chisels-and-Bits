@@ -344,6 +344,7 @@
   "mod.chiselsandbits.config.settings.bit-bag.comment": "Bit-Bag settings",
   "mod.chiselsandbits.config.settings.bit-bag.invert-durability-bar-indication.comment": "Should the durability bar display the emptiness of the bag instead of the fullness?",
   "mod.chiselsandbits.config.settings.placement.render-mode.comment": "Configures the render mode of chiseled block and pattern placement previews",
+  "mod.chiselsandbits.config.settings.interactions.scrolling-changes-mode.comment": "Whether or not a scrolling action while holding shift and a C&B item with different modes switches mode.",
   "mod.chiselsandbits.config.settings.placement.render-mode.success.comment": "The render mode of successful placement",
   "mod.chiselsandbits.config.settings.placement.render-mode.failed.comment": "The render mode of failed placement",
   "mod.chiselsandbits.config.settings.placement.color.comment": "Configures the color of chiseled block and pattern placement previews",
