@@ -21,7 +21,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -71,7 +74,7 @@ public final class ModCreativeTabs
                             if (block instanceof ChiseledBlock)
                                 return;
 
-                            final BlockState blockState = block.defaultBlockState();
+                            BlockState blockState = block.defaultBlockState();
                             final Collection<IBlockInformation> defaultStateVariants = IStateVariantManager.getInstance().getAllDefaultVariants(blockState);
 
                             if (!defaultStateVariants.isEmpty()) {
@@ -82,6 +85,14 @@ public final class ModCreativeTabs
                                         output.accept(resultStack);
                                 });
                                 return;
+                            }
+                            
+                            //We need to make sure that we only have still fluids in the interface!
+                            if (blockState.getBlock() instanceof LiquidBlock liquidBlock) {
+                                final Fluid fluid = liquidBlock.getFluidState(blockState).getType();
+                                if (fluid instanceof FlowingFluid flowingFluid) {
+                                    blockState = flowingFluid.getSource().defaultFluidState().createLegacyBlock();
+                                }
                             }
 
                             final BlockInformation information = new BlockInformation(blockState, Optional.empty());

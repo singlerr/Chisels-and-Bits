@@ -27,6 +27,8 @@ public class NbtConstants
     public static final String PRIMARY_BLOCK_INFORMATION = "primary_block_information";
     public static final String BLOCK                   = "block";
     public static final String DEFAULT_INSTANCE_INDICATOR = "default_instance_indicator";
+    public static final String EMITS_LIGHT_BASED_ON_FULL_BLOCK = "emits_light_based_on_full_block";
+    public static final String CAN_BE_FLOODED = "can_be_flooded";
 
     private NbtConstants()
     {

@@ -310,6 +310,28 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
         this.storageEngine.serializeNBTInto(compound);
     }
+    
+    @Override
+    public boolean isCanBeFlooded() {
+        return mutableStatistics.isCanBeFlooded();
+    }
+    
+    @Override
+    public void setCanBeFlooded(boolean canBeFlooded) {
+        this.mutableStatistics.setCanBeFlooded(canBeFlooded);
+        setChanged();
+    }
+    
+    @Override
+    public boolean isEmitsLightBasedOnFullBlock() {
+        return mutableStatistics.isEmitsLightBasedOnFullBlock();
+    }
+    
+    @Override
+    public void setEmitsLightBasedOnFullBlock(boolean emitsLightBasedOnFullBlock) {
+        mutableStatistics.setEmitsLightBasedOnFullBlock(emitsLightBasedOnFullBlock);
+        setChanged();
+    }
 
     /**
      * For tile entities, ensures the chunk containing the tile entity is saved to disk later - the game won't think it hasn't changed and skip it.
@@ -347,6 +369,8 @@ public class ChiseledBlockEntity extends BlockEntity implements
             getLevel().updateNeighborsAt(getBlockPos(), getLevel().getBlockState(getBlockPos()).getBlock());
         }
     }
+    
+    
 
     private void setOffThreadSaveResult(final CompoundTag tag) {
         synchronized (this.tagSyncHandle) {
@@ -863,6 +887,8 @@ public class ChiseledBlockEntity extends BlockEntity implements
         private int totalUsedChecksWeakPowerCount = 0;
         private int totalLightLevel = 0;
         private int totalLightBlockLevel = 0;
+        private boolean canBeFlooded = true;
+        private boolean emitsLightBasedOnFullBlock = false;
 
         private boolean requiresRecalculation = false;
 
@@ -906,6 +932,9 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
         @Override
         public float getLightEmissionFactor() {
+            if (emitsLightBasedOnFullBlock)
+                return this.totalLightLevel / (float) StateEntrySize.current().getBitsPerBlock();
+            
             return this.totalLightLevel / (float) this.totalUsedBlockCount;
         }
 
@@ -1206,6 +1235,9 @@ public class ChiseledBlockEntity extends BlockEntity implements
                         packetBuffer.writeVarInt(collisionType.ordinal());
                         packetBuffer.writeLongArray(bitSet.toLongArray());
                     });
+            
+            packetBuffer.writeBoolean(canBeFlooded);
+            packetBuffer.writeBoolean(emitsLightBasedOnFullBlock);
         }
 
         @Override
@@ -1248,6 +1280,9 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 final BitSet set = BitSet.valueOf(packetBuffer.readLongArray());
                 this.collisionData.put(collisionType, set);
             }
+            
+            this.canBeFlooded = packetBuffer.readBoolean();
+            this.emitsLightBasedOnFullBlock = packetBuffer.readBoolean();
         }
 
         @Override
@@ -1288,6 +1323,9 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 collisionDataNbt.putLongArray(collisionType.name(), getCollideableEntries(collisionType).toLongArray());
             }
             nbt.put(NbtConstants.COLLISION_DATA, collisionDataNbt);
+            
+            nbt.putBoolean(NbtConstants.CAN_BE_FLOODED, canBeFlooded);
+            nbt.putBoolean(NbtConstants.EMITS_LIGHT_BASED_ON_FULL_BLOCK, emitsLightBasedOnFullBlock);
 
             return nbt;
         }
@@ -1362,6 +1400,9 @@ public class ChiseledBlockEntity extends BlockEntity implements
             } else {
                 this.requiresRecalculation = true;
             }
+            
+            this.canBeFlooded = !nbt.contains(NbtConstants.CAN_BE_FLOODED) || nbt.getBoolean(NbtConstants.CAN_BE_FLOODED);
+            this.emitsLightBasedOnFullBlock = nbt.contains(NbtConstants.EMITS_LIGHT_BASED_ON_FULL_BLOCK) && nbt.getBoolean(NbtConstants.EMITS_LIGHT_BASED_ON_FULL_BLOCK);
         }
 
         public void initializeWith(final IBlockInformation blockInformation) {
@@ -1512,7 +1553,23 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 getCollideableEntries(collisionType);
             }
         }
-
+        
+        public boolean isCanBeFlooded() {
+            return canBeFlooded;
+        }
+        
+        public void setCanBeFlooded(boolean canBeFlooded) {
+            this.canBeFlooded = canBeFlooded;
+            
+        }
+        
+        public boolean isEmitsLightBasedOnFullBlock() {
+            return emitsLightBasedOnFullBlock;
+        }
+        
+        public void setEmitsLightBasedOnFullBlock(boolean emitsLightBasedOnFullBlock) {
+            this.emitsLightBasedOnFullBlock = emitsLightBasedOnFullBlock;
+        }
     }
 
     private final class ColumnStatistics implements INBTSerializable<CompoundTag>, IPacketBufferSerializable {

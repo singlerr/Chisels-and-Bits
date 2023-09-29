@@ -36,6 +36,7 @@ import mod.chiselsandbits.clipboard.CreativeClipboardUtils;
 import mod.chiselsandbits.network.packets.NeighborBlockUpdatedPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -57,6 +58,7 @@ import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.PushReaction;
@@ -390,12 +392,15 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     @Override
     public boolean canPlaceLiquid(final @NotNull BlockGetter worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final Fluid fluidIn)
     {
-        return IEligibilityManager.getInstance().canBeChiseled(new BlockInformation(fluidIn.defaultFluidState().createLegacyBlock(), IStateVariantManager.getInstance().getStateVariant(fluidIn.defaultFluidState())));
+        return IEligibilityManager.getInstance().canBeChiseled(new BlockInformation(fluidIn.defaultFluidState().createLegacyBlock(), IStateVariantManager.getInstance().getStateVariant(fluidIn.defaultFluidState()))) &&
+              worldIn.getBlockEntity(pos) instanceof IMultiStateBlockEntity multiStateBlockEntity && multiStateBlockEntity.isCanBeFlooded();
     }
 
     @Override
     public boolean placeLiquid(final @NotNull LevelAccessor worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final @NotNull FluidState fluidStateIn)
     {
+        final Fluid still = fluidStateIn.getType() instanceof FlowingFluid ? ((FlowingFluid) fluidStateIn.getType()).getSource() : fluidStateIn.getType();
+        
         return getBlockEntity(worldIn, pos)
                  .map(entity -> {
                      try (IBatchMutation ignored = entity.batch())
@@ -404,7 +409,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                            stateEntry -> {
                                if (stateEntry.getBlockInformation().isAir())
                                {
-                                   final BlockState blockState = fluidStateIn.createLegacyBlock();
+                                   final BlockState blockState = still.defaultFluidState().createLegacyBlock();
                                    final Optional<IStateVariant> additionalStateInfo = IStateVariantManager.getInstance()
                                      .getStateVariant(
                                        fluidStateIn
@@ -596,7 +601,60 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                      })
                      .orElse(InteractionResult.PASS);
         }
+        
+        if (itemStack.is(Items.GLOWSTONE_DUST)) {
+            return getBlockEntity(level, blockPos)
+                         .map(blockEntity -> {
+                            if (blockEntity.isEmitsLightBasedOnFullBlock()) {
+                                blockEntity.setEmitsLightBasedOnFullBlock(false);
+                                return InteractionResult.CONSUME;
+                            }
+                            
+                            return InteractionResult.PASS;
+                         })
+                         .orElse(InteractionResult.PASS);
+        }
+        
+        if (itemStack.is(Items.BLACK_DYE)) {
+            return getBlockEntity(level, blockPos)
+                         .map(blockEntity -> {
+                             if (!blockEntity.isEmitsLightBasedOnFullBlock()) {
+                                 blockEntity.setEmitsLightBasedOnFullBlock(true);
+                                 return InteractionResult.CONSUME;
+                             }
+                             
+                             return InteractionResult.PASS;
+                         })
+                         .orElse(InteractionResult.PASS);
+        }
 
+        if (itemStack.is(Items.HONEYCOMB)) {
+            return getBlockEntity(level, blockPos)
+                         .map(blockEntity -> {
+                             if (blockEntity.isCanBeFlooded()) {
+                                 blockEntity.setCanBeFlooded(false);
+                                 return InteractionResult.CONSUME;
+                             }
+                             
+                             return InteractionResult.PASS;
+                         }).orElse(InteractionResult.PASS);
+        }
+        
+        if (itemStack.is(Items.SHEARS)) {
+            return getBlockEntity(level, blockPos)
+                         .map(blockEntity -> {
+                             if (!blockEntity.isCanBeFlooded()) {
+                                 blockEntity.setCanBeFlooded(true);
+                                 if (player instanceof ServerPlayer serverPlayer) {
+                                    itemStack.hurt(1, level.getRandom(), serverPlayer);
+                                 }
+                                 return InteractionResult.SUCCESS;
+                             }
+                             
+                             return InteractionResult.PASS;
+                         }).orElse(InteractionResult.PASS);
+        }
+        
         return InteractionResult.PASS;
     }
 
