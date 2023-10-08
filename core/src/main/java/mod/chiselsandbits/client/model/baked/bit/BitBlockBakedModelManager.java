@@ -91,9 +91,16 @@ public class BitBlockBakedModelManager
     public BakedModel get(
       final boolean large,
       IBlockInformation blockInformation,
-      final Level level,
+      Level level,
       final LivingEntity entity)
     {
+        if (level == null) {
+            level = Minecraft.getInstance().level;
+            
+            if (level == null)
+                return NullBakedModel.instance;
+        }
+        
         if (blockInformation.isAir() || blockInformation == null)
         {
             if (alternativeStacks.isEmpty()) {
@@ -116,6 +123,7 @@ public class BitBlockBakedModelManager
         final IBlockInformation workingState = blockInformation;
         try
         {
+            Level finalLevel = level;
             return target.get(blockInformation, () -> {
                 if (large)
                 {
@@ -128,7 +136,7 @@ public class BitBlockBakedModelManager
                     }
                     return Minecraft.getInstance().getItemRenderer().getModel(
                       lookupStack,
-                      level,
+                      finalLevel,
                       entity,
                       0
                     );
