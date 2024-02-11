@@ -13,7 +13,7 @@ import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
-import mod.chiselsandbits.api.util.SingleBlockWorldReader;
+import mod.chiselsandbits.api.util.SingleBlockLevelReader;
 import mod.chiselsandbits.block.BitStorageBlock;
 import mod.chiselsandbits.registrars.ModBlockEntityTypes;
 import mod.chiselsandbits.utils.BitInventoryUtils;
@@ -129,7 +129,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
     public int getLightValue()
     {
         return ILevelBasedPropertyAccessor.getInstance().getLightEmission(
-          new SingleBlockWorldReader(
+          new SingleBlockLevelReader(
             state == null ? BlockInformation.AIR : state,
             getBlockPos(),
             getLevel()

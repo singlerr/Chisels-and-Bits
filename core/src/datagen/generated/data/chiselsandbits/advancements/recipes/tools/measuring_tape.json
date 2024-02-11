@@ -40,16 +40,15 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_i",
       "has_s",
-      "has_y",
-      "has_the_recipe"
+      "has_y"
     ]
   ],
   "rewards": {
     "recipes": [
       "chiselsandbits:measuring_tape"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

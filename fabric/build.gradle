@@ -1,21 +1,20 @@
 plugins {
     id 'fabric-loom'
-    id 'com.matthewprenger.cursegradle'
+    id 'net.darkhax.curseforgegradle'
 }
 
+project.addApiProject()
 project.addCoreProject()
 
 project.dependencies.minecraft "com.mojang:minecraft:${project.minecraftVersion}"
 project.dependencies.modImplementation "net.fabricmc:fabric-loader:${project.fabricLoaderVersion}"
 project.dependencies.modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabricVersion}+${project.minecraftVersion}"
-project.dependencies.modImplementation "com.communi-suggestu.scena:scena-fabric:${project.scenaVersion}"
-project.dependencies.modImplementation "com.communi-suggestu.saecularia-caudices:saecularia-caudices-fabric:${project.saeculariaCaudicesVersion}"
+project.dependencies.modImplementation "com.communi-suggestu.scena:fabric:${project.scenaVersion}"
 project.dependencies.implementation "org.lz4:lz4-pure-java:${project.lz4Version}"
 
 project.dependencies.include "org.lz4:lz4-pure-java:${project.lz4Version}"
 
-project.dependencies.include "com.communi-suggestu.scena:scena-fabric:${project.scenaVersion}"
-project.dependencies.include "com.communi-suggestu.saecularia-caudices:saecularia-caudices-fabric:${project.saeculariaCaudicesVersion}"
+project.dependencies.include "com.communi-suggestu.scena:fabric:${project.scenaVersion}"
 
 project.dependencies.mappings loom.layered() { layer ->
     layer.officialMojangMappings()
@@ -45,32 +44,30 @@ project.loom {
     }
 }
 
+
+
 if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
-    project.curseforge { cf ->
-        cf.apiKey = opc.hasPropertySet("curseApiKey") ? opc.getProperty("curseApiKey") : opc.getProperty("CURSEAPIKEY")
+    task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+        apiToken = opc.hasPropertySet("curseApiKey") ? opc.getProperty("curseApiKey") : opc.getProperty("CURSEAPIKEY")
 
-        project { cp ->
-            cp.id = "561059"
-            cp.addGameVersion "Fabric"
-            cp.addGameVersion "Java ${java.toolchain.languageVersion.get().asInt()}"
-            cp.addGameVersion(project.minecraftVersion)
-            cp.changelog = rootProject.file('build/changelog.md')
-            cp.changelogType = 'markdown'
-            cp.releaseType = 'release'
+        def mainArtifact = upload("561059", tasks.remapJar)
+        opc.getStringListProperty("additionalMinecraftVersions").each { v ->
+            mainArtifact.addGameVersion(v)
+        }
 
-            opc.getStringListProperty("additionalMinecraftVersions").each { v ->
-                cp.addGameVersion(v)
+        mainArtifact.releaseType = opc.hasPropertySet("curseReleaseType") ? opc.getProperty("curseReleaseType") : opc.getProperty("CURSERELEASETYPE")
+        if (opc.isFeatureEnabled('reformatedCurseFiles')) {
+            def mainArtifactName = rootProject.name
+            if (opc.isFeatureEnabled('customCurseFileName')) {
+                mainArtifactName = opc.getProperty('customCurseFileName')
             }
 
-            cp.mainArtifact(remapJar)
-
-            afterEvaluate {
-                uploadTask.dependsOn remapJar
-            }
-
+            mainArtifact.displayName = mainArtifactName + " - " + project.version + " - " + mainArtifact.releaseType
         }
-        options {
-            forgeGradleIntegration = false
-        }
+
+        mainArtifact.changelog = file('build/changelog.md')
+        mainArtifact.changelogType = 'markdown'
+
+        dependsOn rootProject.tasks.createChangelog
     }
 }

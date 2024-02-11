@@ -105,6 +105,7 @@ public class ToolModeSelectionWidget<M extends IToolMode<G>, G extends IToolMode
         this.owner = screen;
         this.toolModeItem = toolModeItem;
         this.sourceStack = sourceStack;
+        this.visible = false;
     }
 
     @SuppressWarnings({"SuspiciousMethodCalls", "unchecked"})
@@ -149,13 +150,6 @@ public class ToolModeSelectionWidget<M extends IToolMode<G>, G extends IToolMode
         rebuildPagingControl();
 
         rebuildPageControl();
-    }
-
-    @Override
-    public void render(final @NotNull GuiGraphics stack, final int mouseX, final int mouseY, final float partialTickTime)
-    {
-        //Noop.
-        //This is a wrapping widget.
     }
 
     @Override

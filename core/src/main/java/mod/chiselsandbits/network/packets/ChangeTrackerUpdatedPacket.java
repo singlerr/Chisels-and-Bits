@@ -2,6 +2,7 @@ package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.network.handlers.ClientPacketHandlers;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.network.FriendlyByteBuf;
 
 public final class ChangeTrackerUpdatedPacket extends ModPacket
@@ -27,7 +28,7 @@ public final class ChangeTrackerUpdatedPacket extends ModPacket
     @Override
     public void readPayload(final FriendlyByteBuf buffer)
     {
-        this.tag = buffer.readAnySizeNbt();
+        this.tag = (CompoundTag) buffer.readNbt(NbtAccounter.unlimitedHeap());
     }
 
     @Override

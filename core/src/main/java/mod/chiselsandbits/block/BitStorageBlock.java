@@ -24,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -121,7 +122,7 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
     }
 
     @Override
-    public @NotNull ItemStack getCloneItemStack(final BlockGetter blockGetter, final @NotNull BlockPos blockPos, final @NotNull BlockState state)
+    public @NotNull ItemStack getCloneItemStack(final LevelReader blockGetter, final @NotNull BlockPos blockPos, final @NotNull BlockState state)
     {
         if (!(blockGetter.getBlockEntity(blockPos) instanceof BitStorageBlockEntity bitStorageBlockEntity))
             return super.getCloneItemStack(blockGetter, blockPos, state);

@@ -5,14 +5,18 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.client.main.GameConfig;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.function.ToIntFunction;
 
 public class BlockStateSerializationUtils
 {
-
-
     private static final Gson GSON = new Gson();
 
     private BlockStateSerializationUtils()
@@ -34,11 +38,11 @@ public class BlockStateSerializationUtils
     }
 
     public static BlockState deserialize(final FriendlyByteBuf buffer) {
-        return buffer.readWithCodec(NbtOps.INSTANCE, BlockState.CODEC);
+        return buffer.readById(Block.BLOCK_STATE_REGISTRY);
     }
 
     public static void serialize(final FriendlyByteBuf buf, final BlockState blockState) {
-        buf.writeWithCodec(NbtOps.INSTANCE, BlockState.CODEC, blockState);
+        buf.writeById(Block.BLOCK_STATE_REGISTRY::getId, blockState);
     }
 
 }

@@ -32,15 +32,14 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_p",
-      "has_b",
-      "has_the_recipe"
+      "has_b"
     ]
   ],
   "rewards": {
     "recipes": [
       "chiselsandbits:wrench"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

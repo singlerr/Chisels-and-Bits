@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,7 @@ import java.util.List;
 
 public class ChiselsAndBitsNotificationToast<T extends IWithColor & IWithIcon & IWithText> implements Toast
 {
+    private static final ResourceLocation BACKGROUND_SPRITE = new ResourceLocation("toast/advancement");
     private final T contents;
 
     public static <G extends IWithColor & IWithIcon & IWithText> void notifyOf(G contents) {
@@ -29,9 +31,9 @@ public class ChiselsAndBitsNotificationToast<T extends IWithColor & IWithIcon & 
     public @NotNull Visibility render(final @NotNull GuiGraphics guiGraphics, final @NotNull ToastComponent toastComponent, final long time)
     {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, TEXTURE);
+        RenderSystem.setShaderTexture(0, BACKGROUND_SPRITE);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(TEXTURE, 0, 0, 0, 0, this.width(), this.height());
+        guiGraphics.blit(BACKGROUND_SPRITE, 0, 0, 0, 0, this.width(), this.height());
 
         List<FormattedCharSequence> list = toastComponent.getMinecraft().font.split(contents.getText(), 125);
         int textColor = 16746751;

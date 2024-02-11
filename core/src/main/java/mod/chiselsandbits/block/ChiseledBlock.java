@@ -25,7 +25,7 @@ import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.ArrayUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
-import mod.chiselsandbits.api.util.SingleBlockWorldReader;
+import mod.chiselsandbits.api.util.SingleBlockLevelReader;
 import mod.chiselsandbits.api.variant.state.IStateVariant;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
@@ -61,7 +61,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -390,7 +389,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     }
 
     @Override
-    public boolean canPlaceLiquid(final @NotNull BlockGetter worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final Fluid fluidIn)
+    public boolean canPlaceLiquid(final Player player, final @NotNull BlockGetter worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final Fluid fluidIn)
     {
         return IEligibilityManager.getInstance().canBeChiseled(new BlockInformation(fluidIn.defaultFluidState().createLegacyBlock(), IStateVariantManager.getInstance().getStateVariant(fluidIn.defaultFluidState()))) &&
               worldIn.getBlockEntity(pos) instanceof IMultiStateBlockEntity multiStateBlockEntity && multiStateBlockEntity.isCanBeFlooded();
@@ -433,8 +432,10 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                  .orElse(false);
     }
 
+
+
     @Override
-    public @NotNull ItemStack pickupBlock(final @NotNull LevelAccessor p_154560_, final @NotNull BlockPos p_154561_, final @NotNull BlockState p_154562_)
+    public @NotNull ItemStack pickupBlock(final Player player, final @NotNull LevelAccessor p_154560_, final @NotNull BlockPos p_154561_, final @NotNull BlockState p_154562_)
     {
         return ItemStack.EMPTY;
     }
@@ -477,7 +478,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                                 .stream()
                                 .filter(entryState -> !entryState.isAir())
                                 .allMatch(entryState -> ILevelBasedPropertyAccessor.getInstance().getBeaconColorMultiplier(
-                                  new SingleBlockWorldReader(
+                                  new SingleBlockLevelReader(
                                     e.getStatistics().getPrimaryState(),
                                     pos,
                                     levelReader
@@ -490,7 +491,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                    .stream()
                    .filter(entryState -> !entryState.getKey().isAir())
                    .map(entryState -> ArrayUtils.multiply(ILevelBasedPropertyAccessor.getInstance().getBeaconColorMultiplier(
-                     new SingleBlockWorldReader(
+                     new SingleBlockLevelReader(
                        entryState.getKey(),
                        pos,
                        levelReader
@@ -527,7 +528,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
         return getBlockEntity(levelReader, pos)
                  .map(blockEntity -> blockEntity.getStatistics().getPrimaryState())
                  .map(blockState -> ILevelBasedPropertyAccessor.getInstance().getSoundType(
-                   new SingleBlockWorldReader(blockState, pos, levelReader),
+                   new SingleBlockLevelReader(blockState, pos, levelReader),
                    pos,
                    entity
                  ))
@@ -556,14 +557,15 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     }
 
     @Override
-    public void playerWillDestroy(final @NotNull Level level, final @NotNull BlockPos blockPos, final @NotNull BlockState blockState, final @NotNull Player player)
+    public BlockState playerWillDestroy(final @NotNull Level level, final @NotNull BlockPos blockPos, final @NotNull BlockState blockState, final @NotNull Player player)
     {
-        super.playerWillDestroy(level, blockPos, blockState, player);
+        final BlockState superResult = super.playerWillDestroy(level, blockPos, blockState, player);
         if (level.isClientSide())
             getBlockEntity(level, blockPos)
               .map(IMultiStateBlockEntity::createSnapshot)
               .map(IMultiStateSnapshot::toItemStack)
               .ifPresent(CreativeClipboardUtils::addBrokenBlock);
+        return superResult;
     }
 
     @Override

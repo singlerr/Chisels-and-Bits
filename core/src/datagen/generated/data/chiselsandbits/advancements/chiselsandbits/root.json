@@ -12,7 +12,6 @@
     }
   },
   "display": {
-    "announce_to_chat": true,
     "background": "minecraft:textures/gui/advancements/backgrounds/stone.png",
     "description": {
       "translate": "mod.chiselsandbits.advancements.root.description"
@@ -23,7 +22,6 @@
       "item": "chiselsandbits:chisel_diamond",
       "nbt": "{Damage:0}"
     },
-    "show_toast": true,
     "title": {
       "translate": "mod.chiselsandbits.advancements.root.title"
     }

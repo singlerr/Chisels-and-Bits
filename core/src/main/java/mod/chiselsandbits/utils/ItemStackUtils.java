@@ -1,6 +1,7 @@
 package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.util.SingleBlockLevelReader;
 import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.click.ILeftClickControllingItem;
@@ -68,7 +69,7 @@ public class ItemStackUtils
         }
         else if (block instanceof CropBlock)
         {
-            final ItemStack stack = block.getCloneItemStack(new SingleBlockBlockReader(blockInformation), BlockPos.ZERO, blockInformation.getBlockState());
+            final ItemStack stack = block.getCloneItemStack(new SingleBlockLevelReader(blockInformation), BlockPos.ZERO, blockInformation.getBlockState());
             if (!stack.isEmpty())
             {
                 return stack.getItem();

@@ -14,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class ClientChiseledBlockExtensions
 {
-
     @Nullable
     private BlockState getPrimaryState(Level level, BlockPos pos) {
         final BlockEntity blockEntity = level.getBlockEntity(pos);

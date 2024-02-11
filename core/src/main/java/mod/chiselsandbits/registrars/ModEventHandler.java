@@ -1,19 +1,23 @@
 package mod.chiselsandbits.registrars;
 
+import com.communi.suggestu.scena.core.entity.block.IBlockEntityPositionManager;
 import com.communi.suggestu.scena.core.event.*;
+import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.block.entity.INetworkUpdatableEntity;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
+import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.logic.*;
+import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.List;
 
 public final class ModEventHandler {
 
@@ -40,13 +44,13 @@ public final class ModEventHandler {
                         mapResult(result)
                 );
 
-                return new Result(state.shouldCancel(), mapResult(state.getNextState()));
+                return new Result(state.shouldCancel(), mapResult(state.getNextState()), mapResult(state.getNextState()));
             }
 
             private static ClickProcessingState.ProcessingResult mapResult(
                     final IPlayerLeftClickBlockEvent.Result result)
             {
-                return switch (result.result())
+                return switch (result.useItemResult())
                         {
                             case DENY -> ClickProcessingState.ProcessingResult.DENY;
                             case DEFAULT -> ClickProcessingState.ProcessingResult.DEFAULT;
@@ -82,16 +86,16 @@ public final class ModEventHandler {
                         blockPos,
                         direction,
                         result.handled(),
-                        mapResult(result)
+                        mapItemResult(result)
                 );
 
-                return new Result(state.shouldCancel(), mapResult(state.getNextState(), result.result()), mapResult(state.getNextState(), result.useItemResult()), mapResult(state.getNextState(), result.useBlockResult()));
+                return new Result(state.shouldCancel(), mapResult(state.getNextState(), result.useItemResult()), mapResult(state.getNextState(), result.useBlockResult()));
             }
 
-            private static ClickProcessingState.ProcessingResult mapResult(
+            private static ClickProcessingState.ProcessingResult mapItemResult(
                     final IPlayerRightClickBlockEvent.Result result)
             {
-                return switch (result.result())
+                return switch (result.useItemResult())
                         {
                             case DENY -> ClickProcessingState.ProcessingResult.DENY;
                             case DEFAULT -> ClickProcessingState.ProcessingResult.DEFAULT;
@@ -113,5 +117,19 @@ public final class ModEventHandler {
         });
         IGameEvents.getInstance().getServerAboutToStartEvent().register(minecraftServer -> ServerStartHandler.onServerStart());
         IGameEvents.getInstance().getServerPostTickEvent().register(minecraftServer -> ServerTickHandler.onPostServerTick());
+
+        IGameEvents.getInstance().getChunkSentEvent().register((serverPlayer, levelChunk, serverLevel) -> {
+            IBlockEntityPositionManager.getInstance().getPositions(ChiseledBlockEntity.class, serverLevel, levelChunk.getPos())
+                    .stream()
+                    .map(serverLevel::getBlockEntity)
+                    .filter(ChiseledBlockEntity.class::isInstance)
+                    .map(ChiseledBlockEntity.class::cast)
+                    .forEach(chiseledBlockEntity -> {
+                        ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
+                                new TileEntityUpdatedPacket(chiseledBlockEntity),
+                                serverLevel.getChunkAt(chiseledBlockEntity.getBlockPos())
+                        );
+                    });
+        });
     }
 }

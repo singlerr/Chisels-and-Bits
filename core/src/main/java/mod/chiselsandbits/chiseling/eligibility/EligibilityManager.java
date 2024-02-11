@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -98,7 +99,7 @@ public class EligibilityManager implements IEligibilityManager
 
                 // custom dropping behavior?
                 pb.getDrops(blockInformation.getBlockState(), null);
-                final Class<?> wc = ClassUtils.getDeclaringClass(blkClass, pb.getLastInvokedThreadLocalMethodName(), BlockState.class, LootContext.Builder.class);
+                final Class<?> wc = ClassUtils.getDeclaringClass(blkClass, pb.getLastInvokedThreadLocalMethodName(), BlockState.class, LootParams.Builder.class);
                 final boolean quantityDroppedTest = wc == Block.class || wc == BlockBehaviour.class || wc == LiquidBlock.class;
 
                 final boolean isNotSlab = Item.byBlock(blk) != Items.AIR || blockInformation.getBlockState().getBlock() instanceof LiquidBlock;
@@ -111,7 +112,7 @@ public class EligibilityManager implements IEligibilityManager
 
                 // full cube specifically is tied to lighting... so for glass
                 // Compatibility use isFullBlock which can be true for glass.
-                boolean isFullBlock = blockInformation.getBlockState().canOcclude() || blk instanceof AbstractGlassBlock || blk instanceof LiquidBlock;
+                boolean isFullBlock = blockInformation.getBlockState().canOcclude() || blk instanceof TransparentBlock || blk instanceof LiquidBlock;
                 final BlockEligibilityAnalysisData info = BlockEligibilityAnalysisData.createFromState(blockInformation);
 
                 final boolean tickingBehavior = blk.isRandomlyTicking(blockInformation.getBlockState()) && IServerConfiguration.getInstance().getBlackListRandomTickingBlocks().get();

@@ -40,16 +40,15 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_tag_a",
       "has_tag_b",
-      "has_tag_c",
-      "has_the_recipe"
+      "has_tag_c"
     ]
   ],
   "rewards": {
     "recipes": [
       "chiselsandbits:quill"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

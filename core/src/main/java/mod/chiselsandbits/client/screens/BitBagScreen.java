@@ -106,7 +106,7 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
             final int mouseX,
             final int mouseY,
             final float partialTicks) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
         if (trashBtn.isMouseOver(mouseX, mouseY)) {
             if (isValidBitItem()) {
                 final Component msgNotConfirm = !getInHandItem().isEmpty() ? LocalStrings.TrashItem.getText(getInHandItem().getHoverName().getString()) : LocalStrings.Trash.getText();

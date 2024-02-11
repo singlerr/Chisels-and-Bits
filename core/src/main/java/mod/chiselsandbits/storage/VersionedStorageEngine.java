@@ -3,6 +3,7 @@ package mod.chiselsandbits.storage;
 import com.mojang.logging.LogUtils;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.network.FriendlyByteBuf;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
@@ -87,13 +88,16 @@ final class VersionedStorageEngine implements IThreadAwareStorageEngine
     @Override
     public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
     {
-        packetBuffer.writeNbt(serializeNBT());
+        packetBuffer.writeVarInt(currentVersion);
+        saveHandler.serializeInto(packetBuffer);
     }
 
     @Override
     public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
     {
-        deserializeNBT(Objects.requireNonNull(packetBuffer.readAnySizeNbt()));
+        final int version = packetBuffer.readVarInt();
+        final IStorageHandler<?> storageHandler = handlers.get(version - minimalVersion);
+        storageHandler.deserializeFrom(packetBuffer);
     }
 
     @Override

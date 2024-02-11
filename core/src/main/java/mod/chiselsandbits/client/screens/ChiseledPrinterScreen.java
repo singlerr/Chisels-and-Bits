@@ -35,8 +35,6 @@ public class ChiseledPrinterScreen extends AbstractContainerScreen<ChiseledPrint
     @Override
     protected void renderBg(@NotNull final GuiGraphics graphics, final float partialTicks, final int x, final int y)
     {
-        renderBackground(graphics);
-
         //noinspection deprecation Required.
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

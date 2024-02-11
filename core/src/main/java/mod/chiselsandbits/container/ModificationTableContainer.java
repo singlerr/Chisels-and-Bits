@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +27,7 @@ public class ModificationTableContainer extends AbstractContainerMenu
     private final ContainerLevelAccess            worldPosCallable;
     private final DataSlot           selectedRecipe = DataSlot.standalone();
     private final Level                         world;
-    private       List<ModificationTableRecipe> recipes = Lists.newArrayList();
+    private       List<RecipeHolder<ModificationTableRecipe>> recipes = Lists.newArrayList();
 
     private       ItemStack inputItemStack = ItemStack.EMPTY;
     private       long                   lastOnTake;
@@ -99,7 +100,7 @@ public class ModificationTableContainer extends AbstractContainerMenu
         return this.selectedRecipe.get();
     }
 
-    public List<ModificationTableRecipe> getRecipeList() {
+    public List<RecipeHolder<ModificationTableRecipe>> getRecipeList() {
         return this.recipes;
     }
 
@@ -152,16 +153,15 @@ public class ModificationTableContainer extends AbstractContainerMenu
         this.outputInventorySlot.set(ItemStack.EMPTY);
         if (!stack.isEmpty()) {
             this.recipes = this.world.getRecipeManager().getRecipesFor(ModRecipeTypes.MODIFICATION_TABLE.get(), inventoryIn, this.world);
-            this.recipes.sort(Comparator.comparing(modificationTableRecipe -> Objects.requireNonNull(modificationTableRecipe.getOperation().getRegistryName()).toString()));
+            this.recipes.sort(Comparator.comparing(modificationTableRecipe -> Objects.requireNonNull(modificationTableRecipe.value().getOperation().getRegistryName()).toString()));
         }
-
     }
 
     private void updateRecipeResultSlot() {
         if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipe.get())) {
-            ModificationTableRecipe modificationTableRecipe = this.recipes.get(this.selectedRecipe.get());
+            RecipeHolder<ModificationTableRecipe> modificationTableRecipe = this.recipes.get(this.selectedRecipe.get());
             this.inventory.setRecipeUsed(modificationTableRecipe);
-            this.outputInventorySlot.set(modificationTableRecipe.assemble(this.inputInventory, this.world.registryAccess()));
+            this.outputInventorySlot.set(modificationTableRecipe.value().assemble(this.inputInventory, this.world.registryAccess()));
         } else {
             this.outputInventorySlot.set(ItemStack.EMPTY);
         }

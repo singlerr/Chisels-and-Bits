@@ -50,17 +50,16 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_g",
       "has_l",
       "has_i",
-      "has_c",
-      "has_the_recipe"
+      "has_c"
     ]
   ],
   "rewards": {
     "recipes": [
       "chiselsandbits:bit_storage"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

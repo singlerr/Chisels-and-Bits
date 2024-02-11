@@ -40,16 +40,15 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_c",
       "has_g",
-      "has_s",
-      "has_the_recipe"
+      "has_s"
     ]
   ],
   "rewards": {
     "recipes": [
       "chiselsandbits:magnifying_glass"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

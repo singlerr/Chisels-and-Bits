@@ -66,7 +66,7 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
 
         this.paletteEntries.forEach(entry -> this.paletteMap.put(entry.get(), entry));
 
-        if (paletteEntries.size() == 0) {
+        if (paletteEntries.isEmpty()) {
             clear();
         }
 
@@ -98,7 +98,7 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
 
         this.paletteEntries.forEach(entry -> this.paletteMap.put(entry.get(), entry));
 
-        if (paletteEntries.size() == 0) {
+        if (paletteEntries.isEmpty()) {
             clear();
         }
 
@@ -124,7 +124,7 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
 
     public IBlockInformation getBlockState(final int blockStateId)
     {
-        if (this.paletteEntries.size() == 0)
+        if (this.paletteEntries.isEmpty())
             return BlockInformation.AIR;
 
         if (blockStateId < 0 || blockStateId >= this.paletteEntries.size())

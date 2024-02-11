@@ -7,10 +7,7 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.utils.SimpleMaxSizedList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.*;
 import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +42,7 @@ public final class CreativeClipboardManager implements ICreativeClipboardManager
 
         try
         {
-            final CompoundTag data = NbtIo.readCompressed(file);
+            final CompoundTag data = NbtIo.readCompressed(file.toPath(), NbtAccounter.unlimitedHeap());
             final ListTag tags = data.getList("clipboard", Tag.TAG_COMPOUND);
             tags.stream()
               .filter(CompoundTag.class::isInstance)
@@ -83,7 +80,7 @@ public final class CreativeClipboardManager implements ICreativeClipboardManager
         try
         {
             file.createNewFile();
-            NbtIo.writeCompressed(data, file);
+            NbtIo.writeCompressed(data, file.toPath());
         }
         catch (IOException e)
         {

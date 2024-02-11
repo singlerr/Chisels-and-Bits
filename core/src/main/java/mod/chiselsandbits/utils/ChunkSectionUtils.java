@@ -8,10 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -76,7 +73,7 @@ public class ChunkSectionUtils
             {
                 final byte[] compressedData = compoundTag.getByteArray(NbtConstants.COMPRESSED_DATA);
                 final ByteArrayInputStream inputStream = new ByteArrayInputStream(compressedData);
-                final CompoundTag decompressedCompoundTag = NbtIo.readCompressed(inputStream);
+                final CompoundTag decompressedCompoundTag = NbtIo.readCompressed(inputStream, NbtAccounter.unlimitedHeap());
 
                 chunkSection.states = BLOCK_STATE_CODEC.parse(NbtOps.INSTANCE, decompressedCompoundTag)
                   .promotePartial(LOGGER::error)

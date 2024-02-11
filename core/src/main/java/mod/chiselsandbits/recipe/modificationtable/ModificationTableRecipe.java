@@ -85,12 +85,6 @@ public class ModificationTableRecipe implements Recipe<Container>
     }
 
     @Override
-    public @NotNull ResourceLocation getId()
-    {
-        return Objects.requireNonNull(getOperation().getRegistryName());
-    }
-
-    @Override
     public @NotNull RecipeSerializer<?> getSerializer()
     {
         return ModRecipeSerializers.MODIFICATION_TABLE.get();

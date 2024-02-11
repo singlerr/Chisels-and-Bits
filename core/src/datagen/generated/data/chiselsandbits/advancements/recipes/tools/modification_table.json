@@ -60,18 +60,17 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_s",
       "has_n",
       "has_b",
       "has_p",
-      "has_c",
-      "has_the_recipe"
+      "has_c"
     ]
   ],
   "rewards": {
     "recipes": [
       "chiselsandbits:modification_table"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

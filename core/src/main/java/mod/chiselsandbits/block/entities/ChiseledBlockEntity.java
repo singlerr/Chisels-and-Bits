@@ -5,6 +5,7 @@ import com.communi.suggestu.scena.core.blockstate.ILevelBasedPropertyAccessor;
 import com.communi.suggestu.scena.core.client.models.data.IBlockModelData;
 import com.communi.suggestu.scena.core.client.models.data.IModelDataBuilder;
 import com.communi.suggestu.scena.core.dist.DistExecutor;
+import com.communi.suggestu.scena.core.entity.block.IBlockEntityPositionManager;
 import com.communi.suggestu.scena.core.entity.block.IBlockEntityWithModelData;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
@@ -13,7 +14,7 @@ import com.google.common.collect.Table;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
-import mod.chiselsandbits.api.block.entity.INetworkUpdateableEntity;
+import mod.chiselsandbits.api.block.entity.INetworkUpdatableEntity;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.blockinformation.BlockInformation;
@@ -54,7 +55,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
@@ -82,7 +82,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class ChiseledBlockEntity extends BlockEntity implements
-        IMultiStateBlockEntity, INetworkUpdateableEntity, IBlockEntityWithModelData {
+        IMultiStateBlockEntity, INetworkUpdatableEntity, IBlockEntityWithModelData {
     public static final float ONE_THOUSANDS = 1 / 1000f;
 
     private MutableStatistics mutableStatistics;
@@ -137,15 +137,22 @@ public class ChiseledBlockEntity extends BlockEntity implements
     }
 
     @Override
-    public void setLevel(@Nullable final Level level) {
+    public void setLevel(final @NotNull Level level) {
         super.setLevel(level);
 
+        IBlockEntityPositionManager.getInstance().add(this);
         createStorageEngine();
 
         if (this.deserializationQueue.isEmpty())
             return;
 
         this.deserializationQueue.forEach(this::deserializeNBT);
+    }
+
+    @Override
+    public void setRemoved() {
+        IBlockEntityPositionManager.getInstance().remove(this);
+        super.setRemoved();
     }
 
     @Override
@@ -276,6 +283,10 @@ public class ChiseledBlockEntity extends BlockEntity implements
                     }
 
                     mutableStatistics.updatePrimaryState(shouldUpdateWorld());
+
+                    if (shouldUpdateWorld()) {
+                        setChanged();
+                    }
                 }, getExecutor());
         this.lastTag = nbt;
     }
@@ -369,8 +380,6 @@ public class ChiseledBlockEntity extends BlockEntity implements
             getLevel().updateNeighborsAt(getBlockPos(), getLevel().getBlockState(getBlockPos()).getBlock());
         }
     }
-    
-    
 
     private void setOffThreadSaveResult(final CompoundTag tag) {
         synchronized (this.tagSyncHandle) {
@@ -379,27 +388,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
     }
 
     private boolean shouldUpdateWorld() {
-        return this.getLevel() != null && this.batchMutations.size() == 0 && this.getLevel() instanceof ServerLevel;
-    }
-
-    @Nullable
-    @Override
-    public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @NotNull
-    @Override
-    public CompoundTag getUpdateTag() {
-        if (isInitialized || lastTag == null)
-            return this.storageEngine.serializeNBT();
-
-        return lastTag;
-    }
-
-    @Override
-    public void handleUpdateTag(final CompoundTag tag) {
-        this.load(tag);
+        return this.getLevel() != null && this.batchMutations.isEmpty() && this.getLevel() instanceof ServerLevel;
     }
 
     @Override
@@ -624,7 +613,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             return;
         }
 
-        try (IBatchMutation batchMutation = batch()) {
+        try (IBatchMutation ignored = batch()) {
             this.storage.initializeWith(newInitialInformation);
             this.mutableStatistics.initializeWith(newInitialInformation);
         }
@@ -948,7 +937,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             final double totalRelativeHardness = (this.countMap.entrySet().stream()
                     .mapToDouble(entry -> (double) entry.getKey().getBlockState().getDestroyProgress(
                             player,
-                            new SingleBlockWorldReader(
+                            new SingleBlockLevelReader(
                                     entry.getKey(),
                                     this.positionSupplier.get(),
                                     this.worldReaderSupplier.get()
@@ -1007,7 +996,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             this.totalUsedBlockCount++;
 
             if (ILevelBasedPropertyAccessor.getInstance().shouldCheckWeakPower(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             blockInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1019,7 +1008,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             }
 
             this.totalLightLevel += ILevelBasedPropertyAccessor.getInstance().getLightEmission(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             blockInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1028,7 +1017,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             );
 
             this.totalLightBlockLevel += ILevelBasedPropertyAccessor.getInstance().getLightBlock(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             blockInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1091,7 +1080,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             this.totalUsedBlockCount--;
 
             if (ILevelBasedPropertyAccessor.getInstance().shouldCheckWeakPower(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             blockInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1103,7 +1092,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             }
 
             this.totalLightLevel -= ILevelBasedPropertyAccessor.getInstance().getLightEmission(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             blockInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1112,7 +1101,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             );
 
             this.totalLightBlockLevel -= ILevelBasedPropertyAccessor.getInstance().getLightBlock(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             blockInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1136,7 +1125,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             updatePrimaryState(updateWorld);
 
             if (ILevelBasedPropertyAccessor.getInstance().shouldCheckWeakPower(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             currentInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1148,7 +1137,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             }
 
             if (ILevelBasedPropertyAccessor.getInstance().shouldCheckWeakPower(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             newInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1160,7 +1149,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             }
 
             this.totalLightLevel -= ILevelBasedPropertyAccessor.getInstance().getLightEmission(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             currentInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1169,7 +1158,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             );
 
             this.totalLightLevel += ILevelBasedPropertyAccessor.getInstance().getLightEmission(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             newInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1178,7 +1167,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             );
 
             this.totalLightBlockLevel -= ILevelBasedPropertyAccessor.getInstance().getLightBlock(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             currentInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1187,7 +1176,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             );
 
             this.totalLightBlockLevel += ILevelBasedPropertyAccessor.getInstance().getLightBlock(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             newInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1416,7 +1405,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             this.totalUsedBlockCount = isAir ? 0 : StateEntrySize.current().getBitsPerBlock();
 
             if (ILevelBasedPropertyAccessor.getInstance().shouldCheckWeakPower(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             blockInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1428,7 +1417,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             }
 
             this.totalLightLevel += (ILevelBasedPropertyAccessor.getInstance().getLightEmission(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             blockInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1437,7 +1426,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             ) * StateEntrySize.current().getBitsPerBlock());
 
             this.totalLightBlockLevel += (ILevelBasedPropertyAccessor.getInstance().getLightBlock(
-                    new SingleBlockWorldReader(
+                    new SingleBlockLevelReader(
                             blockInformation,
                             this.positionSupplier.get(),
                             this.worldReaderSupplier.get()
@@ -1506,7 +1495,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             countMap.forEach((blockState, count) ->
             {
                 if (ILevelBasedPropertyAccessor.getInstance().shouldCheckWeakPower(
-                        new SingleBlockWorldReader(
+                        new SingleBlockLevelReader(
                                 blockState,
                                 this.positionSupplier.get(),
                                 this.worldReaderSupplier.get()
@@ -1518,7 +1507,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 }
 
                 this.totalLightLevel += (ILevelBasedPropertyAccessor.getInstance().getLightEmission(
-                        new SingleBlockWorldReader(
+                        new SingleBlockLevelReader(
                                 blockState,
                                 this.positionSupplier.get(),
                                 this.worldReaderSupplier.get()
@@ -1527,7 +1516,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 ) * count);
 
                 this.totalLightBlockLevel += (ILevelBasedPropertyAccessor.getInstance().getLightBlock(
-                        new SingleBlockWorldReader(
+                        new SingleBlockLevelReader(
                                 blockState,
                                 this.positionSupplier.get(),
                                 this.worldReaderSupplier.get()
@@ -1627,7 +1616,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             if (!blockState.isAir() && pos.getY() >= highestBit) {
                 highestBit = (short) pos.getY();
                 highestBitFriction = ILevelBasedPropertyAccessor.getInstance().getFriction(
-                        new SingleBlockWorldReader(blockState, positionSupplier.get(), this.worldReaderSupplier.get()),
+                        new SingleBlockLevelReader(blockState, positionSupplier.get(), this.worldReaderSupplier.get()),
                         positionSupplier.get(),
                         null
                 );
@@ -1636,7 +1625,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             if (pos.getY() == 0) {
                 canLowestBitSustainGrass = ILevelBasedPropertyAccessor.getInstance()
                         .canBeGrass(
-                                new SingleBlockWorldReader(blockState, positionSupplier.get(), this.worldReaderSupplier.get()),
+                                new SingleBlockLevelReader(blockState, positionSupplier.get(), this.worldReaderSupplier.get()),
                                 Blocks.GRASS_BLOCK.defaultBlockState(),
                                 positionSupplier.get().below(),
                                 blockState.getBlockState(),
@@ -1650,14 +1639,14 @@ public class ChiseledBlockEntity extends BlockEntity implements
                                 return false;
                             } else {
                                 int i = LightEngine.getLightBlockInto(
-                                        new SingleBlockWorldReader(blockState, positionSupplier.get(), this.worldReaderSupplier.get()),
+                                        new SingleBlockLevelReader(blockState, positionSupplier.get(), this.worldReaderSupplier.get()),
                                         Blocks.GRASS_BLOCK.defaultBlockState(),
                                         this.positionSupplier.get().below(),
                                         blockState.getBlockState(),
                                         this.positionSupplier.get(),
                                         Direction.UP,
                                         blockState.getBlockState().getLightBlock(
-                                                new SingleBlockWorldReader(blockState, positionSupplier.get(), this.worldReaderSupplier.get()),
+                                                new SingleBlockLevelReader(blockState, positionSupplier.get(), this.worldReaderSupplier.get()),
                                                 this.positionSupplier.get()));
                                 return i < this.worldReaderSupplier.get().getMaxLightLevel();
                             }
@@ -1684,7 +1673,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
                     if (noneAirBits.get(i)) {
                         highestBit = (short) i;
                         highestBitFriction = ILevelBasedPropertyAccessor.getInstance().getFriction(
-                                new SingleBlockWorldReader(ChiseledBlockEntity.this.storage.getBlockInformation(pos.getX(), i, pos.getZ()), positionSupplier.get(), this.worldReaderSupplier.get()),
+                                new SingleBlockLevelReader(ChiseledBlockEntity.this.storage.getBlockInformation(pos.getX(), i, pos.getZ()), positionSupplier.get(), this.worldReaderSupplier.get()),
                                 positionSupplier.get(),
                                 null
                         );
@@ -1772,7 +1761,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             } else {
                 highestBit = (short) (StateEntrySize.current().getBitsPerBlockSide() - 1);
                 highestBitFriction = ILevelBasedPropertyAccessor.getInstance().getFriction(
-                        new SingleBlockWorldReader(blockInformation, positionSupplier.get(), this.worldReaderSupplier.get()),
+                        new SingleBlockLevelReader(blockInformation, positionSupplier.get(), this.worldReaderSupplier.get()),
                         positionSupplier.get(),
                         null
                 );
@@ -1785,7 +1774,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
             this.canLowestBitSustainGrass = blockInformation.isAir() || ILevelBasedPropertyAccessor.getInstance()
                     .canBeGrass(
-                            new SingleBlockWorldReader(blockInformation, positionSupplier.get(), this.worldReaderSupplier.get()),
+                            new SingleBlockLevelReader(blockInformation, positionSupplier.get(), this.worldReaderSupplier.get()),
                             Blocks.GRASS_BLOCK.defaultBlockState(),
                             positionSupplier.get().below(),
                             blockInformation.getBlockState(),
@@ -1799,14 +1788,14 @@ public class ChiseledBlockEntity extends BlockEntity implements
                             return false;
                         } else {
                             int i = LightEngine.getLightBlockInto(
-                                    new SingleBlockWorldReader(blockInformation, positionSupplier.get(), this.worldReaderSupplier.get()),
+                                    new SingleBlockLevelReader(blockInformation, positionSupplier.get(), this.worldReaderSupplier.get()),
                                     Blocks.GRASS_BLOCK.defaultBlockState(),
                                     this.positionSupplier.get().below(),
                                     blockInformation.getBlockState(),
                                     this.positionSupplier.get(),
                                     Direction.UP,
                                     blockInformation.getBlockState().getLightBlock(
-                                            new SingleBlockWorldReader(blockInformation, positionSupplier.get(), this.worldReaderSupplier.get()),
+                                            new SingleBlockLevelReader(blockInformation, positionSupplier.get(), this.worldReaderSupplier.get()),
                                             this.positionSupplier.get()));
                             return i < this.worldReaderSupplier.get().getMaxLightLevel();
                         }
@@ -1857,6 +1846,18 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 storage.deserializeNBT(compoundTag.getCompound(NbtConstants.CHISELED_DATA));
                 mutableStatistics.deserializeNBT(compoundTag.getCompound(NbtConstants.STATISTICS));
             });
+        }
+
+        @Override
+        public void serializeInto(@NotNull FriendlyByteBuf packetBuffer) {
+            storage.serializeInto(packetBuffer);
+            mutableStatistics.serializeInto(packetBuffer);
+        }
+
+        @Override
+        public void deserializeFrom(@NotNull FriendlyByteBuf packetBuffer) {
+            storage.deserializeFrom(packetBuffer);
+            mutableStatistics.deserializeFrom(packetBuffer);
         }
 
         private record Payload(IStateEntryStorage storage, MutableStatistics mutableStatistics) {

@@ -30,15 +30,14 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_rod",
-      "has_ingredient",
-      "has_the_recipe"
+      "has_ingredient"
     ]
   ],
   "rewards": {
     "recipes": [
       "chiselsandbits:chisel_iron"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

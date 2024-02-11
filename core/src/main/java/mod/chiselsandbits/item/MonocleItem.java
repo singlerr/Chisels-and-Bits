@@ -2,7 +2,7 @@ package mod.chiselsandbits.item;
 
 import com.communi.suggestu.scena.core.item.IWearableItem;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.sounds.SoundEvent;
@@ -29,8 +29,8 @@ public class MonocleItem extends Item implements IWearableItem
     };
 
     private static boolean dispenseArmor(BlockSource source, ItemStack stack) {
-        BlockPos blockpos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
-        List<LivingEntity> list = source.getLevel().getEntitiesOfClass(LivingEntity.class, new AABB(blockpos), EntitySelector.NO_SPECTATORS.and(new EntitySelector.MobCanWearArmorEntitySelector(stack)));
+        BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+        List<LivingEntity> list = source.level().getEntitiesOfClass(LivingEntity.class, new AABB(blockpos), EntitySelector.NO_SPECTATORS.and(new EntitySelector.MobCanWearArmorEntitySelector(stack)));
         if (list.isEmpty()) {
             return false;
         } else {

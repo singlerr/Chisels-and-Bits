@@ -22,14 +22,13 @@
   },
   "requirements": [
     [
-      "has_item_a",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_item_a"
     ]
   ],
   "rewards": {
     "recipes": [
       "chiselsandbits:unseal"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

@@ -2,6 +2,7 @@ package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -73,7 +74,7 @@ public class GZIPDataCompressionUtils
         final CompoundTag uncompressedData;
         try
         {
-            uncompressedData = NbtIo.readCompressed(byteArrayInputStream);
+            uncompressedData = NbtIo.readCompressed(byteArrayInputStream, NbtAccounter.unlimitedHeap());
         }
         catch (IOException e)
         {

@@ -1,6 +1,8 @@
 package mod.chiselsandbits.block;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -31,6 +33,7 @@ import java.util.stream.Stream;
 
 public class PatternScannerBlock extends HorizontalDirectionalBlock
 {
+    private static final MapCodec<PatternScannerBlock> CODEC = simpleCodec(PatternScannerBlock::new);
     private static final Map<Direction, VoxelShape> SHAPES = ImmutableMap.<Direction, VoxelShape>builder()
       .put(Direction.NORTH, Stream.of(
         Block.box(0, 0, 0, 16, 5, 16),
@@ -110,6 +113,11 @@ public class PatternScannerBlock extends HorizontalDirectionalBlock
     {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+    }
+
+    @Override
+    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+        return CODEC;
     }
 
     public BlockState getStateForPlacement(BlockPlaceContext context)

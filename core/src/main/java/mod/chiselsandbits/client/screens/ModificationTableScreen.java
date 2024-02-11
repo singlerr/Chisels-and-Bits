@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -60,7 +61,6 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
 
     @SuppressWarnings("deprecation")
     protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int x, int y) {
-        this.renderBackground(graphics);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE);
@@ -78,7 +78,7 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
         if (this.lastRenderedSelectedRecipeIndex != this.menu.getSelectedRecipe() && this.hasItemsInInputSlot) {
             this.lastRenderedSelectedRecipeIndex = this.menu.getSelectedRecipe();
 
-            final IMultiStateSnapshot snapshot = this.menu.getRecipeList().get(this.lastRenderedSelectedRecipeIndex).getAppliedSnapshot(this.menu.inputInventory);
+            final IMultiStateSnapshot snapshot = this.menu.getRecipeList().get(this.lastRenderedSelectedRecipeIndex).value().getAppliedSnapshot(this.menu.inputInventory);
             this.snapshotWidget.setSnapshot(snapshot);
         }
     }
@@ -89,14 +89,14 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
             int i = this.leftPos + 52;
             int j = this.topPos + 14;
             int k = this.recipeIndexOffset + 12;
-            List<ModificationTableRecipe> list = this.menu.getRecipeList();
+            List<RecipeHolder<ModificationTableRecipe>> list = this.menu.getRecipeList();
 
             for(int l = this.recipeIndexOffset; l < k && l < this.menu.getRecipeListSize(); ++l) {
                 int i1 = l - this.recipeIndexOffset;
                 int j1 = i + i1 % 4 * 16;
                 int k1 = j + i1 / 4 * 18 + 2;
                 if (x >= j1 && x < j1 + 16 && y >= k1 && y < k1 + 18) {
-                    graphics.renderTooltip(font, list.get(l).getDisplayName(), x, y);
+                    graphics.renderTooltip(font, list.get(l).value().getDisplayName(), x, y);
                 }
             }
         }
@@ -122,7 +122,7 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
     }
 
     private void drawRecipesItems(final GuiGraphics graphics, int recipesLeft, int recipesTop, int recipeIndexOffsetMax) {
-        List<ModificationTableRecipe> list = this.menu.getRecipeList();
+        List<RecipeHolder<ModificationTableRecipe>> list = this.menu.getRecipeList();
 
         for(int offset = this.recipeIndexOffset; offset < recipeIndexOffsetMax && offset < this.menu.getRecipeListSize(); ++offset) {
             int itemIndex = offset - this.recipeIndexOffset;
@@ -131,7 +131,7 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
             int itemY = recipesTop + rowIndex * 18 + 2;
             if (this.minecraft != null)
             {
-                graphics.renderItem(list.get(offset).getCraftingBlockResult(this.menu.inputInventory), itemX, itemY);
+                graphics.renderItem(list.get(offset).value().getCraftingBlockResult(this.menu.inputInventory), itemX, itemY);
             }
         }
 
@@ -186,14 +186,15 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
         }
     }
 
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
         if (this.snapshotWidget.isMouseOver(mouseX, mouseY)) {
-            return this.snapshotWidget.mouseScrolled(mouseX, mouseY, delta);
+            return this.snapshotWidget.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
         }
 
         if (this.canScroll()) {
             int i = this.getHiddenRows();
-            this.sliderProgress = (float)((double)this.sliderProgress - delta / (double)i);
+            this.sliderProgress = (float)((double)this.sliderProgress - deltaY / (double)i);
             this.sliderProgress = Mth.clamp(this.sliderProgress, 0.0F, 1.0F);
             this.recipeIndexOffset = (int)((double)(this.sliderProgress * (float)i) + 0.5D) * 4;
         }

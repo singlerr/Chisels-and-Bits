@@ -32,15 +32,14 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_tag_a",
-      "has_item_a",
-      "has_the_recipe"
+      "has_item_a"
     ]
   ],
   "rewards": {
     "recipes": [
       "chiselsandbits:sealant"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

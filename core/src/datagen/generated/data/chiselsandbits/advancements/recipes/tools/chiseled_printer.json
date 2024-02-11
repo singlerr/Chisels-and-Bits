@@ -42,16 +42,15 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_c",
       "has_l",
-      "has_s",
-      "has_the_recipe"
+      "has_s"
     ]
   ],
   "rewards": {
     "recipes": [
       "chiselsandbits:chiseled_printer"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

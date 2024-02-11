@@ -731,8 +731,6 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 
     private final class LZ4StorageBasedStorageHandler implements IStorageHandler<LZ4StorageBasedStorageHandler.Payload>
     {
-
-
         @Override
         public LZ4StorageBasedStorageHandler.Payload readPayloadOffThread(CompoundTag nbt) {
             return LZ4DataCompressionUtils.decompress(nbt, compoundTag -> {
@@ -771,6 +769,16 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
                 compressedSection.deserializeNBT(compoundTag.getCompound(NbtConstants.CHISELED_DATA));
                 statistics.deserializeNBT(compoundTag.getCompound(NbtConstants.STATISTICS));
             });
+        }
+
+        @Override
+        public void serializeInto(@NotNull FriendlyByteBuf packetBuffer) {
+            compressedSection.serializeInto(packetBuffer);
+        }
+
+        @Override
+        public void deserializeFrom(@NotNull FriendlyByteBuf packetBuffer) {
+            compressedSection.deserializeFrom(packetBuffer);
         }
     }
 

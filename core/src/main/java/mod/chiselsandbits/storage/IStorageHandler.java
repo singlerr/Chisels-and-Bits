@@ -1,13 +1,14 @@
 package mod.chiselsandbits.storage;
 
 import mod.chiselsandbits.api.util.INBTSerializable;
+import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import net.minecraft.nbt.CompoundTag;
 
 /**
  * Represents a storage handler which can read and write data.
  * @param <P> The payload holder type that is used to pass data from an off-thread read into an on-thread read.
  */
-public interface IStorageHandler<P> extends INBTSerializable<CompoundTag>
+public interface IStorageHandler<P> extends INBTSerializable<CompoundTag>, IPacketBufferSerializable
 {
     /**
      * Invoked when the storage handler is being used to read NBT off-thread.

@@ -20,10 +20,9 @@ public class BagDyeingRecipe extends CustomRecipe
 {
 
     public BagDyeingRecipe(
-            ResourceLocation name,
             CraftingBookCategory category)
     {
-        super(name, category);
+        super(category);
     }
 
     @Override

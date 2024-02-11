@@ -80,8 +80,8 @@ public class BlockEligibilityAnalysisData
                 float resistance = blk.getExplosionResistance();
 
                 if (blk instanceof IBlockWithWorldlyProperties blockWithWorldlyProperties) {
-                    resistance = blockWithWorldlyProperties.getExplosionResistance(state.getBlockState(), new SingleBlockBlockReader(state, state.getBlockState().getBlock()), BlockPos.ZERO, new Explosion(null, null,null,
-                      null, 0,1,0, 10, false, Explosion.BlockInteraction.KEEP));
+                    resistance = blockWithWorldlyProperties.getExplosionResistance(state.getBlockState(), new SingleBlockBlockReader(state, state.getBlockState().getBlock()), BlockPos.ZERO,
+                            new Explosion(null, null, 0, 1,0, 10, false, Explosion.BlockInteraction.KEEP));
                 }
 
 

@@ -182,7 +182,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
     }
 
     @Override
-    public void render(final @NotNull GuiGraphics graphics, final int mouseX, final int mouseY, final float partialTicks)
+    public void renderWidget(final @NotNull GuiGraphics graphics, final int mouseX, final int mouseY, final float partialTicks)
     {
         final IRenderableMode current = currentlySelectedModeSupplier.get();
 
@@ -304,11 +304,6 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
 
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
         graphics.pose().popPose();
-    }
-
-    @Override
-    public void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTickTime) {
-
     }
 
     private static float calculateMouseAngle(final float mouseX, final float mouseY, final float centerX, final float centerY)

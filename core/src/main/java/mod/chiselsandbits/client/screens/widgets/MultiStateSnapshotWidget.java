@@ -90,9 +90,9 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
     }
 
     @Override
-    public boolean mouseScrolled(final double mouseX, final double mouseY, final double delta)
+    public boolean mouseScrolled(final double mouseX, final double mouseY, final double deltaX, final double deltaY)
     {
-        this.scaleFactor += delta * 0.25;
+        this.scaleFactor += deltaY * 0.25;
         return true;
     }
 

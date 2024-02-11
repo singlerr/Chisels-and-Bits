@@ -32,15 +32,14 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_w",
-      "has_b",
-      "has_the_recipe"
+      "has_b"
     ]
   ],
   "rewards": {
     "recipes": [
       "chiselsandbits:bit_bag"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }
