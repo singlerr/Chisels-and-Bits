@@ -105,7 +105,7 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter blockGetter, BlockPos pos, Player player) {
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader blockGetter, BlockPos pos, Player player) {
         markMethod();
         return ItemStack.EMPTY;
     }

@@ -17,6 +17,7 @@ import mod.chiselsandbits.client.model.baked.simple.SimpleGeneratedModel;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.LightUtil;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -41,8 +42,9 @@ import java.util.List;
 import java.util.Optional;
 
 public final class FaceManager {
+
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final RandomSource RANDOM = RandomSource.create(42);
+    private static final RandomSource RANDOM = Util.make(RandomSource.createNewThreadLocalInstance(), (random) -> random.setSeed(42L));
 
     private static final FaceManager INSTANCE = new FaceManager();
 
@@ -427,9 +429,9 @@ public final class FaceManager {
             }
 
             float minV = sprite.getV0();
-            float maxU = sprite.getU(16f * 16f / sprite.contents().width());
+            float maxU = sprite.getU(16f / sprite.contents().width());
             float minU = sprite.getU0();
-            float maxV = sprite.getV(16f * 16f / sprite.contents().height());
+            float maxV = sprite.getV(16f / sprite.contents().height());
 
             builder.withSprite(sprite);
             injectFluidVertexDataForSide(builder, minU, maxU, minV, maxV, cullDirection);

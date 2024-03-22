@@ -38,25 +38,55 @@ subprojects { Project subProject ->
         subProject.tasks.check.enabled = false
     }
 
-    subProject.ext.addInnerProject = { String project ->
-        def innerProject = subProject.project(project)
+    subProject.ext.addInnerProject = { String projectName ->
 
-        subProject.dependencies.implementation (innerProject) {
+        Project coreProject = subProject.project(projectName);
+
+        subProject.dependencies.api (coreProject) {
             exclude group: 'net.minecraft', module: 'joined'
         }
 
         if (subProject.getPlugins().hasPlugin("net.neoforged.gradle.userdev")) {
             subProject.jarJar.enable()
 
-            subProject.dependencies.jarJar (innerProject) {
-                jarJar.ranged(it, "[${subProject.version}]")
-                jarJar.pin(it, subProject.version)
+            subProject.dependencies.jarJar (coreProject) {
+                jarJar.ranged(it, "[${coreProject.version}]")
+                jarJar.pin(it, coreProject.version)
                 exclude group: 'net.minecraft', module: 'joined'
             }
         }
-        else if (subProject.getPlugins().hasPlugin("fabric-loom")) {
-            subProject.dependencies.include (innerProject) {
-                exclude group: 'net.minecraft', module: 'joined'
+        else if (subProject.getPlugins().hasPlugin("fabric-loom") && subProject.ext.remapTaskClass != null) {
+            Provider<File> fmjFile = subProject.layout.buildDirectory.dir("fabric-meta-generation").map {it.dir(coreProject.name) }
+                    .map { it.file("fabric.mod.json") }
+                    .map { RegularFile file -> {
+                        def targetFile = file.asFile;
+                        File parentDir = targetFile.parentFile;
+                        parentDir.mkdirs();
+
+                        targetFile.newWriter().withWriter { w -> w << """
+                            {
+                              "schemaVersion": 1,
+                              "id": "${coreProject.group.replace(".", "_")}_${coreProject.name}",
+                              "version": "${coreProject.version}",
+                              "name": "${coreProject.name}",
+                              "custom": {
+                                "fabric-loom:generated": true
+                              }
+                            }
+                        """.trim() }
+
+                        return file
+                    }}
+
+
+            def remapCommonJarTask = subProject.tasks.register("remap${coreProject.name.capitalize()}Jar", subProject.ext.remapTaskClass) {
+                input = coreProject.tasks.jar.archiveFile
+                archiveClassifier = "${coreProject.name}-fabric"
+                from(fmjFile)
+            }
+
+            subProject.remapJar {
+                nestedJars.from(remapCommonJarTask.get().archiveFile)
             }
         }
     }

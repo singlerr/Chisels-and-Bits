@@ -88,17 +88,13 @@ project.runs {
     }
 }
 
-jarJar {
-    fromRuntimeConfiguration()
-    dependencies {
-        include(dependency("com.communi-suggestu.scena:neoforge"))
-        include(dependency("org.lz4:lz4-pure-java"))
-    }
+tasks.jarJar.configuration project.configurations.includedLibraries
+libraryConfigs.each { config ->
+    tasks.jarJar.configuration config
 }
-
-tasks.jarJar.archiveClassifier.set("");
-tasks.jar.archiveClassifier.set("slim");
-tasks.build.dependsOn tasks.jarJar
+tasks.jarJar.archiveClassifier.set("")
+tasks.jar.archiveClassifier.set("slim")
+tasks.assemble.dependsOn tasks.jarJar
 
 if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
     task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {

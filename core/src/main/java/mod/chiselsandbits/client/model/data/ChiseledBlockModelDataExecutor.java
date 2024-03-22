@@ -5,6 +5,7 @@ import com.communi.suggestu.scena.core.client.models.data.IModelDataManager;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
+import com.mojang.logging.LogUtils;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.blockinformation.BlockInformation;
@@ -32,6 +33,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -44,7 +46,7 @@ import java.util.function.Supplier;
 public class ChiseledBlockModelDataExecutor {
     private static ExecutorService recalculationService;
 
-
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void updateModelDataCore(final ChiseledBlockEntity tileEntity, final Runnable onCompleteCallback) {
         ensureThreadPoolSetup();
@@ -174,7 +176,11 @@ public class ChiseledBlockModelDataExecutor {
                                 8
                         );
                     }
-                }, Minecraft.getInstance());
+                }, Minecraft.getInstance())
+                .exceptionally(throwable -> {
+                    LOGGER.error("Failed to update model data for chiseled block entity", throwable);
+                    return null;
+                });
     }
 
     public static void updateModelDataPerContainedState(final ChiseledBlockEntity tileEntity, final Consumer<Table<RenderType, IBlockInformation, BakedModel>> resultConsumer) {

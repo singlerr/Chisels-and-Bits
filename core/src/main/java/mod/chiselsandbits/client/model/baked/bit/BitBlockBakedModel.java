@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class BitBlockBakedModel extends BaseBakedPerspectiveSmartModel
+public class  BitBlockBakedModel extends BaseBakedPerspectiveSmartModel
 {
 
     private static final float BIT_BEGIN = 4f / 16;

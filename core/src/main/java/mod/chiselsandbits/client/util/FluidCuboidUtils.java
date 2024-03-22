@@ -156,10 +156,10 @@ public class FluidCuboidUtils
         float minV;
         float maxV;
 
-        float size = 16f;
+        float size = 1f;
         if (flowing)
         {
-            size = 8f;
+            size = 0.5f;
         }
 
         float xt1 = 0;

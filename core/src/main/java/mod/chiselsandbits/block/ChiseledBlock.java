@@ -131,7 +131,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     }
 
     @Override
-    public ItemStack getCloneItemStack(final BlockState state, final HitResult target, final BlockGetter blockGetter, final BlockPos pos, final Player player)
+    public ItemStack getCloneItemStack(final BlockState state, final HitResult target, final LevelReader blockGetter, final BlockPos pos, final Player player)
     {
         if (!(target instanceof final BlockHitResult blockRayTraceResult))
         {

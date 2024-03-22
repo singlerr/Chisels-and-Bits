@@ -3,6 +3,8 @@ plugins {
     id 'net.darkhax.curseforgegradle'
 }
 
+project.ext.remapTaskClass = Class.forName('net.fabricmc.loom.task.RemapJarTask')
+
 project.addApiProject()
 project.addCoreProject()
 

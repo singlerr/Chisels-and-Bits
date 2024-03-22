@@ -1,16 +1,22 @@
 package mod.chiselsandbits.network.packets;
 
 import com.communi.suggestu.scena.core.entity.IPlayerInventoryManager;
+import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
+import mod.chiselsandbits.registrars.ModItems;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public class GivePlayerPatternCommandPacket extends ModPacket
 {
 
-    private ItemStack patternStack;
+    private CompoundTag tag;
 
-    public GivePlayerPatternCommandPacket(final ItemStack patternStack) {this.patternStack = patternStack;}
+    public GivePlayerPatternCommandPacket(CompoundTag tag) {
+        this.tag = tag;
+    }
 
     public GivePlayerPatternCommandPacket(final FriendlyByteBuf buffer)
     {
@@ -20,18 +26,21 @@ public class GivePlayerPatternCommandPacket extends ModPacket
     @Override
     public void writePayload(final FriendlyByteBuf buffer)
     {
-        buffer.writeItem(patternStack);
+        buffer.writeNbt(tag);
     }
 
     @Override
     public void readPayload(final FriendlyByteBuf buffer)
     {
-        patternStack = buffer.readItem();
+        tag = buffer.readNbt();
     }
 
     @Override
     public void server(final ServerPlayer playerEntity)
     {
-        IPlayerInventoryManager.getInstance().giveToPlayer(playerEntity, patternStack);
+        final Item item = ModItems.SINGLE_USE_PATTERN_ITEM.get();
+        final SingleBlockMultiStateItemStack patternStack = new SingleBlockMultiStateItemStack(item, tag);
+
+        IPlayerInventoryManager.getInstance().giveToPlayer(playerEntity, patternStack.toPatternStack());
     }
 }

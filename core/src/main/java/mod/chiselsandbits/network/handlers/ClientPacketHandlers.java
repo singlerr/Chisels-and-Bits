@@ -92,7 +92,7 @@ public final class ClientPacketHandlers
         final Either<IMultiStateItemStack, PatternIOException> importResult = IPatternSharingManager.getInstance().importPattern(name);
         importResult.ifLeft(stack -> {
             ChiselsAndBits.getInstance().getNetworkChannel()
-              .sendToServer(new GivePlayerPatternCommandPacket(stack.toPatternStack()));
+              .sendToServer(new GivePlayerPatternCommandPacket(stack.serializeNBT()));
         });
         importResult.ifRight(e -> {
             Minecraft.getInstance().player.sendSystemMessage(e.getErrorMessage());

@@ -4,6 +4,7 @@ import com.communi.suggestu.scena.core.creativetab.ICreativeTabManager;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import com.communi.suggestu.scena.core.registries.deferred.IRegistrar;
 import com.communi.suggestu.scena.core.registries.deferred.IRegistryObject;
+import com.google.common.collect.Sets;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
@@ -29,8 +30,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public final class ModCreativeTabs
@@ -69,6 +72,7 @@ public final class ModCreativeTabs
             .icon(() -> new ItemStack(ModItems.ITEM_BLOCK_BIT.get()))
             .title(LocalStrings.CreativeTabBits.getText())
             .displayItems((parameters, output) -> {
+                final Set<IBlockInformation> states = Sets.newHashSet();
                 IPlatformRegistryManager.getInstance().getBlockRegistry().getValues()
                         .forEach(block -> {
                             if (block instanceof ChiseledBlock)
@@ -79,14 +83,19 @@ public final class ModCreativeTabs
 
                             if (!defaultStateVariants.isEmpty()) {
                                 defaultStateVariants.forEach(blockInformation -> {
-                                    final ItemStack resultStack = IBitItemManager.getInstance().create(blockInformation);
+                                    if (states.add(blockInformation)) {
+                                        if (IEligibilityManager.getInstance().canBeChiseled(blockInformation)) {
+                                            final ItemStack resultStack = IBitItemManager.getInstance().create(blockInformation);
 
-                                    if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem)
-                                        output.accept(resultStack);
+                                            if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem)
+                                                output.accept(resultStack);
+                                        }
+                                    }
                                 });
+
                                 return;
                             }
-                            
+
                             //We need to make sure that we only have still fluids in the interface!
                             if (blockState.getBlock() instanceof LiquidBlock liquidBlock) {
                                 final Fluid fluid = liquidBlock.getFluidState(blockState).getType();
@@ -97,11 +106,13 @@ public final class ModCreativeTabs
 
                             final BlockInformation information = new BlockInformation(blockState, Optional.empty());
 
-                            if (IEligibilityManager.getInstance().canBeChiseled(information)) {
-                                final ItemStack resultStack = IBitItemManager.getInstance().create(information);
+                            if (states.add(information)) {
+                                if (IEligibilityManager.getInstance().canBeChiseled(information)) {
+                                    final ItemStack resultStack = IBitItemManager.getInstance().create(information);
 
-                                if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem) {
-                                    output.accept(resultStack);
+                                    if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem) {
+                                        output.accept(resultStack);
+                                    }
                                 }
                             }
                         });

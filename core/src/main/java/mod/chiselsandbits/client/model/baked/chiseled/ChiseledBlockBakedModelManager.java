@@ -5,18 +5,15 @@ import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
-import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -108,35 +105,6 @@ public class ChiseledBlockBakedModelManager {
                                     primaryState,
                                     chiselRenderType,
                                     accessor,
-                                    targetOffset -> {
-                                        final Vec3 nominalTargetOffset = Vec3.ZERO.add(targetOffset);
-                                        final BlockPos nominalTargetBlockOffset = VectorUtils.toBlockPos(nominalTargetOffset);
-                                        final Vec3 inBlockOffset = nominalTargetOffset.subtract(Vec3.atLowerCornerOf(nominalTargetBlockOffset));                                        final Vec3 inBlockOffsetTarget = VectorUtils.makePositive(inBlockOffset);
-
-                                        final Direction offsetDirection = Direction.getNearest(
-                                          nominalTargetBlockOffset.getX(),
-                                          nominalTargetBlockOffset.getY(),
-                                          nominalTargetBlockOffset.getZ()
-                                        );
-
-                                        IAreaAccessor neighborAccessor;
-                                        if (targetOffset.x() >= 0 && targetOffset.x() < 1 &&
-                                                targetOffset.y() >= 0 && targetOffset.y() < 1 &&
-                                                targetOffset.z() >= 0 && targetOffset.z() < 1
-                                        ) {
-                                            neighborAccessor = accessor;
-                                        } else {
-                                            neighborAccessor = blockNeighborhood.getAreaAccessor(offsetDirection);
-                                        }
-
-                                        if (neighborAccessor != null) {
-                                            return neighborAccessor.getInAreaTarget(inBlockOffsetTarget)
-                                                    .map(IStateEntryInfo::getBlockInformation)
-                                                    .orElse(BlockInformation.AIR);
-                                        }
-
-                                        return blockNeighborhood.getBlockInformation(offsetDirection);
-                                    },
                                     primaryStateRenderSeed
                             );
                         }

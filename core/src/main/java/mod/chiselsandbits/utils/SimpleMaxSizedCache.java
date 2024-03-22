@@ -12,8 +12,8 @@ import java.util.function.Supplier;
 public class SimpleMaxSizedCache<K, V>
 {
 
-    private final Map<K, V> cache = new HashMap<>();
-    private final Queue<K> keyQueue = new LinkedHashSetQueue<>();
+    private final Map<K, V> cache = new ConcurrentHashMap<>();
+    private final Queue<K> keyQueue = new ConcurrentLinkedQueue<>();
 
     private final LongSupplier maxSizeSupplier;
 
@@ -37,11 +37,11 @@ public class SimpleMaxSizedCache<K, V>
         }
     }
 
-    public synchronized V get(final K key) {
+    public V get(final K key) {
         return cache.get(key);
     }
 
-    public synchronized V get(final K key, final Supplier<V> valueSupplier) {
+    public V get(final K key, final Supplier<V> valueSupplier) {
         if (!cache.containsKey(key))
             evictFromCacheIfNeeded();
 
@@ -55,11 +55,11 @@ public class SimpleMaxSizedCache<K, V>
         return cache.get(key);
     }
 
-    public synchronized Optional<V> getIfPresent(final K key) {
+    public Optional<V> getIfPresent(final K key) {
         return Optional.ofNullable(get(key));
     }
 
-    public synchronized void put(final K key, final V value) {
+    public void put(final K key, final V value) {
         if (!cache.containsKey(key))
             evictFromCacheIfNeeded();
 
@@ -68,7 +68,7 @@ public class SimpleMaxSizedCache<K, V>
         cache.put(key, value);
     }
 
-    public synchronized void clear() {
+    public void clear() {
         this.cache.clear();
         this.keyQueue.clear();
     }
