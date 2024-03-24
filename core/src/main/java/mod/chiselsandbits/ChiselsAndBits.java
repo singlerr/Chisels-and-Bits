@@ -1,6 +1,6 @@
 package mod.chiselsandbits;
 
-import mod.chiselsandbits.api.ChiselsAndBitsAPI;
+import mod.chiselsandbits.apiipml.ChiselsAndBitsAPI;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.block.IBlockConstructionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityOptions;
