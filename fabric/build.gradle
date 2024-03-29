@@ -11,12 +11,12 @@ project.addCoreProject()
 project.dependencies.minecraft "com.mojang:minecraft:${project.minecraftVersion}"
 project.dependencies.modImplementation "net.fabricmc:fabric-loader:${project.fabricLoaderVersion}"
 project.dependencies.modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabricVersion}+${project.minecraftVersion}"
-project.dependencies.modImplementation "com.communi-suggestu.scena:fabric:${project.scenaVersion}"
+project.dependencies.modImplementation "com.communi-suggestu.scena:scena-fabric:${project.scenaVersion}"
 project.dependencies.implementation "org.lz4:lz4-pure-java:${project.lz4Version}"
 
 project.dependencies.include "org.lz4:lz4-pure-java:${project.lz4Version}"
 
-project.dependencies.include "com.communi-suggestu.scena:fabric:${project.scenaVersion}"
+project.dependencies.include "com.communi-suggestu.scena:scena-fabric:${project.scenaVersion}"
 
 project.dependencies.mappings loom.layered() { layer ->
     layer.officialMojangMappings()

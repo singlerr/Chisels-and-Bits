@@ -46,7 +46,7 @@ project.minecraft.accessTransformers.file project(':common').file("accesstransfo
 
 
 project.dependencies.implementation "net.neoforged:neoforge:${project.forgeVersion}"
-project.dependencies.includedLibraries ("com.communi-suggestu.scena:neoforge:${project.scenaVersion}") {
+project.dependencies.includedLibraries ("com.communi-suggestu.scena:scena-neoforge:${project.scenaVersion}") {
     jarJar.pin(it, project.scenaVersion)
     jarJar.ranged(it, buildSupportedVersionRange(project.scenaVersion))
 }

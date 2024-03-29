@@ -7,7 +7,7 @@ project.addApiProject()
 project.minecraft.accessTransformers.file project(":common").file("accesstransformer.cfg")
 
 project.dependencies.implementation "net.minecraft:client:${project.minecraftVersion}"
-project.dependencies.implementation "com.communi-suggestu.scena:core:${project.scenaVersion}"
+project.dependencies.implementation "com.communi-suggestu.scena:scena-core:${project.scenaVersion}"
 project.dependencies.implementation "org.lz4:lz4-pure-java:${project.lz4Version}"
 
 subsystems {
