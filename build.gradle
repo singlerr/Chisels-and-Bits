@@ -18,14 +18,6 @@ project.version = opc.buildVersionNumberWithOffset(
 
 //Configure extension utility methods on all subprojects.
 subprojects { Project subProject ->
-    subProject.ext.setupEmbeddedPublishing = { MavenPublication mavenPublication ->
-        subProject.afterEvaluate { Project evaluatedSubProject ->
-            if (evaluatedSubProject.getPlugins().hasPlugin("net.neoforged.gradle.userdev")) {
-                evaluatedSubProject.jarJar.component(mavenPublication)
-            }
-        }
-    }
-
     subProject.ext.disableCompiling = {
         subProject.tasks.build.enabled = false
         subProject.tasks.jar.enabled = false
@@ -148,13 +140,13 @@ subprojects { Project subProject ->
         jarTask.archiveBaseName = "${rootProject.name}-${subProject.name}"
         jarTask.manifest.attributes([
                 "Specification-Title"     : rootProject.name,
-                "Specification-Vendor"    : rootProject.owner,
+                "Specification-Vendor"    : rootProject.creator,
                 "Specification-Version"   : rootProject.version,
                 "Implementation-Title"    : rootProject.name,
                 "Implementation-Version"  : rootProject.version,
-                "Implementation-Vendor"   : rootProject.owner,
+                "Implementation-Vendor"   : rootProject.creator,
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "Automatic-Module-Name"   : subProject.name.toLowerCase().replace("-", "_"),
+                "Automatic-Module-Name"   : rootProject.name.toLowerCase().replace("-", "_") + "_" + subProject.name.toLowerCase().replace("-", "_"),
                 "FMLModType": "GAMELIBRARY"
         ])
         jarTask.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -237,8 +229,6 @@ subprojects { subProject ->
                                 url = subProject.projectUrl
                             }
                         }
-
-                        subProject.setupEmbeddedPublishing(pub)
                     }
                 }
 

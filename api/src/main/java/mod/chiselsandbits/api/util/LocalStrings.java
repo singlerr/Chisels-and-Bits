@@ -172,6 +172,9 @@ public enum LocalStrings
 
     CommandGiveErrorBlockStateNotChiselable("command.give.blockstate.not-chiselable"),
     CommandFillCompleted("command.fill.completed"),
+    CommandFillingInProgress("command.fill.in-progress"),
+    CommandToFill("command.fill.to-fill"),
+    CommandProcessingBlockUpdates("command.fill.processing-block-updates"),
 
     PatternItemTooltipModeGrouped("pattern.item.tooltip.mode.grouped"),
     PatternItemTooltipModeSimple("pattern.item.tooltip.mode.simple"),

@@ -10,6 +10,7 @@ import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityOptions;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
+import mod.chiselsandbits.api.client.model.baked.cache.IBakedModelCacheKeyCalculatorRegistry;
 import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
@@ -331,6 +332,9 @@ public interface IChiselsAndBitsAPI
 
     @NotNull
     ILaunchPropertyManager getLaunchPropertyManager();
+
+    @NotNull
+    IBakedModelCacheKeyCalculatorRegistry getBakedModelCacheKeyCalculatorRegistry();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

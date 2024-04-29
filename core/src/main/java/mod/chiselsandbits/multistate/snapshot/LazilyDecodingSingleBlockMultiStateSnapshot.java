@@ -609,7 +609,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         }
 
         @Override
-        public byte[] getBackingData()
+        public long[] getBackingData()
         {
             return snapshot.getRawData();
         }

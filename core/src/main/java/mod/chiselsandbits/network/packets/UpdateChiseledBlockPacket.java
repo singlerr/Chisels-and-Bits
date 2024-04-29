@@ -9,18 +9,17 @@ import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static com.communi.suggestu.scena.core.dist.Dist.CLIENT;
 
-public final class TileEntityUpdatedPacket extends ModPacket
+public final class UpdateChiseledBlockPacket extends ModPacket
 {
 
     private BlockPos blockPos;
     private byte[] data;
     private Consumer<byte[]> dataConsumer;
 
-    public TileEntityUpdatedPacket(final INetworkUpdatableEntity tileEntity)
+    public UpdateChiseledBlockPacket(final INetworkUpdatableEntity tileEntity)
     {
         this.blockPos = tileEntity.getBlockPos();
         this.data = writeBlockEntity(tileEntity);
@@ -34,7 +33,7 @@ public final class TileEntityUpdatedPacket extends ModPacket
         return data;
     }
 
-    public TileEntityUpdatedPacket(final FriendlyByteBuf buffer)
+    public UpdateChiseledBlockPacket(final FriendlyByteBuf buffer)
     {
         readPayload(buffer);
     }
@@ -57,7 +56,7 @@ public final class TileEntityUpdatedPacket extends ModPacket
     public void client()
     {
         final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.wrappedBuffer(data));
-        DistExecutor.runWhenOn(CLIENT, () -> () -> ClientPacketHandlers.handleTileEntityUpdatedPacket(blockPos, buf));
+        DistExecutor.runWhenOn(CLIENT, () -> () -> ClientPacketHandlers.handleChiseledBlockUpdated(blockPos, buf));
         buf.release();
     }
 }

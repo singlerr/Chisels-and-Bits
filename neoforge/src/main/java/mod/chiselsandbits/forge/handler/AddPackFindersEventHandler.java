@@ -30,31 +30,28 @@ public class AddPackFindersEventHandler {
     @SubscribeEvent
     public static void onAddPackFinders(AddPackFindersEvent event) {
         event.addRepositorySource(registrar -> {
-            if (!SharedConstants.IS_RUNNING_IN_IDE) {
-                LOGGER.warn("ChiselsAndBits is running in a non-IDE environment. Injecting Core Resource Pack.");
-                try {
-                    Path coreJarPath = Path.of(ChiselsAndBits.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            try {
+                Path coreJarPath = Path.of(ChiselsAndBits.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
-                    final PackResources packResources = new PathPackResources(
-                            "chiselsandbits-core",
-                            coreJarPath,
-                            true
-                    );
+                final PackResources packResources = new PathPackResources(
+                        "chiselsandbits-core",
+                        coreJarPath,
+                        true
+                );
 
-                    final Pack corePack = Pack.readMetaAndCreate(
-                            "chiselsandbits-core",
-                            Component.literal("Chisels & Bits Core"),
-                            true,
-                            new SinglePackResourceResourcesSupplier(packResources),
-                            PackType.CLIENT_RESOURCES,
-                            Pack.Position.BOTTOM,
-                            PackSource.BUILT_IN
-                    );
+                final Pack corePack = Pack.readMetaAndCreate(
+                        "chiselsandbits-core",
+                        Component.literal("Chisels & Bits Core"),
+                        true,
+                        new SinglePackResourceResourcesSupplier(packResources),
+                        PackType.CLIENT_RESOURCES,
+                        Pack.Position.BOTTOM,
+                        PackSource.BUILT_IN
+                );
 
-                    registrar.accept(corePack);
-                } catch (URISyntaxException e) {
-                    LOGGER.error("Failed to inject Core Resource Pack. C&B Assets will not be loaded!", e);
-                }
+                registrar.accept(corePack);
+            } catch (URISyntaxException e) {
+                LOGGER.error("Failed to inject Core Resource Pack. C&B Assets will not be loaded!", e);
             }
         });
     }

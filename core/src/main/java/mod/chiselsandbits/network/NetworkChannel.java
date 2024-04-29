@@ -46,7 +46,7 @@ public class NetworkChannel
     {
         int index = -1;
         registerMessage(index++, HeldToolModeChangedPacket.class, HeldToolModeChangedPacket::new);
-        registerMessage(index++, TileEntityUpdatedPacket.class, TileEntityUpdatedPacket::new);
+        registerMessage(index++, UpdateChiseledBlockPacket.class, UpdateChiseledBlockPacket::new);
         registerMessage(index++, BagGuiPacket.class, BagGuiPacket::new);
         registerMessage(index++, BagGuiStackPacket.class, BagGuiStackPacket::new);
         registerMessage(index++, ClearBagGuiPacket.class, ClearBagGuiPacket::new);

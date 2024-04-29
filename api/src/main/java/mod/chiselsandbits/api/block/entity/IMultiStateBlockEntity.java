@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.block.entity;
 
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
@@ -14,6 +15,8 @@ import net.minecraft.core.Direction;
 import mod.chiselsandbits.api.util.INBTSerializable;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -75,4 +78,12 @@ public interface IMultiStateBlockEntity extends IWorldAreaAccessor,
     * @param initialInformation The new initial block information.
     */
    void initializeWith(IBlockInformation initialInformation);
+
+   /**
+    * Returns the current blocks shape for the given collision type.
+    *
+    * @param type The collision type to get the shape for.
+    * @return The shape.
+    */
+   VoxelShape getShape(CollisionType type);
 }

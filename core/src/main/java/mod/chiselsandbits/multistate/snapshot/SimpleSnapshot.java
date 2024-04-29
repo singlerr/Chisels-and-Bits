@@ -23,7 +23,6 @@ import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
 import mod.chiselsandbits.item.ChiseledBlockItem;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
-import mod.chiselsandbits.materials.LegacyMaterialManager;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -562,7 +560,7 @@ public class SimpleSnapshot implements IMultiStateSnapshot
         }
 
         @Override
-        public byte[] getBackingData()
+        public long[] getBackingData()
         {
             return snapshot.getRawData();
         }

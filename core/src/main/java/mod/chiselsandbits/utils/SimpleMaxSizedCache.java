@@ -43,9 +43,6 @@ public class SimpleMaxSizedCache<K, V>
 
     public V get(final K key, final Supplier<V> valueSupplier) {
         if (!cache.containsKey(key))
-            evictFromCacheIfNeeded();
-
-        if (!cache.containsKey(key))
         {
             final V value = valueSupplier.get();
             put(key, value);
@@ -60,11 +57,11 @@ public class SimpleMaxSizedCache<K, V>
     }
 
     public void put(final K key, final V value) {
-        if (!cache.containsKey(key))
+        if (!cache.containsKey(key)) {
             evictFromCacheIfNeeded();
-
-        if (!keyQueue.contains(key))
             keyQueue.add(key);
+        }
+
         cache.put(key, value);
     }
 

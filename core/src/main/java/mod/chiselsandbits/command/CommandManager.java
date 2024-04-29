@@ -7,6 +7,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
@@ -44,6 +46,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class CommandManager
 {
@@ -141,6 +144,11 @@ public class CommandManager
         final Vec3 start = Vec3Argument.getVec3(context, "start");
         final Vec3 end = Vec3Argument.getVec3(context, "end");
 
+        if (start.equals(end)) {
+            context.getSource().sendFailure(Component.literal("Start and end are the same. This is not supported"));
+            return -1;
+        }
+
         final IWorldAreaMutator mutator = IMutatorFactory.getInstance().covering(
           context.getSource().getLevel(),
           start,
@@ -153,9 +161,18 @@ public class CommandManager
             try (final IBatchMutation ignored = context.getSource().getEntity() != null ? mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(context.getSource().getPlayerOrException())) :
                                                   mutator.batch())
             {
-                mutator.mutableStream().forEach(
-                  entry -> entry.overrideState(new BlockInformation(state, Optional.empty()))
-                );
+                final long bitCount = mutator.mutableStream().count();
+                final IBlockInformation information = new BlockInformation(state, IStateVariantManager.getInstance().getStateVariant(state, Optional.empty()));
+                final ReportingBlockInformationOverrider reporter = new ReportingBlockInformationOverrider(context.getSource(), bitCount) {
+                    @Override
+                    protected IBlockInformation getNextInformation() {
+                        return information;
+                    }
+                };
+
+                context.getSource().sendSystemMessage(LocalStrings.CommandToFill.getText(bitCount));
+                mutator.mutableStream().forEach(reporter);
+                context.getSource().sendSystemMessage(LocalStrings.CommandProcessingBlockUpdates.getText());
             }
         }
         else
@@ -163,9 +180,32 @@ public class CommandManager
             try (final IBatchMutation ignored = context.getSource().getEntity() != null ? mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(context.getSource().getPlayerOrException())) :
                                                                                                                                                                                                             mutator.batch())
             {
-                mutator.mutableStream().forEach(
-                  entry -> entry.overrideState(BlockInformationUtils.getRandomSupportedInformation(context.getSource().getLevel().getRandom()))
-                );
+                final long bitCount = mutator.mutableStream().count();
+                final ReportingBlockInformationOverrider reporter = new ReportingBlockInformationOverrider(context.getSource(), bitCount) {
+                    IBlockInformation[] lookup = null;
+                    long total = bitCount;
+                    int index = 0;
+
+                    @Override
+                    protected IBlockInformation getNextInformation() {
+                        if (lookup == null || index == lookup.length) {
+                            final int count = (int) Math.min(total, Integer.MAX_VALUE);
+                            lookup = BlockInformationUtils.getRandomSupportedInformation(context.getSource().getLevel().getRandom(), count);
+                            total -= count;
+                            index = 0;
+                        }
+
+
+                        final IBlockInformation blockInformation = lookup[index];
+                        index++;
+
+                        return blockInformation;
+                    }
+                };
+
+                context.getSource().sendSystemMessage(LocalStrings.CommandToFill.getText(bitCount));
+                mutator.mutableStream().forEach(reporter);
+                context.getSource().sendSystemMessage(LocalStrings.CommandProcessingBlockUpdates.getText());
             }
         }
 
@@ -334,4 +374,44 @@ public class CommandManager
         return 0;
     }
 
+    private static abstract class ReportingBlockInformationOverrider implements Consumer<IMutableStateEntryInfo>
+    {
+        private final CommandSourceStack source;
+        private final long count;
+        private final long reportEvery;
+
+        protected int index = 0;
+
+        public ReportingBlockInformationOverrider(CommandSourceStack source, long count) {
+            this.source = source;
+            this.count = count;
+
+            this.reportEvery = Math.max(1, count / 10);
+        }
+
+        @Override
+        public void accept(final IMutableStateEntryInfo iMutableStateEntryInfo)
+        {
+            iMutableStateEntryInfo.overrideState(getNextInformation());
+            if (shouldReport())
+            {
+                doReport();
+            }
+        }
+
+        protected boolean shouldReport()
+        {
+            return index++ % reportEvery == 0;
+        }
+
+        protected void doReport()
+        {
+            final double procent = (double) index / (double) count * 100;
+            final String formatted = String.format("%.0f", procent);
+
+            source.sendSystemMessage(LocalStrings.CommandFillingInProgress.getText(formatted, count));
+        }
+
+        protected abstract IBlockInformation getNextInformation();
+    }
 }

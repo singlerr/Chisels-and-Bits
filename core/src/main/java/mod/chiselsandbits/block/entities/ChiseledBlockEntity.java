@@ -38,7 +38,7 @@ import mod.chiselsandbits.api.util.*;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
-import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
+import mod.chiselsandbits.network.packets.UpdateChiseledBlockPacket;
 import mod.chiselsandbits.registrars.ModBlockEntityTypes;
 import mod.chiselsandbits.storage.IMultiThreadedStorageEngine;
 import mod.chiselsandbits.storage.IStorageHandler;
@@ -47,6 +47,7 @@ import mod.chiselsandbits.utils.BlockPosUtils;
 import mod.chiselsandbits.utils.LZ4DataCompressionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import mod.chiselsandbits.voxelshape.MultiStateBlockEntityDiscreteVoxelShape;
+import mod.chiselsandbits.voxelshape.SingleBlockVoxelShapeCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -71,7 +72,6 @@ import net.minecraft.world.phys.shapes.CubeVoxelShape;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -95,6 +95,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
     private CompoundTag lastTag = null;
     private CompletableFuture<Void> storageFuture = null;
     private final List<CompoundTag> deserializationQueue = Collections.synchronizedList(Lists.newArrayList());
+    private final SingleBlockVoxelShapeCache voxelShapeCache = new SingleBlockVoxelShapeCache(this);
 
     public ChiseledBlockEntity(BlockPos position, BlockState state) {
         super(ModBlockEntityTypes.CHISELED.get(), position, state);
@@ -344,40 +345,48 @@ public class ChiseledBlockEntity extends BlockEntity implements
         setChanged();
     }
 
+    public VoxelShape getShape(final CollisionType type) {
+        return voxelShapeCache.getShape(type);
+    }
+
     /**
      * For tile entities, ensures the chunk containing the tile entity is saved to disk later - the game won't think it hasn't changed and skip it.
      */
     @Override
     public void setChanged() {
-        if (getLevel() != null && this.batchMutations.isEmpty() && !getLevel().isClientSide()) {
+        if (!this.batchMutations.isEmpty())
+            return;
+
+        if (getLevel() == null)
+            return;
+
+        super.setChanged();
+
+        getLevel().getLightEngine().checkBlock(getBlockPos());
+        getLevel().sendBlockUpdated(getBlockPos(), Blocks.AIR.defaultBlockState(), getBlockState(), Block.UPDATE_ALL);
+        getLevel().updateNeighborsAt(getBlockPos(), getLevel().getBlockState(getBlockPos()).getBlock());
+
+        voxelShapeCache.reset();
+
+        if (!getLevel().isClientSide()) {
             this.mutableStatistics.updatePrimaryState(true);
 
-            if (!getLevel().isClientSide()) {
-                synchronized (this.tagSyncHandle) {
-                    if (this.storageFuture != null) {
-                        this.storageFuture.cancel(false);
-                    }
-                    this.lastTag = null;
-
-                    this.storageFuture = this.storageEngine.serializeOffThread(
-                            tag -> CompletableFuture.runAsync(
-                                    () -> this.setOffThreadSaveResult(tag), this.storageEngine
-                            ));
-
-                    ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
-                            new TileEntityUpdatedPacket(this),
-                            getLevel().getChunkAt(getBlockPos())
-                    );
+            synchronized (this.tagSyncHandle) {
+                if (this.storageFuture != null) {
+                    this.storageFuture.cancel(false);
                 }
+                this.lastTag = null;
+
+                this.storageFuture = this.storageEngine.serializeOffThread(
+                        tag -> CompletableFuture.runAsync(
+                                () -> this.setOffThreadSaveResult(tag), this.storageEngine
+                        ));
+
+                ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
+                        new UpdateChiseledBlockPacket(this),
+                        getLevel().getChunkAt(getBlockPos())
+                );
             }
-        }
-
-        if (getLevel() != null && this.batchMutations.isEmpty()) {
-            super.setChanged();
-
-            getLevel().getLightEngine().checkBlock(getBlockPos());
-            getLevel().sendBlockUpdated(getBlockPos(), Blocks.AIR.defaultBlockState(), getBlockState(), Block.UPDATE_ALL);
-            getLevel().updateNeighborsAt(getBlockPos(), getLevel().getBlockState(getBlockPos()).getBlock());
         }
     }
 
@@ -846,7 +855,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
         }
 
         @Override
-        public byte[] getBackingData() {
+        public long[] getBackingData() {
             return snapshot.getRawData();
         }
 

@@ -83,7 +83,7 @@ public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAn
      *
      * @return The raw data array.
      */
-    byte[] getRawData();
+    long[] getRawData();
 
     /**
      * Creates a copy of this storage.

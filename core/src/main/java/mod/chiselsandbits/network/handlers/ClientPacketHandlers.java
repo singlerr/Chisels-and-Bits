@@ -5,7 +5,6 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.entity.INetworkUpdatableEntity;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
-import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.client.screen.AbstractChiselsAndBitsScreen;
 import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.sharing.PatternIOException;
@@ -16,6 +15,7 @@ import mod.chiselsandbits.clipboard.CreativeClipboardUtils;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.network.packets.GivePlayerPatternCommandPacket;
 import mod.chiselsandbits.profiling.ProfilingManager;
+import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -23,11 +23,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.Optional;
 
 public final class ClientPacketHandlers
 {
@@ -37,10 +33,15 @@ public final class ClientPacketHandlers
         throw new IllegalStateException("Can not instantiate an instance of: ClientPacketHandlers. This is a utility class");
     }
 
-    public static void handleTileEntityUpdatedPacket(final BlockPos blockPos, final FriendlyByteBuf updateData) {
+    public static void handleChiseledBlockUpdated(final BlockPos blockPos, final FriendlyByteBuf updateData) {
         try(IProfilerSection ignored = ProfilingManager.getInstance().withSection("Handling tile entity update packet")) {
             if (Minecraft.getInstance().level != null) {
                 BlockEntity tileEntity = Minecraft.getInstance().level.getBlockEntity(blockPos);
+                if (tileEntity == null) {
+                    Minecraft.getInstance().level.setBlock(blockPos, ModBlocks.CHISELED_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
+                    tileEntity = Minecraft.getInstance().level.getBlockEntity(blockPos);
+                }
+
                 if (tileEntity instanceof INetworkUpdatableEntity networkUpdatableEntity) {
                     networkUpdatableEntity.deserializeFrom(updateData);
                 }

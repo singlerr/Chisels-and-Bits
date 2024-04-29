@@ -539,7 +539,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         }
 
         @Override
-        public byte[] getBackingData()
+        public long[] getBackingData()
         {
             return snapshot.getRawData();
         }

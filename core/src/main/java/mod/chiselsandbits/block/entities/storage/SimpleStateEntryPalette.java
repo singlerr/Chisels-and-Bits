@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTSerializable<ListTag>
 {
 
-    private final List<Entry>                    paletteEntries = Collections.synchronizedList(Lists.newArrayList());
-    private final BiMap<IBlockInformation, Entry> paletteMap     = Maps.synchronizedBiMap(HashBiMap.create());
+    private final List<Entry>                    paletteEntries = Lists.newCopyOnWriteArrayList();
+    private final Map<IBlockInformation, Entry> paletteMap     = Maps.newConcurrentMap();
     private final IntConsumer                    onNewSizeAddedConsumer;
     private final Consumer<Map<Integer, Integer>> onPaletteIndexChanged;
 

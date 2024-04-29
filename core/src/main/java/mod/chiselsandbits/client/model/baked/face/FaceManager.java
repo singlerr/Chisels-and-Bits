@@ -7,10 +7,12 @@ import com.communi.suggestu.scena.core.fluid.FluidInformation;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
+import mod.chiselsandbits.api.client.model.baked.cache.IBakedModelCacheKey;
+import mod.chiselsandbits.api.client.model.baked.cache.IBakedModelCacheKeyCalculatorRegistry;
 import mod.chiselsandbits.api.client.variant.state.IClientStateVariantManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
+import mod.chiselsandbits.client.model.baked.cache.BakedModelCacheKeyCalculatorRegistry;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
 import mod.chiselsandbits.client.model.baked.face.model.ModelVertexRange;
 import mod.chiselsandbits.client.model.baked.simple.SimpleGeneratedModel;
@@ -35,6 +37,7 @@ import net.minecraft.world.level.material.Fluids;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -391,17 +394,21 @@ public final class FaceManager {
             final IBlockInformation state,
             final Direction face,
             final RenderType layer,
-            final long primaryStateRenderSeed,
+            long primaryStateRenderSeed,
             @NotNull RenderType renderType) {
         if (layer == null) {
             return null;
         }
 
-        final Key key = new Key(state, layer, face, primaryStateRenderSeed, renderType);
+        final BakedModel model = solveModel(state, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state.getBlockState()), primaryStateRenderSeed, renderType);
+        final IBakedModelCacheKey modelCacheKey = BakedModelCacheKeyCalculatorRegistry.getInstance()
+                .getCacheKey(model, primaryStateRenderSeed);
+
+        final Key key = new Key(state, layer, face, modelCacheKey, renderType);
 
         return cache.get(key, () -> {
             try {
-                return buildFaceQuadLayers(state, face, primaryStateRenderSeed, renderType);
+                return buildFaceQuadLayers(state, face, primaryStateRenderSeed, renderType, model);
             } finally {
             }
         });
@@ -411,8 +418,8 @@ public final class FaceManager {
             final IBlockInformation blockInformation,
             final Direction cullDirection,
             final long primaryStateRenderSeed,
-            @NotNull RenderType renderType) {
-        final BakedModel model = solveModel(blockInformation, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(blockInformation.getBlockState()), primaryStateRenderSeed, renderType);
+            @NotNull final RenderType renderType,
+            @NotNull final BakedModel model) {
         final int lv = IClientConfiguration.getInstance().getUseGetLightValue().get() ? blockInformation.getBlockState().getLightEmission() : 0;
 
         final Fluid fluid = blockInformation.getBlockState().getFluidState().getType();
@@ -480,6 +487,6 @@ public final class FaceManager {
     }
 
     private record Key(IBlockInformation blockState, RenderType renderType, Direction direction,
-                       long primaryStateSeed, RenderType type) {
+                       IBakedModelCacheKey modelKey, RenderType type) {
     }
 }

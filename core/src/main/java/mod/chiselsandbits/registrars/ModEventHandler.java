@@ -3,19 +3,15 @@ package mod.chiselsandbits.registrars;
 import com.communi.suggestu.scena.core.entity.block.IBlockEntityPositionManager;
 import com.communi.suggestu.scena.core.event.*;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.block.entity.INetworkUpdatableEntity;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.logic.*;
-import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
+import mod.chiselsandbits.network.packets.UpdateChiseledBlockPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.chunk.LevelChunk;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -126,7 +122,7 @@ public final class ModEventHandler {
                     .map(ChiseledBlockEntity.class::cast)
                     .forEach(chiseledBlockEntity -> {
                         ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
-                                new TileEntityUpdatedPacket(chiseledBlockEntity),
+                                new UpdateChiseledBlockPacket(chiseledBlockEntity),
                                 serverLevel.getChunkAt(chiseledBlockEntity.getBlockPos())
                         );
                     });

@@ -56,4 +56,31 @@ public class BlockInformationUtils
 
         return blockInformation;
     }
+
+    /**
+     * Gets a random chiselable block information from the blocks in the registry.
+     *
+     * @param random The random to get the random ids from.
+     * @param count The amount of random block information to get.
+     * @return The default random information of a supported chiselable block.
+     */
+    public static IBlockInformation[] getRandomSupportedInformation(final RandomSource random, int count) {
+        final IPlatformRegistry<Block> blocks = IPlatformRegistryManager.getInstance().getBlockRegistry();
+        final IBlockInformation[] result = new IBlockInformation[count];
+
+        final IBlockInformation[] blockLookup = blocks.getValues().stream()
+                .parallel()
+                .map(block -> IBlockInformationFactory.getInstance().create(
+                        block.defaultBlockState(),
+                        IStateVariantManager.getInstance().getStateVariant(block.defaultBlockState(), Optional.empty())
+                ))
+                .filter(blockInformation -> IEligibilityManager.getInstance().canBeChiseled(blockInformation))
+                .toArray(IBlockInformation[]::new);
+
+        for (int i = 0; i < count; i++) {
+            result[i] = blockLookup[random.nextInt(blockLookup.length)];
+        }
+
+        return result;
+    }
 }

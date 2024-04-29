@@ -18,6 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -139,10 +140,10 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     private void ensureCapacity() {
-        final int requiredSize = (int) Math.ceil((getTotalEntryCount() * entryWidth) / (float) Byte.SIZE);
+        final int requiredSize = (int) Math.ceil((getTotalEntryCount() * entryWidth) / (float) Long.SIZE);
         if (data.length() < requiredSize) {
-            final byte[] rawData = getRawData();
-            final byte[] newData = new byte[requiredSize];
+            final long[] rawData = getRawData();
+            final long[] newData = new long[requiredSize];
             System.arraycopy(rawData, 0, newData, 0, rawData.length);
             this.data = BitSet.valueOf(newData);
         } else if (this.ongoingBatchMutations.isEmpty()) {
@@ -181,9 +182,9 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     @Override
-    public byte[] getRawData()
+    public long[] getRawData()
     {
-        return this.data.toByteArray();
+        return this.data.toLongArray();
     }
 
     @Override
@@ -309,7 +310,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         final CompoundTag result = new CompoundTag();
 
         result.put(NbtConstants.PALETTE, this.palette.serializeNBT());
-        result.putByteArray(NbtConstants.DATA, this.getRawData());
+        result.putLongArray(NbtConstants.DATA, this.getRawData());
 
         return result;
     }
@@ -328,7 +329,11 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         }
 
         this.palette.deserializeNBT((ListTag) Objects.requireNonNull(nbt.get(NbtConstants.PALETTE)));
-        this.data = BitSet.valueOf(nbt.getByteArray(NbtConstants.DATA));
+        if (nbt.getTagType(NbtConstants.DATA) == Tag.TAG_BYTE_ARRAY) {
+            this.data = BitSet.valueOf(nbt.getByteArray(NbtConstants.DATA));
+        } else {
+            this.data = BitSet.valueOf(nbt.getLongArray(NbtConstants.DATA));
+        }
 
         final Set<IBlockInformation> containedStates = new HashSet<>();
         for (int i = 0; i < getTotalEntryCount(); i++)
