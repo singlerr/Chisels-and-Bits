@@ -65,7 +65,7 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
             mainArtifact.displayName = mainArtifactName + " - " + project.version + " - " + mainArtifact.releaseType
         }
 
-        mainArtifact.changelog = file('build/changelog.md')
+        mainArtifact.changelog = rootProject.file('build/changelog.md')
         mainArtifact.changelogType = 'markdown'
 
         dependsOn rootProject.tasks.createChangelog
