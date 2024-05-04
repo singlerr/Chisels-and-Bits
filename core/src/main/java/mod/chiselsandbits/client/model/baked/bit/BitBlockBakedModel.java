@@ -98,6 +98,7 @@ public class  BitBlockBakedModel extends BaseBakedPerspectiveSmartModel
 
     @Override
     public BakedModel handleItemStack(ItemStack stack) {
-        return IModelManager.getInstance().adaptToPlatform(this);
+        //return IModelManager.getInstance().adaptToPlatform(this);
+        return this;
     }
 }

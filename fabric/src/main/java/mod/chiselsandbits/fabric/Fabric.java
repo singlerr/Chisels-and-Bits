@@ -8,6 +8,7 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class Fabric implements ModInitializer {
@@ -20,7 +21,7 @@ public class Fabric implements ModInitializer {
     {
         LOGGER.info("Initialized chisels-and-bits for Fabric");
         PlatformInitializationHandler.getInstance().onInit(platform -> setChiselsAndBits(new ChiselsAndBits(
-                explosionDefinitionClass -> false,
+                Objects::isNull,
                 target -> Optional.empty(),
                 FabricPluginManager.getInstance(),
                 ChiseledBlock::new

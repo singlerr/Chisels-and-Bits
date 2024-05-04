@@ -8,6 +8,13 @@ project.ext.remapTaskClass = Class.forName('net.fabricmc.loom.task.RemapJarTask'
 project.addApiProject()
 project.addCoreProject()
 
+def remappedAttribute = Attribute.of("net.fabric.loom.remapped", Boolean)
+project.configurations.modImplementation {
+    attributes {
+        attribute(remappedAttribute, true)
+    }
+}
+
 project.dependencies.minecraft "com.mojang:minecraft:${project.minecraftVersion}"
 project.dependencies.modImplementation "net.fabricmc:fabric-loader:${project.fabricLoaderVersion}"
 project.dependencies.modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabricVersion}+${project.minecraftVersion}"
@@ -44,6 +51,12 @@ project.loom {
             runDir("runs/server")
         }
     }
+
+    mods.create(project.modId, { mod ->
+        mod.sourceSet(project(':core').sourceSets.main, project(':core'))
+        mod.sourceSet(project(':api').sourceSets.main, project(':api'))
+        mod.sourceSet(project.sourceSets.main, project)
+    })
 }
 
 if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
