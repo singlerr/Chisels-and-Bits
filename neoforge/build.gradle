@@ -59,10 +59,6 @@ project.dependencies.includedLibraries ("com.communi-suggestu.scena:scena-neofor
     jarJar.pin(it, project.scenaVersion)
     jarJar.ranged(it, buildSupportedVersionRange(project.scenaVersion))
 }
-project.dependencies.forgeLibrary ("org.lz4:lz4-pure-java:${project.lz4Version}") {
-    jarJar.pin(it, project.lz4Version)
-    jarJar.ranged(it, buildSupportedVersionRange(project.lz4Version))
-}
 
 project.tasks.processResources.from (project(":common").file("accesstransformer.cfg")) {
     into 'META-INF'

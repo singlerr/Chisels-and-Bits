@@ -3,10 +3,6 @@ extendable   class      net/minecraft/client/gui/Font
 extendable   class      net/minecraft/client/renderer/block/model/ItemOverrides
 extendable   class      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape
 extendable   method     net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
-extendable   method     net/minecraft/world/item/Item getMaxDamage ()I # getMaxDamage
-# extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk
-# extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
-# extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask
 extendable   class      net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
 accessible   class      net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
 accessible   class      net/minecraft/world/inventory/MenuType$MenuSupplier
@@ -26,7 +22,6 @@ accessible   method     net/minecraft/world/phys/shapes/VoxelShape <init> (Lnet/
 accessible   field      net/minecraft/client/Minecraft itemColors Lnet/minecraft/client/color/item/ItemColors;
 accessible   field      net/minecraft/client/gui/Font fonts Ljava/util/function/Function;
 accessible   field      net/minecraft/world/inventory/AbstractContainerMenu containerListeners Ljava/util/List;
-accessible   field      com/mojang/blaze3d/vertex/VertexFormat offsets Lit/unimi/dsi/fastutil/ints/IntList;
 accessible   field      com/mojang/blaze3d/vertex/VertexFormat vertexSize I
 accessible   field      net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
 accessible   field      net/minecraft/world/level/chunk/LevelChunkSection states Lnet/minecraft/world/level/chunk/PalettedContainer;
