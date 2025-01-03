@@ -7,16 +7,17 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ChiseledPrinterBlockStateGenerator extends BlockStateProvider implements DataProvider
 {
-    private static final ResourceLocation CHISELED_PRINTER_BLOCK_MODEL = new ResourceLocation(Constants.MOD_ID, "block/chiseled_printer");
+    private static final ResourceLocation CHISELED_PRINTER_BLOCK_MODEL = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "block/chiseled_printer");
 
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)

@@ -27,7 +27,6 @@ public final class ModMetadataKeys
 
     public static final Supplier<IMetadataKey<Vec3>> ANCHOR = KEY_REGISTRAR.register("anchor", () -> new SimpleMetadataKey<>()
     {
-
         @Override
         public Vec3 snapshot(final Vec3 value)
         {

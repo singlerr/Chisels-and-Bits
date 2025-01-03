@@ -1,8 +1,7 @@
 package mod.chiselsandbits.pattern.placement;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
@@ -45,7 +44,7 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
     @Override
     public @NotNull ResourceLocation getIcon()
     {
-        return new ResourceLocation(
+        return ResourceLocation.fromNamespaceAndPath(
                 MOD_ID,
                 "textures/icons/pattern_impose.png"
         );
@@ -105,7 +104,7 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
                     LocalStrings.PatternPlacementNotASupportedBlock.getText());
         }
 
-        final Map<IBlockInformation, Integer> extractedBitsCount = source.stream()
+        final Map<BlockInformation, Integer> extractedBitsCount = source.stream()
                 .filter(s -> !s.getBlockInformation().isAir())
                 .map(IStateEntryInfo::getStartPoint)
                 .map(pos -> pos.add(areaMutator.getInWorldStartPoint()))

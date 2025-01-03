@@ -3,6 +3,7 @@ package mod.chiselsandbits.recipe;
 import com.communi.suggestu.scena.core.item.IDyeItemHelper;
 import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.DyeColor;
@@ -10,6 +11,7 @@ import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.resources.ResourceLocation;
@@ -26,17 +28,13 @@ public class BagDyeingRecipe extends CustomRecipe
     }
 
     @Override
-    public boolean matches(final @NotNull CraftingContainer inv, final @NotNull Level worldIn)
-    {
-        return !getOutput(inv).getBag().isEmpty();
+    public boolean matches(@NotNull CraftingInput input, @NotNull Level level) {
+        return !getOutput(input).getBag().isEmpty();
     }
 
     @Override
-    public @NotNull ItemStack assemble(
-            @NotNull CraftingContainer inv,
-            @NotNull final RegistryAccess registryAccess)
-    {
-        Result output = getOutput(inv);
+    public @NotNull ItemStack assemble(@NotNull CraftingInput input, HolderLookup.@NotNull Provider registries) {
+        Result output = getOutput(input);
 
         if (!output.getBag().isEmpty())
         {
@@ -48,12 +46,12 @@ public class BagDyeingRecipe extends CustomRecipe
 
     @NotNull
     private Result getOutput(
-      CraftingContainer inv)
+      CraftingInput inv)
     {
         ItemStack bag = null;
         ItemStack dye = null;
 
-        for (int x = 0; x < inv.getContainerSize(); ++x)
+        for (int x = 0; x < inv.size(); ++x)
         {
             ItemStack is = inv.getItem(x);
             if (!is.isEmpty())

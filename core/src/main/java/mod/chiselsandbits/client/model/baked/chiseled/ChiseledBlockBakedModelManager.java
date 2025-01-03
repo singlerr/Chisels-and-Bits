@@ -1,7 +1,6 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
@@ -66,9 +65,9 @@ public class ChiseledBlockBakedModelManager {
 
     public ChiseledBlockBakedModel get(
             final IAreaAccessor accessor,
-            final IBlockInformation primaryState,
+            final BlockInformation primaryState,
             final ChiselRenderType chiselRenderType,
-            @Nullable final Function<Direction, IBlockInformation> neighborhoodBlockInformationProvider,
+            @Nullable final Function<Direction, BlockInformation> neighborhoodBlockInformationProvider,
             @Nullable final Function<Direction, IAreaAccessor> neighborhoodAreaAccessorProvider,
             @NotNull final BlockPos position,
             @NotNull final RenderType renderType
@@ -83,14 +82,14 @@ public class ChiseledBlockBakedModelManager {
 
     public ChiseledBlockBakedModel get(
             final IAreaAccessor accessor,
-            final IBlockInformation primaryState,
+            final BlockInformation primaryState,
             final ChiselRenderType chiselRenderType,
             @NotNull IBlockNeighborhood blockNeighborhood,
             @NotNull BlockPos position,
             @NotNull final RenderType renderType
     ) {
         try (IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Block based chiseled block model")) {
-            final long primaryStateRenderSeed = primaryState.getBlockState().getSeed(position);
+            final long primaryStateRenderSeed = primaryState.blockState().getSeed(position);
             final Key key = new Key(
                     accessor.createNewShapeIdentifier(),
                     primaryState,
@@ -105,6 +104,7 @@ public class ChiseledBlockBakedModelManager {
                                     primaryState,
                                     chiselRenderType,
                                     accessor,
+                                    blockNeighborhood,
                                     primaryStateRenderSeed
                             );
                         }
@@ -112,7 +112,7 @@ public class ChiseledBlockBakedModelManager {
         }
     }
 
-    private record Key(IAreaShapeIdentifier identifier, IBlockInformation primaryState,
+    private record Key(IAreaShapeIdentifier identifier, BlockInformation primaryState,
                        ChiselRenderType chiselRenderType, IBlockNeighborhood neighborhood, long renderSeed,
                        RenderType renderType) {
         }

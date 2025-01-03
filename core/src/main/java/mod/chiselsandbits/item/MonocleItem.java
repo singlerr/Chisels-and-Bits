@@ -2,6 +2,7 @@ package mod.chiselsandbits.item;
 
 import com.communi.suggestu.scena.core.item.IWearableItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
@@ -35,7 +36,7 @@ public class MonocleItem extends Item implements IWearableItem
             return false;
         } else {
             LivingEntity targetEntity = list.get(0);
-            EquipmentSlot slot = Mob.getEquipmentSlotForItem(stack);
+            EquipmentSlot slot = targetEntity.getEquipmentSlotForItem(stack);
             ItemStack stackToDispense = stack.split(1);
             targetEntity.setItemSlot(slot, stackToDispense);
             if (targetEntity instanceof Mob) {
@@ -59,8 +60,7 @@ public class MonocleItem extends Item implements IWearableItem
         return getSlot();
     }
 
-    @Nullable
-    public SoundEvent getEquipSound() {
+    public Holder<SoundEvent> getEquipSound() {
         return SoundEvents.ARMOR_EQUIP_GOLD;
     }
 

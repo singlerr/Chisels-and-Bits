@@ -31,7 +31,7 @@ public final class ModChiselModes {
             () -> new CubedChiselModeBuilder().setBitsPerSide(1)
                     .setDisplayName(LocalStrings.ChiselModeSingle.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineSingle.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/bit.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/bit.png"))
                     .createCubedChiselMode()
     );
 
@@ -40,7 +40,7 @@ public final class ModChiselModes {
             () -> new DrawnCubeChiselModeBuilder()
                     .setDisplayName(LocalStrings.ChiselModeDrawnCube.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineDrawnCube.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/drawn_cube.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/drawn_cube.png"))
                     .createDrawnCubeChiselMode()
     );
 
@@ -49,7 +49,7 @@ public final class ModChiselModes {
             () -> new DrawnLineChiselModeBuilder()
                     .setDisplayName(LocalStrings.ChiselModeDrawnLine.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineDrawnLine.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/drawn_line.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/drawn_line.png"))
                     .createDrawnLineChiselMode()
     );
 
@@ -58,7 +58,7 @@ public final class ModChiselModes {
             () -> new DrawnWallChiselModeBuilder()
                     .setDisplayName(LocalStrings.ChiselModeDrawnWallThin.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineDrawnWallThin.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/drawn_wall_1.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/drawn_wall_1.png"))
                     .setWidth(1)
                     .createDrawnWallChiselMode()
     );
@@ -68,7 +68,7 @@ public final class ModChiselModes {
             () -> new DrawnWallChiselModeBuilder()
                     .setDisplayName(LocalStrings.ChiselModeDrawnWallMedium.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineDrawnWallMedium.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/drawn_wall_2.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/drawn_wall_2.png"))
                     .setWidth(2)
                     .createDrawnWallChiselMode()
     );
@@ -78,7 +78,7 @@ public final class ModChiselModes {
             () -> new DrawnWallChiselModeBuilder()
                     .setDisplayName(LocalStrings.ChiselModeDrawnWallFat.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineDrawnWallFat.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/drawn_wall_3.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/drawn_wall_3.png"))
                     .setWidth(3)
                     .createDrawnWallChiselMode()
     );
@@ -88,7 +88,7 @@ public final class ModChiselModes {
             () -> new CubedChiselModeBuilder().setBitsPerSide(2)
                     .setDisplayName(LocalStrings.ChiselModeCubeSmall.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineCubeSmall.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/cube_small.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/cube_small.png"))
                     .createCubedChiselMode()
     );
 
@@ -97,7 +97,7 @@ public final class ModChiselModes {
             () -> new CubedChiselModeBuilder().setBitsPerSide(4)
                     .setDisplayName(LocalStrings.ChiselModeCubeMedium.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineCubeMedium.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/cube_medium.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/cube_medium.png"))
                     .createCubedChiselMode()
     );
 
@@ -106,7 +106,7 @@ public final class ModChiselModes {
             () -> new CubedChiselModeBuilder().setBitsPerSide(8)
                     .setDisplayName(LocalStrings.ChiselModeCubeLarge.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineCubeLarge.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/cube_large.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/cube_large.png"))
                     .createCubedChiselMode()
     );
 
@@ -116,7 +116,7 @@ public final class ModChiselModes {
                     .setAligned(true)
                     .setDisplayName(LocalStrings.ChiselModeSnap2.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineSnap2.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/snap2.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/snap2.png"))
                     .createCubedChiselMode()
     );
 
@@ -126,7 +126,7 @@ public final class ModChiselModes {
                     .setAligned(true)
                     .setDisplayName(LocalStrings.ChiselModeSnap4.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineSnap4.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/snap4.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/snap4.png"))
                     .createCubedChiselMode()
     );
     public static final IRegistryObject<IChiselMode> LARGE_BIT_ALIGNED = MODE_REGISTRAR.register(
@@ -135,7 +135,7 @@ public final class ModChiselModes {
                     .setAligned(true)
                     .setDisplayName(LocalStrings.ChiselModeSnap8.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineSnap8.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/snap8.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/snap8.png"))
                     .createCubedChiselMode()
     );
 
@@ -145,7 +145,7 @@ public final class ModChiselModes {
                     .setAligned(true)
                     .setDisplayName(LocalStrings.ChiselModeCubeFull.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeCubeFull.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/same_material.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/same_material.png"))
                     .createCubedChiselMode()
     );
 
@@ -155,7 +155,7 @@ public final class ModChiselModes {
                     .setBitsPerSide(1)
                     .setDisplayName(LocalStrings.ChiselModeLine.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineLine.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/line.png"))
                     .createLinedChiselMode()
     );
 
@@ -165,7 +165,7 @@ public final class ModChiselModes {
                     .setBitsPerSide(2)
                     .setDisplayName(LocalStrings.ChiselModeLine2.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineLine2.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line2.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/line2.png"))
                     .createLinedChiselMode()
     );
 
@@ -175,7 +175,7 @@ public final class ModChiselModes {
                     .setBitsPerSide(4)
                     .setDisplayName(LocalStrings.ChiselModeLine4.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineLine4.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line4.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/line4.png"))
                     .createLinedChiselMode()
     );
 
@@ -185,7 +185,7 @@ public final class ModChiselModes {
                     .setBitsPerSide(8)
                     .setDisplayName(LocalStrings.ChiselModeLine8.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineLine8.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line8.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/line8.png"))
                     .createLinedChiselMode()
     );
 
@@ -195,7 +195,7 @@ public final class ModChiselModes {
                     .setDepth(1)
                     .setDisplayName(LocalStrings.ChiselModePlane.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane.png"))
                     .createPlaneChiselMode()
     );
 
@@ -205,7 +205,7 @@ public final class ModChiselModes {
                     .setDepth(2)
                     .setDisplayName(LocalStrings.ChiselModePlane2.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane2.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane2.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane2.png"))
                     .createPlaneChiselMode()
     );
 
@@ -215,7 +215,7 @@ public final class ModChiselModes {
                     .setDepth(4)
                     .setDisplayName(LocalStrings.ChiselModePlane4.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane4.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane4.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane4.png"))
                     .createPlaneChiselMode()
     );
 
@@ -225,7 +225,7 @@ public final class ModChiselModes {
                     .setDepth(8)
                     .setDisplayName(LocalStrings.ChiselModePlane8.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane8.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane8.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane8.png"))
                     .createPlaneChiselMode()
     );
 
@@ -235,7 +235,7 @@ public final class ModChiselModes {
                     .setDepth(1)
                     .setDisplayName(LocalStrings.ChiselModePlane.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane.png"))
                     .createConnectedMaterialChiselingMode()
     );
 
@@ -245,7 +245,7 @@ public final class ModChiselModes {
                     .setDepth(2)
                     .setDisplayName(LocalStrings.ChiselModePlane2.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane2.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane2.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane2.png"))
                     .createConnectedMaterialChiselingMode()
     );
 
@@ -255,7 +255,7 @@ public final class ModChiselModes {
                     .setDepth(4)
                     .setDisplayName(LocalStrings.ChiselModePlane4.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane4.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane4.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane4.png"))
                     .createConnectedMaterialChiselingMode()
     );
 
@@ -265,7 +265,7 @@ public final class ModChiselModes {
                     .setDepth(8)
                     .setDisplayName(LocalStrings.ChiselModePlane8.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane8.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane8.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane8.png"))
                     .createConnectedMaterialChiselingMode()
     );
 
@@ -274,7 +274,7 @@ public final class ModChiselModes {
             () -> new SphereChiselModeBuilder().setDiameter(4)
                     .setDisplayName(LocalStrings.ChiselModeSphereSmall.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineSphereSmall.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/sphere_small.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/sphere_small.png"))
                     .createSphereChiselMode()
     );
 
@@ -283,7 +283,7 @@ public final class ModChiselModes {
             () -> new SphereChiselModeBuilder().setDiameter(8)
                     .setDisplayName(LocalStrings.ChiselModeSphereMedium.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineSphereMedium.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/sphere_medium.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/sphere_medium.png"))
                     .createSphereChiselMode()
     );
 
@@ -292,7 +292,7 @@ public final class ModChiselModes {
             () -> new SphereChiselModeBuilder().setDiameter(16)
                     .setDisplayName(LocalStrings.ChiselModeSphereLarge.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineSphereLarge.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/sphere_large.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/sphere_large.png"))
                     .createSphereChiselMode()
     );
 
@@ -302,7 +302,7 @@ public final class ModChiselModes {
                     .setDepth(1)
                     .setDisplayName(LocalStrings.ChiselModePlane.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane.png"))
                     .createConnectedPlaneChiselingMode()
     );
 
@@ -312,7 +312,7 @@ public final class ModChiselModes {
                     .setDepth(2)
                     .setDisplayName(LocalStrings.ChiselModePlane2.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane2.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane2.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane2.png"))
                     .createConnectedPlaneChiselingMode()
     );
 
@@ -322,7 +322,7 @@ public final class ModChiselModes {
                     .setDepth(4)
                     .setDisplayName(LocalStrings.ChiselModePlane4.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane4.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane4.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane4.png"))
                     .createConnectedPlaneChiselingMode()
     );
 
@@ -332,7 +332,7 @@ public final class ModChiselModes {
                     .setDepth(8)
                     .setDisplayName(LocalStrings.ChiselModePlane8.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane8.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane8.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane8.png"))
                     .createConnectedPlaneChiselingMode()
     );
 
@@ -341,7 +341,7 @@ public final class ModChiselModes {
             () -> new ReplaceChiselingModeBuilder()
                     .setDisplayName(LocalStrings.ChiselModeReplace.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineReplace.getText())
-                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/replace.png"))
+                    .setIconName(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/replace.png"))
                     .createReplaceChiselingMode()
     );
 

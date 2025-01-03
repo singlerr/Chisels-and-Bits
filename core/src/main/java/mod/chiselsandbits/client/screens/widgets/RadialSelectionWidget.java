@@ -406,17 +406,16 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
     private static void drawTorus(GuiGraphics graphics, float startAngle, float sizeAngle, float inner, float outer)
     {
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        BufferBuilder vertexBuffer = Tesselator.getInstance().getBuilder();
+        BufferBuilder vertexBuffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION);
         Matrix4f matrix4f = graphics.pose().last().pose();
-        vertexBuffer.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION);
         float draws = DRAWS * (sizeAngle / 360F);
         for (int i = 0; i <= draws; i++)
         {
             float angle = (float) Math.toRadians(startAngle + (i / DRAWS) * 360);
-            vertexBuffer.vertex(matrix4f, (float) (outer * Math.cos(angle)), (float) (outer * Math.sin(angle)), 0).endVertex();
-            vertexBuffer.vertex(matrix4f, (float) (inner * Math.cos(angle)), (float) (inner * Math.sin(angle)), 0).endVertex();
+            vertexBuffer.addVertex(matrix4f, (float) (outer * Math.cos(angle)), (float) (outer * Math.sin(angle)), 0);
+            vertexBuffer.addVertex(matrix4f, (float) (inner * Math.cos(angle)), (float) (inner * Math.sin(angle)), 0);
         }
-        final BufferBuilder.RenderedBuffer buffer = vertexBuffer.end();
+        final MeshData buffer = vertexBuffer.buildOrThrow();
         BufferUploader.drawWithShader(buffer);
     }
 
@@ -450,7 +449,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
         final float iconStartY = itemCenterY - (itemHeight / 2f);
 
         graphics.pose().pushPose();
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderColor(
           (float) mode.getColorVector().x(),
           (float) mode.getColorVector().y(),

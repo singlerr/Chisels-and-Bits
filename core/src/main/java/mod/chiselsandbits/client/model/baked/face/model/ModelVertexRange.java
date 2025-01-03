@@ -32,7 +32,7 @@ public class ModelVertexRange extends BaseModelReader
       final float... data )
     {
         final VertexFormatElement e = getVertexFormat().getElements().get(element);
-        if ( e.getUsage() == VertexFormatElement.Usage.POSITION )
+        if ( e.usage() == VertexFormatElement.Usage.POSITION )
         {
             if ( vertCount == 0 )
             {

@@ -11,19 +11,20 @@ import com.mojang.datafixers.util.Either;
 import mod.chiselsandbits.api.client.sharing.PatternIOException;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
+import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.CompressionUtils;
 import mod.chiselsandbits.utils.FileUtils;
 import mod.chiselsandbits.utils.TextureUtils;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.*;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
@@ -52,11 +53,11 @@ public final class PatternSharingExecutor
         throw new IllegalStateException("Can not instantiate an instance of: PatternSharingExecutor. This is a utility class");
     }
 
-    static void doSavePattern(final IMultiStateItemStack multiStateItemStack, final String patternName)
+    static void doSavePattern(final IMultiStateItemStack multiStateItemStack, final String patternName, HolderLookup.Provider provider)
     {
         try
         {
-            savePattern(multiStateItemStack, patternName);
+            savePattern(multiStateItemStack, patternName, provider);
         }
         catch (PatternIOException e)
         {
@@ -64,11 +65,11 @@ public final class PatternSharingExecutor
         }
     }
 
-    private static void savePattern(final IMultiStateItemStack multiStateItemStack, final String patternName) throws PatternIOException
+    private static void savePattern(final IMultiStateItemStack multiStateItemStack, final String patternName, HolderLookup.Provider provider) throws PatternIOException
     {
         final byte[] textureAtlasData = getBlockTextureAtlasData();
         final ModelData modelData = getModelQuadData(multiStateItemStack);
-        final byte[] chiselData = getChiselData(multiStateItemStack);
+        final byte[] chiselData = getChiselData(multiStateItemStack, provider);
 
         final String dataString = toDataString(textureAtlasData, modelData, chiselData);
         writePatternDataToDisk(patternName, dataString);
@@ -109,15 +110,18 @@ public final class PatternSharingExecutor
         return gson.toJson(returnObject);
     }
 
-    private static byte[] getChiselData(final IMultiStateItemStack multiStateItemStack) throws PatternIOException
+    private static byte[] getChiselData(final IMultiStateItemStack multiStateItemStack, HolderLookup.Provider provider) throws PatternIOException
     {
-        final CompoundTag compoundTag = multiStateItemStack.serializeNBT();
+        final RegistryOps<Tag> registryOps = RegistryOps.create(NbtOps.INSTANCE, provider);
+        final Tag payload = IMultiStateSnapshot.CODEC.encodeStart(
+                registryOps, multiStateItemStack.createSnapshot()
+        ).getOrThrow();
 
         final ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
 
         try
         {
-            NbtIo.write(compoundTag, dataOutput);
+            NbtIo.writeAnyTag(payload, dataOutput);
         }
         catch (IOException e)
         {
@@ -188,10 +192,10 @@ public final class PatternSharingExecutor
         return modelData;
     }
 
-    static Either<IMultiStateItemStack, PatternIOException> doImportPattern(final String patternName) {
+    static Either<IMultiStateItemStack, PatternIOException> doImportPattern(final String patternName, HolderLookup.Provider provider) {
         try
         {
-            return Either.left(importPattern(patternName));
+            return Either.left(importPattern(patternName, provider));
         }
         catch (PatternIOException e)
         {
@@ -199,10 +203,10 @@ public final class PatternSharingExecutor
         }
     }
 
-    private static IMultiStateItemStack importPattern(final String patternName) throws PatternIOException
+    private static IMultiStateItemStack importPattern(final String patternName, HolderLookup.Provider provider) throws PatternIOException
     {
         final String patternData = loadPatternDataFromDisk(patternName);
-        return getChiselData(patternData);
+        return getChiselData(patternData, provider);
     }
 
     private static String loadPatternDataFromDisk(final String patternName) throws PatternIOException {
@@ -254,7 +258,7 @@ public final class PatternSharingExecutor
         return new String(decodedData);
     }
 
-    private static IMultiStateItemStack getChiselData(final String dataString) throws PatternIOException
+    private static IMultiStateItemStack getChiselData(final String dataString, HolderLookup.Provider provider) throws PatternIOException
     {
         final Gson gson = new GsonBuilder().create();
 
@@ -262,7 +266,7 @@ public final class PatternSharingExecutor
         final String version = jsonObject.get("version").getAsString();
 
         if (version.equals("1.0")) {
-            return getVersion1ChiselData(jsonObject);
+            return getVersion1ChiselData(jsonObject, provider);
         }
 
         throw new PatternIOException(
@@ -271,16 +275,16 @@ public final class PatternSharingExecutor
         );
     }
 
-    private static IMultiStateItemStack getVersion1ChiselData(final JsonObject dataObject) throws PatternIOException
+    private static IMultiStateItemStack getVersion1ChiselData(final JsonObject dataObject, HolderLookup.Provider provider) throws PatternIOException
     {
         final String encodedChiselString = dataObject.get("chiselData").getAsString();
         final byte[] chiselData = Base64.getDecoder().decode(encodedChiselString);
 
         final ByteArrayDataInput byteArrayDataInput = ByteStreams.newDataInput(chiselData);
-        final CompoundTag compoundTag;
+        final Tag tag;
         try
         {
-            compoundTag = NbtIo.read(byteArrayDataInput);
+            tag = NbtIo.readAnyTag(byteArrayDataInput, NbtAccounter.unlimitedHeap());
         }
         catch (IOException e)
         {
@@ -290,7 +294,10 @@ public final class PatternSharingExecutor
             );
         }
 
-        return new SingleBlockMultiStateItemStack(ModItems.SINGLE_USE_PATTERN_ITEM.get(), compoundTag);
+        RegistryOps<Tag> registryOps = RegistryOps.create(NbtOps.INSTANCE, provider);
+        final IMultiStateSnapshot snapshot = IMultiStateSnapshot.CODEC.parse(registryOps, tag).getOrThrow();
+
+        return snapshot.toItemStack();
     }
 
     private static final class ModelData {

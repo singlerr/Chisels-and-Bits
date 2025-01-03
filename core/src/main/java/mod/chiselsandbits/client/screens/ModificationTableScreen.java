@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +25,7 @@ import java.util.List;
 
 public class ModificationTableScreen extends AbstractContainerScreen<ModificationTableContainer>
 {
-    private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Constants.MOD_ID, "textures/gui/container/modification_table.png");
+    private static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/container/modification_table.png");
     private               float            sliderProgress;
     /** Is {@code true} if the player clicked on the scroll wheel in the GUI. */
     private               boolean          clickedOnSroll;
@@ -78,7 +79,9 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
         if (this.lastRenderedSelectedRecipeIndex != this.menu.getSelectedRecipe() && this.hasItemsInInputSlot) {
             this.lastRenderedSelectedRecipeIndex = this.menu.getSelectedRecipe();
 
-            final IMultiStateSnapshot snapshot = this.menu.getRecipeList().get(this.lastRenderedSelectedRecipeIndex).value().getAppliedSnapshot(this.menu.inputInventory);
+            final CraftingInput input = CraftingInput.of(1,1, List.of(this.menu.inputInventory.getItem(0)));
+
+            final IMultiStateSnapshot snapshot = this.menu.getRecipeList().get(this.lastRenderedSelectedRecipeIndex).value().getAppliedSnapshot(input);
             this.snapshotWidget.setSnapshot(snapshot);
         }
     }
@@ -131,7 +134,8 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
             int itemY = recipesTop + rowIndex * 18 + 2;
             if (this.minecraft != null)
             {
-                graphics.renderItem(list.get(offset).value().getCraftingBlockResult(this.menu.inputInventory), itemX, itemY);
+                final CraftingInput input = CraftingInput.of(1,1, List.of(this.menu.inputInventory.getItem(0)));
+                graphics.renderItem(list.get(offset).value().getCraftingBlockResult(input), itemX, itemY);
             }
         }
 

@@ -1,10 +1,9 @@
 package mod.chiselsandbits.api.variant.state;
 
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import mod.chiselsandbits.api.serialization.Serializable;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,8 +12,18 @@ import net.minecraft.world.level.material.FluidState;
 import java.util.Collection;
 import java.util.Optional;
 
-public interface IStateVariantProvider
+/**
+ * Represents the state variant provider, which allows external mods to provide their own state variants.
+ */
+public interface IStateVariantProvider extends Serializable.Registry<IStateVariant>
 {
+    /**
+     * Returns the registry name of the provider.
+     *
+     * @return The registry name.
+     */
+    ResourceLocation getRegistryName();
+
     /**
      * Returns the state variant, if one exists, for the blockstate and block entity combination.
      *
@@ -57,38 +66,6 @@ public interface IStateVariantProvider
      * @return The default variants.
      */
     Collection<IStateVariant> getAllDefaultVariants(final BlockState state);
-
-    /**
-     * Serializes the given state variant into a compound tag.
-     *
-     * @param variant The state variant.
-     * @return The serialized state variant.
-     */
-    CompoundTag serializeNBT(IStateVariant variant);
-
-    /**
-     * Deserializes the given compound tag into a state variant.
-     *
-     * @param tag The compound tag.
-     * @return The deserialized state variant.
-     */
-    IStateVariant deserializeNBT(CompoundTag tag);
-
-    /**
-     * Serializes the given state variant into a packet buffer.
-     *
-     * @param packetBuffer The packet buffer.
-     * @param variant The state variant.
-     */
-    void serializeInto(FriendlyByteBuf packetBuffer, IStateVariant variant);
-
-    /**
-     * Deserializes the given packet buffer into a state variant.
-     *
-     * @param packetBuffer The packet buffer.
-     * @return The deserialized state variant.
-     */
-    IStateVariant deserializeFrom(FriendlyByteBuf packetBuffer);
 
     /**
      * Returns the item stack for the given state variant.

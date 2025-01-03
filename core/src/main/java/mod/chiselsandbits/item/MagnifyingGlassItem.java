@@ -1,7 +1,7 @@
 package mod.chiselsandbits.item;
 
 import com.communi.suggestu.scena.core.dist.DistExecutor;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityAnalysisResult;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.item.named.IPermanentlyHighlightedNameItem;
@@ -71,13 +71,8 @@ public class MagnifyingGlassItem extends Item implements IPermanentlyHighlighted
     }
 
     @Override
-    public void appendHoverText(
-      @NotNull final ItemStack stack,
-      final Level worldIn,
-      @NotNull final List<Component> tooltip,
-      @NotNull final TooltipFlag advanced)
-    {
-        super.appendHoverText(stack, worldIn, tooltip, advanced);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag advanced) {
+        super.appendHoverText(stack, context, tooltip, advanced);
         HelpTextUtils.build(
           LocalStrings.HelpMagnifyingGlass, tooltip
         );

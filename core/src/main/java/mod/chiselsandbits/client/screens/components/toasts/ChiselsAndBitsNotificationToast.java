@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.util.IWithColor;
 import mod.chiselsandbits.api.util.IWithIcon;
 import mod.chiselsandbits.api.util.IWithText;
+import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
@@ -18,7 +19,7 @@ import java.util.List;
 
 public class ChiselsAndBitsNotificationToast<T extends IWithColor & IWithIcon & IWithText> implements Toast
 {
-    private static final ResourceLocation BACKGROUND_SPRITE = new ResourceLocation("toast/advancement");
+    private static final ResourceLocation BACKGROUND_SPRITE = ResourceLocation.withDefaultNamespace("toast/advancement");
     private final T contents;
 
     public static <G extends IWithColor & IWithIcon & IWithText> void notifyOf(G contents) {
@@ -30,13 +31,9 @@ public class ChiselsAndBitsNotificationToast<T extends IWithColor & IWithIcon & 
     @Override
     public @NotNull Visibility render(final @NotNull GuiGraphics guiGraphics, final @NotNull ToastComponent toastComponent, final long time)
     {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, BACKGROUND_SPRITE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(BACKGROUND_SPRITE, 0, 0, 0, 0, this.width(), this.height());
+        guiGraphics.blitSprite(BACKGROUND_SPRITE, 0, 0, this.width(), this.height());
 
         List<FormattedCharSequence> list = toastComponent.getMinecraft().font.split(contents.getText(), 125);
-        int textColor = 16746751;
         if (list.size() == 1)
         {
             guiGraphics.drawString(toastComponent.getMinecraft().font, contents.getText(), 30, 12, -1);
@@ -57,7 +54,7 @@ public class ChiselsAndBitsNotificationToast<T extends IWithColor & IWithIcon & 
         guiGraphics.pose().translate(8,8,0);
         guiGraphics.pose().pushPose();
 
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderColor(
           (float) contents.getColorVector().x(),
           (float) contents.getColorVector().y(),

@@ -1,7 +1,6 @@
 package mod.chiselsandbits.client.screens.widgets;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.client.screen.AbstractChiselsAndBitsScreen;
 import mod.chiselsandbits.api.client.screen.widget.AbstractChiselsAndBitsWidget;
@@ -408,8 +407,8 @@ public class ToolModeSelectionWidget<M extends IToolMode<G>, G extends IToolMode
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return isPrevious ? new ResourceLocation(Constants.MOD_ID, "textures/icons/undo.png") :
-                                                                                                    new ResourceLocation(Constants.MOD_ID, "textures/icons/redo.png");
+            return isPrevious ? ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/undo.png") :
+                                                                                                    ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/redo.png");
         }
 
         @Override

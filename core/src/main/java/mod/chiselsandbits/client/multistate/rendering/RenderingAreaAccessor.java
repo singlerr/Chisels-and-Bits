@@ -1,6 +1,6 @@
 package mod.chiselsandbits.client.multistate.rendering;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
@@ -19,10 +19,10 @@ import java.util.stream.Stream;
 
 public class RenderingAreaAccessor implements IAreaAccessor {
 
-    private final IBlockInformation filter;
+    private final BlockInformation filter;
     private final IAreaAccessor wrapped;
 
-    public RenderingAreaAccessor(IBlockInformation filter, IAreaAccessor wrapped) {
+    public RenderingAreaAccessor(BlockInformation filter, IAreaAccessor wrapped) {
         this.filter = filter;
         this.wrapped = wrapped;
     }
@@ -86,10 +86,10 @@ public class RenderingAreaAccessor implements IAreaAccessor {
 
     public static final class AreaShapeIdentifier implements IAreaShapeIdentifier {
 
-        private final IBlockInformation filter;
+        private final BlockInformation filter;
         private final IAreaShapeIdentifier wrapped;
 
-        public AreaShapeIdentifier(IBlockInformation filter, IAreaShapeIdentifier wrapped) {
+        public AreaShapeIdentifier(BlockInformation filter, IAreaShapeIdentifier wrapped) {
             this.filter = filter;
             this.wrapped = wrapped;
         }

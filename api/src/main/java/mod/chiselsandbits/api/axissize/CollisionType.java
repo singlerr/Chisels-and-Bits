@@ -1,7 +1,11 @@
 package mod.chiselsandbits.api.axissize;
 
+import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.util.BlockStatePredicates;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -13,6 +17,8 @@ public enum CollisionType
     COLLIDEABLE_ONLY(BlockStatePredicates.COLLIDEABLE_ONLY, Blocks.STONE.defaultBlockState(), true),
     ALL(BlockStatePredicates.ALL, Blocks.AIR.defaultBlockState(), false);
 
+    public static final Codec<CollisionType> CODEC = Codec.STRING.xmap(CollisionType::valueOf, CollisionType::name);
+    public static final StreamCodec<ByteBuf, CollisionType> STREAM_CODEC = ByteBufCodecs.INT.map(i -> values()[i], Enum::ordinal);
     private final Predicate<BlockState> isValidFor;
     private final BlockState exampleState;
     private final boolean canBeEmptyWithJustFluids;
@@ -22,7 +28,7 @@ public enum CollisionType
         this.canBeEmptyWithJustFluids = canBeEmptyWithJustFluids;
     }
 
-    public boolean isValidFor(final IStateEntryInfo info) {return isValidFor.test(info.getBlockInformation().getBlockState());}
+    public boolean isValidFor(final IStateEntryInfo info) {return isValidFor.test(info.getBlockInformation().blockState());}
 
     public boolean isValidFor(final BlockState blockState) {return isValidFor.test(blockState);}
 

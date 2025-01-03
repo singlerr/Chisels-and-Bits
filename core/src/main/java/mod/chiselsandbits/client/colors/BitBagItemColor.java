@@ -1,7 +1,6 @@
 package mod.chiselsandbits.client.colors;
 
 import mod.chiselsandbits.item.BitBagItem;
-import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -16,7 +15,7 @@ public class BitBagItemColor implements ItemColor
         {
             DyeColor color = BitBagItem.getDyedColor( stack );
             if ( color != null )
-                return color.getTextColor();
+                return color.getTextureDiffuseColor();
         }
 
         return -1;

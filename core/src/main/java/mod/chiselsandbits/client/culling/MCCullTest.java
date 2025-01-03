@@ -1,6 +1,6 @@
 package mod.chiselsandbits.client.culling;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.world.IInWorldStateEntryInfo;
@@ -13,6 +13,8 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.Objects;
+
 /**
  * Determine Culling using Block's Native Checks.
  * <p>
@@ -22,36 +24,35 @@ public class MCCullTest implements ICullTest
 {
 	public record BlockStatePairKey(BlockState first, BlockState second, Direction direction) {}
 
-	private static SimpleMaxSizedCache<BlockStatePairKey, Boolean> CACHE = new SimpleMaxSizedCache<>(
+	private static final SimpleMaxSizedCache<BlockStatePairKey, Boolean> CACHE = new SimpleMaxSizedCache<>(
 			() -> IClientConfiguration.getInstance().getCullTestingCacheSize().get()
 	);
 
 	@Override
 	public boolean isVisible(
 			final IStateEntryInfo stateEntry,
-			final IBlockInformation neighbor,
+			final BlockInformation neighbor,
 			final Direction offsetDirectory )
 	{
-		final IBlockInformation aInfo = stateEntry.getBlockInformation();
+		final BlockInformation aInfo = stateEntry.getBlockInformation();
 		if(aInfo == neighbor)
 		{
 			return false;
 		}
-		if(stateEntry.getBlockInformation().getBlockState().skipRendering(neighbor.getBlockState(), offsetDirectory))
+		if(stateEntry.getBlockInformation().blockState().skipRendering(neighbor.blockState(), offsetDirectory))
 		{
 			return false;
 		}
-		if(!(aInfo instanceof IInWorldStateEntryInfo aBlockEntity))
+		if(!(stateEntry instanceof IInWorldStateEntryInfo aBlockEntity))
 		{
 			// Shouldn't happen?  Maybe if someone's picked up a Chiseled block or another mod is rendering it?
 			return true;
 		}
-		if(neighbor.getBlockState().canOcclude() && Minecraft.getInstance().level != null)
+		if(neighbor.blockState().canOcclude() && Minecraft.getInstance().level != null)
 		{
-			final BlockPos position = new BlockPos(aBlockEntity.getBlockPos());
 			return shouldRenderFace(
-					aInfo.getBlockState(),
-					neighbor.getBlockState(),
+					aInfo.blockState(),
+					neighbor.blockState(),
 					new BlockPos(aBlockEntity.getBlockPos()),
 					offsetDirectory
 			);
@@ -66,7 +67,7 @@ public class MCCullTest implements ICullTest
 		} else if (neighborState.canOcclude()) {
 			BlockStatePairKey cacheKey = new BlockStatePairKey(state, neighborState, offsetDirection);
 			return CACHE.get(cacheKey, () -> {
-				VoxelShape voxelshape = state.getFaceOcclusionShape(Minecraft.getInstance().level, position, offsetDirection);
+				VoxelShape voxelshape = state.getFaceOcclusionShape(Objects.requireNonNull(Minecraft.getInstance().level), position, offsetDirection);
 				if (voxelshape.isEmpty()) {
 					return true;
 				} else {

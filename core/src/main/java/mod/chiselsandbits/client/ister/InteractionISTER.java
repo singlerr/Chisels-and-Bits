@@ -18,6 +18,8 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
+import java.util.Objects;
+
 /**
  * This class animates an interaction between the items in the two hands of the players.
  *
@@ -59,7 +61,7 @@ public class InteractionISTER extends BlockEntityWithoutLevelRenderer
         }
         BakedModel innerModel = ((InteractableBakedItemModel) mainModel).getInnerModel();
 
-        float partialTicks = Minecraft.getInstance().getFrameTime();
+        float partialTicks = Minecraft.getInstance().gameRenderer.getMainCamera().getPartialTickTime();
 
         boolean leftHand = transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
         boolean firstPerson = leftHand || transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
@@ -85,9 +87,9 @@ public class InteractionISTER extends BlockEntityWithoutLevelRenderer
             if (player != null)
             {
                 time = (float) (!jeiMode ? player.getUseItemRemainingTicks()
-                                        : (-TickHandler.getNonePausedTicks()) % stack.getUseDuration()) - partialTicks + 1.0F;
+                                        : (-TickHandler.getNonePausedTicks()) % stack.getUseDuration(Objects.requireNonNull(Minecraft.getInstance().player))) - partialTicks + 1.0F;
             }
-            if (time / (float) stack.getUseDuration() < 0.8F) {
+            if (time / (float) stack.getUseDuration(Objects.requireNonNull(Minecraft.getInstance().player)) < 0.8F) {
                 float bobbing = -Mth.abs(Mth.cos(time / item.getBobbingTickCount() * (float) Math.PI) * 0.1F);
 
                 if (transformType == ItemDisplayContext.GUI)

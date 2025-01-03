@@ -1,5 +1,7 @@
 package mod.chiselsandbits.api.util;
 
+import net.minecraft.util.FastColor;
+
 /**
  * Utility class for processing colors.
  */
@@ -61,5 +63,22 @@ public class ColorUtils
         color |= (b & FULL_CHANNEL);
 
         return color;
+    }
+
+    public static int pack(final float r, final float g, final float b, final float a) {
+        return pack((int) (r * 255), (int) (g * 255), (int) (b * 255), (int) (a * 255));
+    };
+
+    public static int pack(final float[] color) {
+        return pack(color[0], color[1], color[2], color[3]);
+    }
+
+    public static float[] unpack(final int color) {
+        return new float[] {
+                FastColor.ARGB32.red(color) / 255f,
+                FastColor.ARGB32.green(color) / 255f,
+                FastColor.ARGB32.blue(color) / 255f,
+                FastColor.ARGB32.alpha(color) / 255f
+        };
     }
 }

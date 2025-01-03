@@ -1,8 +1,7 @@
 package mod.chiselsandbits.chiseling.eligibility;
 
 import com.communi.suggestu.saecularia.caudices.core.block.IBlockWithWorldlyProperties;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityOptions;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
@@ -48,14 +47,15 @@ public class BlockEligibilityAnalysisData
         return explosionResistance;
     }
 
+    @SuppressWarnings("DataFlowIssue") //We need to pass null in as a level.
     public static BlockEligibilityAnalysisData createFromState(
-      final IBlockInformation state )
+      final BlockInformation state )
     {
         try
         {
             // require basic hardness behavior...
             final ReflectionHelperBlock reflectBlock = ModBlocks.REFLECTION_HELPER_BLOCK.get();
-            final Block blk = state.getBlockState().getBlock();
+            final Block blk = state.blockState().getBlock();
             final Class<? extends Block> blkClass = blk.getClass();
 
             reflectBlock.getDestroyProgress( null, null, null, null );
@@ -71,24 +71,22 @@ public class BlockEligibilityAnalysisData
             final boolean test_d = exploResistanceClz == Block.class || exploResistanceClz == BlockBehaviour.class || exploResistanceClz == null ||
                                      IEligibilityOptions.getInstance().isValidExplosionDefinitionClass(exploResistanceClz);
 
-            final boolean isFluid = !state.getBlockState().getFluidState().isEmpty();
+            final boolean isFluid = !state.blockState().getFluidState().isEmpty();
 
             // is it perfect?
             if ( test_b && test_c && test_d && !isFluid )
             {
-                final float blockHardness = state.getBlockState().getDestroySpeed(new SingleBlockBlockReader(state, state.getBlockState().getBlock()), BlockPos.ZERO);
+                final float blockHardness = state.blockState().getDestroySpeed(new SingleBlockBlockReader(state, state.blockState().getBlock()), BlockPos.ZERO);
                 float resistance = blk.getExplosionResistance();
 
                 if (blk instanceof IBlockWithWorldlyProperties blockWithWorldlyProperties) {
-                    resistance = blockWithWorldlyProperties.getExplosionResistance(state.getBlockState(), new SingleBlockBlockReader(state, state.getBlockState().getBlock()), BlockPos.ZERO,
+                    resistance = blockWithWorldlyProperties.getExplosionResistance(state.blockState(), new SingleBlockBlockReader(state, state.blockState().getBlock()), BlockPos.ZERO,
                             new Explosion(null, null, 0, 1,0, 10, false, Explosion.BlockInteraction.KEEP));
                 }
 
-
-
                 return new BlockEligibilityAnalysisData( true, blockHardness, resistance );
             }
-            else if (test_b && test_c && test_d && isFluid) {
+            else if (test_b && test_c && test_d) {
                 //TODO Adapt this
                 return new BlockEligibilityAnalysisData( true, 2f, 6f );
             }

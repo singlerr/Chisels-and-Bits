@@ -2,20 +2,18 @@ package mod.chiselsandbits.network;
 
 import com.communi.suggestu.scena.core.network.INetworkChannel;
 import mod.chiselsandbits.network.packets.*;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.LevelChunk;
-
-import java.util.function.Function;
 
 /**
  * Our wrapper for Forge network layer
  */
 public class NetworkChannel
 {
-    private static final String        LATEST_PROTO_VER    = "1.0";
-    private static final String          ACCEPTED_PROTO_VERS = LATEST_PROTO_VER;
+    private static final String LATEST_PROTO_VER = "1.0";
     /**
      * Forge network channel
      */
@@ -31,58 +29,43 @@ public class NetworkChannel
     {
         rawChannel =
           INetworkChannel.create(
-            new ResourceLocation("chiselsandbits", channelName),
-            () -> LATEST_PROTO_VER,
-            ACCEPTED_PROTO_VERS::equals,
-            ACCEPTED_PROTO_VERS::equals
+            LATEST_PROTO_VER
           );
     }
 
     /**
      * Registers all common messages.
      */
-    @SuppressWarnings("UnusedAssignment")
     public void registerCommonMessages()
     {
-        int index = -1;
-        registerMessage(index++, HeldToolModeChangedPacket.class, HeldToolModeChangedPacket::new);
-        registerMessage(index++, UpdateChiseledBlockPacket.class, UpdateChiseledBlockPacket::new);
-        registerMessage(index++, BagGuiPacket.class, BagGuiPacket::new);
-        registerMessage(index++, BagGuiStackPacket.class, BagGuiStackPacket::new);
-        registerMessage(index++, ClearBagGuiPacket.class, ClearBagGuiPacket::new);
-        registerMessage(index++, OpenBagGuiPacket.class, OpenBagGuiPacket::new);
-        registerMessage(index++, SortBagGuiPacket.class, SortBagGuiPacket::new);
-        registerMessage(index++, ConvertBagGuiPacket.class, ConvertBagGuiPacket::new);
-        registerMessage(index++, MeasurementUpdatedPacket.class, MeasurementUpdatedPacket::new);
-        registerMessage(index++, MeasurementsUpdatedPacket.class, MeasurementsUpdatedPacket::new);
-        registerMessage(index++, MeasurementsResetPacket.class, MeasurementsResetPacket::new);
-        registerMessage(index++, NeighborBlockUpdatedPacket.class, NeighborBlockUpdatedPacket::new);
-        registerMessage(index++, ChangeTrackerUpdatedPacket.class, ChangeTrackerUpdatedPacket::new);
-        registerMessage(index++, RequestChangeTrackerOperationPacket.class, RequestChangeTrackerOperationPacket::new);
-        registerMessage(index++, ClearChangeTrackerPacket.class, ClearChangeTrackerPacket::new);
-        registerMessage(index++, InputTrackerStatusUpdatePacket.class, InputTrackerStatusUpdatePacket::new);
-        registerMessage(index++, AddMultiStateItemStackToClipboardPacket.class, AddMultiStateItemStackToClipboardPacket::new);
-        registerMessage(index++, ExportPatternCommandMessagePacket.class, ExportPatternCommandMessagePacket::new);
-        registerMessage(index++, ImportPatternCommandMessagePacket.class, ImportPatternCommandMessagePacket::new);
-        registerMessage(index++, GivePlayerPatternCommandPacket.class, GivePlayerPatternCommandPacket::new);
+        register(HeldToolModeChangedPacket.TYPE, HeldToolModeChangedPacket.streamCodec(HeldToolModeChangedPacket::new));
+        register(UpdateBlockEntityPacket.TYPE, UpdateBlockEntityPacket.streamCodec(UpdateBlockEntityPacket::new));
+        register(BagGuiPacket.TYPE, BagGuiPacket.streamCodec(BagGuiPacket::new));
+        register(BagGuiStackPacket.TYPE, BagGuiStackPacket.streamCodec(BagGuiStackPacket::new));
+        register(ClearBagGuiPacket.TYPE, ClearBagGuiPacket.streamCodec(ClearBagGuiPacket::new));
+        register(OpenBagGuiPacket.TYPE, OpenBagGuiPacket.streamCodec(OpenBagGuiPacket::new));
+        register(SortBagGuiPacket.TYPE, SortBagGuiPacket.streamCodec(SortBagGuiPacket::new));
+        register(ConvertBagGuiPacket.TYPE, ConvertBagGuiPacket.streamCodec(ConvertBagGuiPacket::new));
+        register(MeasurementUpdatedPacket.TYPE, MeasurementUpdatedPacket.streamCodec(MeasurementUpdatedPacket::new));
+        register(MeasurementsUpdatedPacket.TYPE, MeasurementsUpdatedPacket.streamCodec(MeasurementsUpdatedPacket::new));
+        register(MeasurementsResetPacket.TYPE, MeasurementsResetPacket.streamCodec(MeasurementsResetPacket::new));
+        register(NeighborBlockUpdatedPacket.TYPE, NeighborBlockUpdatedPacket.streamCodec(NeighborBlockUpdatedPacket::new));
+        register(ChangeTrackerUpdatedPacket.TYPE, ChangeTrackerUpdatedPacket.streamCodec(ChangeTrackerUpdatedPacket::new));
+        register(RequestChangeTrackerOperationPacket.TYPE, RequestChangeTrackerOperationPacket.streamCodec(RequestChangeTrackerOperationPacket::new));
+        register(ClearChangeTrackerPacket.TYPE, ClearChangeTrackerPacket.streamCodec(ClearChangeTrackerPacket::new));
+        register(InputTrackerStatusUpdatePacket.TYPE, InputTrackerStatusUpdatePacket.streamCodec(InputTrackerStatusUpdatePacket::new));
+        register(AddMultiStateItemStackToClipboardPacket.TYPE, AddMultiStateItemStackToClipboardPacket.streamCodec(AddMultiStateItemStackToClipboardPacket::new));
+        register(ExportPatternCommandMessagePacket.TYPE, ExportPatternCommandMessagePacket.streamCodec(ExportPatternCommandMessagePacket::new));
+        register(ImportPatternCommandMessagePacket.TYPE, ImportPatternCommandMessagePacket.streamCodec(ImportPatternCommandMessagePacket::new));
+        register(GivePlayerPatternCommandPacket.TYPE, GivePlayerPatternCommandPacket.streamCodec(GivePlayerPatternCommandPacket::new));
     }
 
-    /**
-     * Register a message into rawChannel.
-     *
-     * @param <MSG>      message class type
-     * @param id         network id
-     * @param msgClazz   message class
-     * @param msgCreator supplier with new instance of msgClazz
-     */
-    public <MSG extends ModPacket> void registerMessage(final int id, final Class<MSG> msgClazz, final Function<FriendlyByteBuf, MSG> msgCreator)
+    private <T extends ModPacket> void register(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec)
     {
         rawChannel.register(
-          id,
-          msgClazz,
-          ModPacket::writePayload,
-          msgCreator,
-          (msg, serverSide, player, executor) -> executor.accept(() -> msg.processPacket(player, serverSide))
+                type,
+                codec,
+                (packet, serverSide, player, consumer) -> consumer.accept(() -> packet.processPacket(player, serverSide))
         );
     }
 

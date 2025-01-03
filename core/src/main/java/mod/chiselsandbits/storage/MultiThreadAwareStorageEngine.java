@@ -1,9 +1,16 @@
 package mod.chiselsandbits.storage;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.Dynamic;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.config.ICommonConfiguration;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.RegistryOps;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -13,10 +20,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-final class MultiThreadAwareStorageEngine implements IMultiThreadedStorageEngine
+final class MultiThreadAwareStorageEngine<TPayload> implements IMultiThreadedStorageEngine<TPayload>
 {
-
     private static ExecutorService saveService;
 
     private static synchronized void ensureThreadPoolSetup() {
@@ -36,70 +43,30 @@ final class MultiThreadAwareStorageEngine implements IMultiThreadedStorageEngine
         }
     }
 
-    private final IThreadAwareStorageEngine internalEngine;
-    private final Executor gameExecutor;
+    private final Codec<TPayload> internalEngine;
 
-    MultiThreadAwareStorageEngine(final IThreadAwareStorageEngine internalEngine, Executor gameExecutor) {this.internalEngine = internalEngine;
-        this.gameExecutor = gameExecutor;
+    MultiThreadAwareStorageEngine(final Codec<TPayload> internalEngine) {
+        this.internalEngine = internalEngine;
     }
 
     @Override
-    public void serializeNBTInto(final CompoundTag tag)
-    {
-        internalEngine.serializeNBTInto(tag);
-    }
-
-    @Override
-    public CompoundTag serializeNBT()
-    {
-        return internalEngine.serializeNBT();
-    }
-
-    @Override
-    public void deserializeNBT(final CompoundTag nbt)
-    {
-        internalEngine.deserializeNBT(nbt);
-    }
-
-    @Override
-    public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
-    {
-        internalEngine.serializeInto(packetBuffer);
-    }
-
-    @Override
-    public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
-    {
-        internalEngine.deserializeFrom(packetBuffer);
-    }
-
-    @Override
-    public Collection<? extends IStorageHandler<?>> getHandlers()
-    {
-        return internalEngine.getHandlers();
-    }
-
-    @Override
-    public CompletableFuture<Void> serializeOffThread(Function<CompoundTag, CompletableFuture<Void>> resultSaver)
-    {
+    public CompletableFuture<Tag> encodeAsync(TPayload payload, HolderLookup.Provider provider) {
         ensureThreadPoolSetup();
-        return CompletableFuture.supplyAsync(
-          this::serializeNBT,
-          saveService
-        )
-       .thenComposeAsync(resultSaver);
+        return CompletableFuture.supplyAsync(() -> {
+            final NbtOps ops = NbtOps.INSTANCE;
+            final RegistryOps<Tag> registryOps = RegistryOps.create(ops, provider);
+            return internalEngine.encodeStart(registryOps, payload).getPartialOrThrow((s) -> new IllegalStateException("Failed to encode payload: " + s));
+        }, saveService);
     }
 
     @Override
-    public void execute(@NotNull final Runnable command)
-    {
+    public CompletableFuture<TPayload> decodeAsync(Tag tag, HolderLookup.Provider provider) {
         ensureThreadPoolSetup();
-        saveService.execute(command);
-    }
-
-    @Override
-    public CompletableFuture<Void> deserializeOffThread(CompoundTag tag) {
-        ensureThreadPoolSetup();
-        return internalEngine.deserializeOffThread(tag, saveService, gameExecutor);
+        return CompletableFuture.supplyAsync(() -> {
+            final NbtOps ops = NbtOps.INSTANCE;
+            final RegistryOps<Tag> registryOps = RegistryOps.create(ops, provider);
+            final Dynamic<Tag> dynamic = new Dynamic<>(registryOps, tag);
+            return internalEngine.parse(dynamic).getPartialOrThrow((s) -> new IllegalStateException("Failed to decode payload: " + s));
+        }, saveService);
     }
 }

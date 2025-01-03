@@ -85,7 +85,7 @@ public class SimpleGeneratedModel implements BakedModel
                 default -> throw new NullPointerException();
             }
 
-            final BakedQuad g = faceBakery.bakeQuad( toB, fromB, bpf, texture, side, mr, null, false, new ResourceLocation(Constants.MOD_ID, "simple"));
+            final BakedQuad g = faceBakery.bakeQuad( toB, fromB, bpf, texture, side, mr, null, false);
             face[side.ordinal()].add( finishFace( g, side) );
         }
     }
@@ -106,7 +106,7 @@ public class SimpleGeneratedModel implements BakedModel
             for ( int elementIndex = 0; elementIndex < DefaultVertexFormat.BLOCK.getElements().size(); elementIndex++ )
             {
                 final VertexFormatElement element = DefaultVertexFormat.BLOCK.getElements().get(elementIndex);
-                switch ( element.getUsage() )
+                switch ( element.usage() )
                 {
                     case POSITION:
                         builder.put(vertNum, elementIndex, Float.intBitsToFloat( vertData[wrapAt * vertNum] ), Float.intBitsToFloat( vertData[1 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[2 + wrapAt * vertNum] ) );
@@ -123,7 +123,7 @@ public class SimpleGeneratedModel implements BakedModel
 
                     case UV:
 
-                        if ( element.getIndex() == 1 )
+                        if ( element.index() == 1 )
                         {
                             builder.put(vertNum, elementIndex, 0, 0 );
                         }

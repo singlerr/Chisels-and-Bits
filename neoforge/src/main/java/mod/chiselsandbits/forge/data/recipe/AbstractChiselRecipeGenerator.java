@@ -2,6 +2,7 @@ package mod.chiselsandbits.forge.data.recipe;
 
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.util.ParamValidator;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -11,6 +12,7 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenerator
@@ -18,9 +20,9 @@ public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenera
     private final TagKey<Item> rodTag;
     private final TagKey<Item> ingredientTag;
 
-    protected AbstractChiselRecipeGenerator(final PackOutput generator, final Item result, TagKey<Item> ingredientTag)
+    protected AbstractChiselRecipeGenerator(final PackOutput generator, final Item result, TagKey<Item> ingredientTag, CompletableFuture<HolderLookup.Provider> registries)
     {
-        super(generator, ParamValidator.isInstanceOf(result, IChiselItem.class));
+        super(generator, ParamValidator.isInstanceOf(result, IChiselItem.class), registries);
         this.ingredientTag = ingredientTag;
         this.rodTag = Tags.Items.RODS_WOODEN;
     }
@@ -29,9 +31,10 @@ public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenera
       final PackOutput generator,
       final Item result,
       final TagKey<Item> rodTag,
-      final TagKey<Item> ingredientTag)
+      final TagKey<Item> ingredientTag,
+      CompletableFuture<HolderLookup.Provider> registries)
     {
-        super(generator, ParamValidator.isInstanceOf(result, IChiselItem.class));
+        super(generator, ParamValidator.isInstanceOf(result, IChiselItem.class), registries);
         this.rodTag = rodTag;
         this.ingredientTag = ingredientTag;
     }

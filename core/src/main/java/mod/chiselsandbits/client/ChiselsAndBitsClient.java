@@ -19,6 +19,7 @@ public class ChiselsAndBitsClient {
         Screens.onClientConstruction();
         ItemProperties.onClientConstruction();
         GPUResources.onClientConstruction();
+        ClientTooltipComponents.onClientConstruction();
 
         IPluginManager.getInstance().run(IChiselsAndBitsPlugin::onClientConstruction);
     }

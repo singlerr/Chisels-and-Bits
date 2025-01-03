@@ -16,15 +16,15 @@ public class IconManager implements IIconManager
 {
     private static final IconManager INSTANCE = new IconManager();
 
-    private static final ResourceLocation ICON_SWAP = new ResourceLocation(Constants.MOD_ID, "swap");
-    private static final ResourceLocation ICON_PLACE = new ResourceLocation(Constants.MOD_ID, "place");
-    private static final ResourceLocation ICON_UNDO = new ResourceLocation(Constants.MOD_ID, "undo");
-    private static final ResourceLocation ICON_REDO = new ResourceLocation(Constants.MOD_ID, "redo");
-    private static final ResourceLocation ICON_TRASH = new ResourceLocation(Constants.MOD_ID, "trash");
-    private static final ResourceLocation ICON_SORT = new ResourceLocation(Constants.MOD_ID, "sort");
-    private static final ResourceLocation ICON_ROLL_X = new ResourceLocation(Constants.MOD_ID, "roll_x");
-    private static final ResourceLocation ICON_ROLL_Z = new ResourceLocation(Constants.MOD_ID, "roll_z");
-    private static final ResourceLocation ICON_WHITE = new ResourceLocation(Constants.MOD_ID, "white");
+    private static final ResourceLocation ICON_SWAP = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "swap");
+    private static final ResourceLocation ICON_PLACE = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "place");
+    private static final ResourceLocation ICON_UNDO = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "undo");
+    private static final ResourceLocation ICON_REDO = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "redo");
+    private static final ResourceLocation ICON_TRASH = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "trash");
+    private static final ResourceLocation ICON_SORT = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "sort");
+    private static final ResourceLocation ICON_ROLL_X = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "roll_x");
+    private static final ResourceLocation ICON_ROLL_Z = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "roll_z");
+    private static final ResourceLocation ICON_WHITE = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "white");
 
     public static IconManager getInstance()
     {

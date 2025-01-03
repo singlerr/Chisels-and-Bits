@@ -2,14 +2,12 @@ package mod.chiselsandbits.chiseling.eligibility;
 
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import mod.chiselsandbits.api.IgnoreBlockLogic;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityAnalysisResult;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.block.ChiseledBlock;
-import mod.chiselsandbits.blockinformation.BlockInformation;
-import mod.chiselsandbits.materials.LegacyMaterialManager;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.stateinfo.additional.StateVariantManager;
@@ -27,19 +25,19 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("ConstantConditions")
 public class EligibilityManager implements IEligibilityManager
 {
     private static final EligibilityManager INSTANCE = new EligibilityManager();
 
-    private static final SimpleMaxSizedCache<IBlockInformation, IEligibilityAnalysisResult> cache =
-        new SimpleMaxSizedCache<>(() -> IPlatformRegistryManager.getInstance().getBlockStateIdMap().size() == 0 ? 1000 : IPlatformRegistryManager.getInstance().getBlockStateIdMap().size());
+    private static final SimpleMaxSizedCache<BlockInformation, IEligibilityAnalysisResult> cache =
+        new SimpleMaxSizedCache<>(() -> {
+            return IPlatformRegistryManager.getInstance().getBlockStateIdMap().size() == 0 ? 1000 : IPlatformRegistryManager.getInstance().getBlockStateIdMap().size();
+        });
 
     private EligibilityManager()
     {
@@ -52,10 +50,10 @@ public class EligibilityManager implements IEligibilityManager
 
     @SuppressWarnings("deprecation")
     @Override
-    public IEligibilityAnalysisResult analyse(@NotNull final IBlockInformation blockInformation)
+    public IEligibilityAnalysisResult analyse(@NotNull final BlockInformation blockInformation)
     {
         return cache.get(blockInformation, () -> {
-            if (blockInformation.getBlockState().getBlock() instanceof ChiseledBlock)
+            if (blockInformation.blockState().getBlock() instanceof ChiseledBlock)
             {
                 return new EligibilityAnalysisResult(
                   false,
@@ -64,7 +62,7 @@ public class EligibilityManager implements IEligibilityManager
                 );
             }
 
-            if (blockInformation.getVariant().isPresent()){
+            if (blockInformation.variant().isPresent()){
                 return new EligibilityAnalysisResult(
                     true,
                     false,
@@ -72,9 +70,9 @@ public class EligibilityManager implements IEligibilityManager
                 );
             }
 
-            final Block blk = blockInformation.getBlockState().getBlock();
+            final Block blk = blockInformation.blockState().getBlock();
 
-            if (blockInformation.getBlockState().is(ModTags.Blocks.BLOCKED_CHISELABLE))
+            if (blockInformation.blockState().is(ModTags.Blocks.BLOCKED_CHISELABLE))
             {
                 return new EligibilityAnalysisResult(
                   false,
@@ -83,7 +81,7 @@ public class EligibilityManager implements IEligibilityManager
                 );
             }
 
-            if (blockInformation.getBlockState().is(ModTags.Blocks.FORCED_CHISELABLE))
+            if (blockInformation.blockState().is(ModTags.Blocks.FORCED_CHISELABLE))
             {
                 return new EligibilityAnalysisResult(
                   true,
@@ -99,11 +97,11 @@ public class EligibilityManager implements IEligibilityManager
                 final Class<? extends Block> blkClass = blk.getClass();
 
                 // custom dropping behavior?
-                pb.getDrops(blockInformation.getBlockState(), null);
+                pb.getDrops(blockInformation.blockState(), null);
                 final Class<?> wc = ClassUtils.getDeclaringClass(blkClass, pb.getLastInvokedThreadLocalMethodName(), BlockState.class, LootParams.Builder.class);
                 final boolean quantityDroppedTest = wc == Block.class || wc == BlockBehaviour.class || wc == LiquidBlock.class;
 
-                final boolean isNotSlab = Item.byBlock(blk) != Items.AIR || blockInformation.getBlockState().getBlock() instanceof LiquidBlock;
+                final boolean isNotSlab = Item.byBlock(blk) != Items.AIR || blockInformation.blockState().getBlock() instanceof LiquidBlock;
                 boolean itemExistsOrNotSpecialDrops = quantityDroppedTest || isNotSlab;
 
                 // ignore blocks with custom collision.
@@ -113,10 +111,10 @@ public class EligibilityManager implements IEligibilityManager
 
                 // full cube specifically is tied to lighting... so for glass
                 // Compatibility use isFullBlock which can be true for glass.
-                boolean isFullBlock = blockInformation.getBlockState().canOcclude() || blk instanceof TransparentBlock || blk instanceof LiquidBlock;
+                boolean isFullBlock = blockInformation.blockState().canOcclude() || blk instanceof TransparentBlock || blk instanceof LiquidBlock;
                 final BlockEligibilityAnalysisData info = BlockEligibilityAnalysisData.createFromState(blockInformation);
 
-                final boolean tickingBehavior = blk.isRandomlyTicking(blockInformation.getBlockState()) && IServerConfiguration.getInstance().getBlackListRandomTickingBlocks().get();
+                final boolean tickingBehavior = blockInformation.blockState().isRandomlyTicking() && IServerConfiguration.getInstance().getBlackListRandomTickingBlocks().get();
                 boolean hasBehavior = (blk instanceof EntityBlock || tickingBehavior);
 
                 if (blkClass.isAnnotationPresent(IgnoreBlockLogic.class))
@@ -138,7 +136,7 @@ public class EligibilityManager implements IEligibilityManager
                       ));
                 }
 
-                if (!blockInformation.getBlockState().getFluidState().isEmpty() && blockInformation.getBlockState().getBlock() instanceof LiquidBlock)
+                if (!blockInformation.blockState().getFluidState().isEmpty() && blockInformation.blockState().getBlock() instanceof LiquidBlock)
                 {
                     return new EligibilityAnalysisResult(
                       true,

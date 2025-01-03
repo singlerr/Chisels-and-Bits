@@ -16,10 +16,10 @@ public final class LightUtil {
     public static void pack(float[] from, int[] to, int v, int e)
     {
         VertexFormatElement element = DefaultVertexFormat.BLOCK.getElements().get(e);
-        int vertexStart = v * DefaultVertexFormat.BLOCK.getVertexSize() + DefaultVertexFormat.BLOCK.offsets.getInt(e);
-        int count = element.getCount();
-        VertexFormatElement.Type type = element.getType();
-        int size = type.getSize();
+        int vertexStart = v * (DefaultVertexFormat.BLOCK.getVertexSize()) + (DefaultVertexFormat.BLOCK.getOffset(element));
+        int count = element.count();
+        VertexFormatElement.Type type = element.type();
+        int size = type.size();
         int mask = (256 << (8 * (size - 1))) - 1;
         for(int i = 0; i < 4; i++)
         {
@@ -80,11 +80,11 @@ public final class LightUtil {
     {
         int length = Math.min(4, to.length);
         VertexFormatElement element = formatFrom.getElements().get(e);
-        int vertexStart = v * formatFrom.getVertexSize() + formatFrom.offsets.getInt(e);
-        int count = element.getCount();
-        VertexFormatElement.Type type = element.getType();
-        VertexFormatElement.Usage usage = element.getUsage();
-        int size = type.getSize();
+        int vertexStart = v * (formatFrom.getVertexSize()) + formatFrom.getOffset(element);
+        int count = element.count();
+        VertexFormatElement.Type type = element.type();
+        VertexFormatElement.Usage usage = element.usage();
+        int size = type.size();
         int mask = (256 << (8 * (size - 1))) - 1;
         for(int i = 0; i < length; i++)
         {

@@ -20,7 +20,7 @@ public final class ModChiselModeGroups
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return new ResourceLocation(Constants.MOD_ID, "textures/icons/cube_medium.png");
+            return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/cube_medium.png");
         }
 
         @Override
@@ -37,7 +37,7 @@ public final class ModChiselModeGroups
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return new ResourceLocation(Constants.MOD_ID, "textures/icons/snap4.png");
+            return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/snap4.png");
         }
 
         @Override
@@ -54,7 +54,7 @@ public final class ModChiselModeGroups
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return new ResourceLocation(Constants.MOD_ID, "textures/icons/line.png");
+            return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/line.png");
         }
 
         @Override
@@ -71,7 +71,7 @@ public final class ModChiselModeGroups
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return new ResourceLocation(Constants.MOD_ID, "textures/icons/plane.png");
+            return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/plane.png");
         }
 
         @Override
@@ -88,7 +88,7 @@ public final class ModChiselModeGroups
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return new ResourceLocation(Constants.MOD_ID, "textures/icons/sphere_medium.png");
+            return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/sphere_medium.png");
         }
 
         @Override
@@ -105,7 +105,7 @@ public final class ModChiselModeGroups
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return new ResourceLocation(Constants.MOD_ID, "textures/icons/connected_plane.png");
+            return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/connected_plane.png");
         }
 
         @Override
@@ -120,7 +120,7 @@ public final class ModChiselModeGroups
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return new ResourceLocation(Constants.MOD_ID, "textures/icons/connected_material.png");
+            return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/connected_material.png");
         }
 
         @Override
@@ -135,7 +135,7 @@ public final class ModChiselModeGroups
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return new ResourceLocation(Constants.MOD_ID, "textures/icons/drawn_cube.png");
+            return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/drawn_cube.png");
         }
 
         @Override

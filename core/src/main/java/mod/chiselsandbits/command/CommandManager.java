@@ -7,9 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
@@ -162,10 +160,10 @@ public class CommandManager
                                                   mutator.batch())
             {
                 final long bitCount = mutator.mutableStream().count();
-                final IBlockInformation information = new BlockInformation(state, IStateVariantManager.getInstance().getStateVariant(state, Optional.empty()));
+                final BlockInformation information = new BlockInformation(state, IStateVariantManager.getInstance().getStateVariant(state, Optional.empty()));
                 final ReportingBlockInformationOverrider reporter = new ReportingBlockInformationOverrider(context.getSource(), bitCount) {
                     @Override
-                    protected IBlockInformation getNextInformation() {
+                    protected BlockInformation getNextInformation() {
                         return information;
                     }
                 };
@@ -182,12 +180,12 @@ public class CommandManager
             {
                 final long bitCount = mutator.mutableStream().count();
                 final ReportingBlockInformationOverrider reporter = new ReportingBlockInformationOverrider(context.getSource(), bitCount) {
-                    IBlockInformation[] lookup = null;
+                    BlockInformation[] lookup = null;
                     long total = bitCount;
                     int index = 0;
 
                     @Override
-                    protected IBlockInformation getNextInformation() {
+                    protected BlockInformation getNextInformation() {
                         if (lookup == null || index == lookup.length) {
                             final int count = (int) Math.min(total, Integer.MAX_VALUE);
                             lookup = BlockInformationUtils.getRandomSupportedInformation(context.getSource().getLevel().getRandom(), count);
@@ -196,7 +194,7 @@ public class CommandManager
                         }
 
 
-                        final IBlockInformation blockInformation = lookup[index];
+                        final BlockInformation blockInformation = lookup[index];
                         index++;
 
                         return blockInformation;
@@ -252,7 +250,7 @@ public class CommandManager
         context.getSource().sendSuccess(() -> Component.literal("############"), true);
         mutator.createSnapshot().getStatics()
           .getStateCounts().forEach((state, count) -> {
-            context.getSource().sendSuccess(() -> Component.literal(" > ").append(state.getBlockState().getBlock().getName()).append(Component.literal(": " + count)), true);
+            context.getSource().sendSuccess(() -> Component.literal(" > ").append(state.blockState().getBlock().getName()).append(Component.literal(": " + count)), true);
         });
 
         return 0;
@@ -412,6 +410,6 @@ public class CommandManager
             source.sendSystemMessage(LocalStrings.CommandFillingInProgress.getText(formatted, count));
         }
 
-        protected abstract IBlockInformation getNextInformation();
+        protected abstract BlockInformation getNextInformation();
     }
 }

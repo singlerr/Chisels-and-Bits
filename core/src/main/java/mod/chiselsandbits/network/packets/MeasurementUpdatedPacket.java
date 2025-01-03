@@ -1,12 +1,18 @@
 package mod.chiselsandbits.network.packets;
 
+import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.measures.Measurement;
 import mod.chiselsandbits.measures.MeasuringManager;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.network.FriendlyByteBuf;
 
 public final class MeasurementUpdatedPacket extends ModPacket
 {
+
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "measurement_updated");
+    public static final CustomPacketPayload.Type<MeasurementUpdatedPacket> TYPE = new CustomPacketPayload.Type<>(ID);
 
     private Measurement measurement;
 
@@ -15,27 +21,31 @@ public final class MeasurementUpdatedPacket extends ModPacket
         this.measurement = measurement;
     }
 
-    public MeasurementUpdatedPacket(final FriendlyByteBuf buffer)
+    public MeasurementUpdatedPacket(final RegistryFriendlyByteBuf buffer)
     {
         readPayload(buffer);
     }
 
     @Override
-    public void writePayload(final FriendlyByteBuf buffer)
+    public void writePayload(final RegistryFriendlyByteBuf buffer)
     {
-        measurement.serializeInto(buffer);
+        Measurement.STREAM_CODEC.encode(buffer, measurement);
     }
 
     @Override
-    public void readPayload(final FriendlyByteBuf buffer)
+    public void readPayload(final RegistryFriendlyByteBuf buffer)
     {
-        this.measurement = new Measurement();
-        this.measurement.deserializeFrom(buffer);
+        this.measurement = Measurement.STREAM_CODEC.decode(buffer);
     }
 
     @Override
     public void server(final ServerPlayer playerEntity)
     {
         MeasuringManager.getInstance().addOrUpdate(measurement);
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

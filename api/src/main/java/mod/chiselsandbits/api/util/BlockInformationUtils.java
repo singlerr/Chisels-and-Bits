@@ -2,8 +2,7 @@ package mod.chiselsandbits.api.util;
 
 import com.communi.suggestu.scena.core.registries.IPlatformRegistry;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.api.blockinformation.IBlockInformationFactory;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import net.minecraft.util.RandomSource;
@@ -30,14 +29,14 @@ public class BlockInformationUtils
      * @return The default random information of a supported chiselable block.
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public static IBlockInformation getRandomSupportedInformation(final RandomSource random) {
+    public static BlockInformation getRandomSupportedInformation(final RandomSource random) {
         final IPlatformRegistry<Block> blocks = IPlatformRegistryManager.getInstance().getBlockRegistry();
 
          Block candidate = blocks.getValues().stream().skip(
           random.nextInt(blocks.getValues().size())
         ).findFirst().get();
 
-        IBlockInformation blockInformation = IBlockInformationFactory.getInstance().create(
+        BlockInformation blockInformation = new BlockInformation(
             candidate.defaultBlockState(),
             IStateVariantManager.getInstance().getStateVariant(candidate.defaultBlockState(), Optional.empty())
         );
@@ -48,7 +47,7 @@ public class BlockInformationUtils
                     random.nextInt(blocks.getValues().size())
             ).findFirst().get();
 
-            blockInformation = IBlockInformationFactory.getInstance().create(
+            blockInformation = new BlockInformation(
                     candidate.defaultBlockState(),
                     IStateVariantManager.getInstance().getStateVariant(candidate.defaultBlockState(), Optional.empty())
             );
@@ -64,18 +63,18 @@ public class BlockInformationUtils
      * @param count The amount of random block information to get.
      * @return The default random information of a supported chiselable block.
      */
-    public static IBlockInformation[] getRandomSupportedInformation(final RandomSource random, int count) {
+    public static BlockInformation[] getRandomSupportedInformation(final RandomSource random, int count) {
         final IPlatformRegistry<Block> blocks = IPlatformRegistryManager.getInstance().getBlockRegistry();
-        final IBlockInformation[] result = new IBlockInformation[count];
+        final BlockInformation[] result = new BlockInformation[count];
 
-        final IBlockInformation[] blockLookup = blocks.getValues().stream()
+        final BlockInformation[] blockLookup = blocks.getValues().stream()
                 .parallel()
-                .map(block -> IBlockInformationFactory.getInstance().create(
+                .map(block -> new BlockInformation(
                         block.defaultBlockState(),
                         IStateVariantManager.getInstance().getStateVariant(block.defaultBlockState(), Optional.empty())
                 ))
                 .filter(blockInformation -> IEligibilityManager.getInstance().canBeChiseled(blockInformation))
-                .toArray(IBlockInformation[]::new);
+                .toArray(BlockInformation[]::new);
 
         for (int i = 0; i < count; i++) {
             result[i] = blockLookup[random.nextInt(blockLookup.length)];

@@ -2,8 +2,7 @@ package mod.chiselsandbits.inventory.bit;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItem;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
@@ -30,7 +29,7 @@ public abstract class AbstractBitInventory implements IBitInventory
      */
     @Override
     public boolean canExtract(
-      final IBlockInformation blockState,
+      final BlockInformation blockState,
       final int count)
     {
         final int contained = getMaxExtractAmount(blockState);
@@ -44,7 +43,7 @@ public abstract class AbstractBitInventory implements IBitInventory
      * @return The amount of bits that can be extracted with a given blockstate.
      */
     @Override
-    public int getMaxExtractAmount(final IBlockInformation blockState)
+    public int getMaxExtractAmount(final BlockInformation blockState)
     {
         return IntStream.range(0, getInventorySize())
                  .mapToObj(this::getItem)
@@ -91,7 +90,7 @@ public abstract class AbstractBitInventory implements IBitInventory
      */
     @Override
     public void extract(
-      final IBlockInformation blockInformation,
+      final BlockInformation blockInformation,
       final int count) throws IllegalArgumentException
     {
         if (!canExtract(blockInformation, count))
@@ -151,14 +150,15 @@ public abstract class AbstractBitInventory implements IBitInventory
      * @return {@code true} when insertion is possible.
      */
     @Override
-    public boolean canInsert(final IBlockInformation blockState, final int count)
+    public boolean canInsert(final BlockInformation blockState, final int count)
     {
         final int insertionCount = getMaxInsertAmount(blockState);
         return count <= insertionCount;
     }
 
     protected int getMaxBitsForSlot() {
-        return IBitItemManager.getInstance().getMaxStackSize();
+        //TODO: Figure this out......
+        return 64;
     }
 
     /**
@@ -168,7 +168,7 @@ public abstract class AbstractBitInventory implements IBitInventory
      * @return The amount of bits that can be inserted with a given blockstate.
      */
     @Override
-    public int getMaxInsertAmount(final IBlockInformation blockInformation)
+    public int getMaxInsertAmount(final BlockInformation blockInformation)
     {
         return IntStream.range(0, getInventorySize())
                  .mapToObj(this::getItem)
@@ -202,7 +202,7 @@ public abstract class AbstractBitInventory implements IBitInventory
      * @throws IllegalArgumentException when insertion is not possible.
      */
     @Override
-    public void insert(final IBlockInformation blockInformation, final int count) throws IllegalArgumentException
+    public void insert(final BlockInformation blockInformation, final int count) throws IllegalArgumentException
     {
         if (!canInsert(blockInformation, count))
             throw new IllegalArgumentException("Can not insert: " + blockInformation);
@@ -330,12 +330,12 @@ public abstract class AbstractBitInventory implements IBitInventory
     }
 
     @Override
-    public Map<IBlockInformation, Integer> getContainedStates()
+    public Map<BlockInformation, Integer> getContainedStates()
     {
         return IntStream.range(0, getInventorySize())
           .mapToObj(this::getItem)
           .filter(stack -> stack.getItem() instanceof IBitItem || stack.getItem() instanceof IBitInventoryItem)
-          .map((Function<ItemStack, HashMap<IBlockInformation, Integer>>) stack -> {
+          .map((Function<ItemStack, HashMap<BlockInformation, Integer>>) stack -> {
               if (stack.getItem() instanceof final IBitItem bitItem) {
                   return Maps.newHashMap(ImmutableMap.of(bitItem.getBlockInformation(stack), stack.getCount()));
               }
@@ -350,7 +350,7 @@ public abstract class AbstractBitInventory implements IBitInventory
           .reduce(
             Maps.newHashMap(),
             (blockStateIntegerHashMap, blockStateIntegerHashMap2) -> {
-                final HashMap<IBlockInformation, Integer> result = Maps.newHashMap(blockStateIntegerHashMap);
+                final HashMap<BlockInformation, Integer> result = Maps.newHashMap(blockStateIntegerHashMap);
                 blockStateIntegerHashMap2.forEach((state, count) -> {
                     if (!result.containsKey(state))
                         result.put(state, count);

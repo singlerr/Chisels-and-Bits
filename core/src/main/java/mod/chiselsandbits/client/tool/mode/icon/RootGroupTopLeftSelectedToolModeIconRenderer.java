@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class RootGroupTopLeftSelectedToolModeIconRenderer implements ISelectedToolModeIconRenderer
 {
-    static ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, "group");
+    static ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "group");
 
     @Override
     public ResourceLocation getId()
@@ -35,7 +35,7 @@ public class RootGroupTopLeftSelectedToolModeIconRenderer implements ISelectedTo
         guiGraphics.pose().scale(1/3f, 1/3f, 1);
         guiGraphics.pose().pushPose();
 
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderColor(
           (float) renderableMode.getColorVector().x(),
           (float) renderableMode.getColorVector().y(),

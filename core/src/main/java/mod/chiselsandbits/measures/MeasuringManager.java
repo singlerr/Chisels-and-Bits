@@ -3,29 +3,25 @@ package mod.chiselsandbits.measures;
 import com.communi.suggestu.scena.core.dist.Dist;
 import com.communi.suggestu.scena.core.dist.DistExecutor;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.measuring.IMeasurement;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
-import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import mod.chiselsandbits.network.packets.MeasurementsUpdatedPacket;
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
-public class MeasuringManager implements IMeasuringManager, IPacketBufferSerializable
+public class MeasuringManager implements IMeasuringManager
 {
+
     private static final MeasuringManager INSTANCE = new MeasuringManager();
 
     public static MeasuringManager getInstance()
@@ -75,46 +71,8 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
     public void syncToAll()
     {
         ChiselsAndBits.getInstance().getNetworkChannel().sendToEveryone(
-          new MeasurementsUpdatedPacket()
+          new MeasurementsUpdatedPacket(this.measurements)
         );
-    }
-
-    @Override
-    public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
-    {
-        packetBuffer.writeVarInt(measurements.size());
-        measurements.values().forEach(m -> {
-            packetBuffer.writeVarInt(m.size());
-            m.values().forEach(measurement -> measurement.serializeInto(packetBuffer));
-        });
-    }
-
-    @Override
-    public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
-    {
-        measurements.clear();
-        Collection<Measurement> measurements = IntStream.range(0, packetBuffer.readVarInt())
-          .mapToObj(index -> {
-              final int measurementCount = packetBuffer.readVarInt();
-
-              final List<Measurement> measurementList = Lists.newArrayList();
-              for (int i = 0; i < measurementCount; i++)
-              {
-                  final Measurement measurement = new Measurement();
-                  measurement.deserializeFrom(packetBuffer);
-                  measurementList.add(measurement);
-              }
-
-              return measurementList;
-          })
-          .flatMap(Collection::stream).toList();
-
-        measurements.forEach(measurement -> {
-            if (!this.measurements.contains(measurement.getWorldKey(), measurement.getOwner()))
-                this.measurements.put(measurement.getWorldKey(), measurement.getOwner(), new HashMap<>());
-
-            this.measurements.get(measurement.getWorldKey(), measurement.getOwner()).put(measurement.getMode(), measurement);
-        });
     }
 
     public void addOrUpdate(final Measurement measurement)
@@ -122,7 +80,7 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
         if (!this.measurements.contains(measurement.getWorldKey(), measurement.getOwner()))
             this.measurements.put(measurement.getWorldKey(), measurement.getOwner(), new HashMap<>());
 
-        this.measurements.get(measurement.getWorldKey(), measurement.getOwner()).put(measurement.getMode(), measurement);
+        Objects.requireNonNull(this.measurements.get(measurement.getWorldKey(), measurement.getOwner())).put(measurement.getMode(), measurement);
 
         this.syncToAll();
     }
@@ -131,5 +89,10 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
       final Vec3 from, final Vec3 to, final Direction hitFace, final MeasuringMode mode
     ) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MeasurementNetworkUtil.createAndSend(from, to, hitFace, mode));
+    }
+
+    public void updateMeasurements(Table<ResourceLocation, UUID, Map<MeasuringMode, Measurement>> measurements) {
+        this.measurements.clear();
+        this.measurements.putAll(measurements);
     }
 }

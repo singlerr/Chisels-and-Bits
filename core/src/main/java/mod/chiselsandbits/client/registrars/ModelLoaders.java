@@ -15,15 +15,15 @@ public final class ModelLoaders {
 
     public static void onClientConstruction() {
         IModelManager.getInstance().registerModelLoader(
-                new ResourceLocation(Constants.MOD_ID, "chiseled_block"),
+                ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "chiseled_block"),
                 ChiseledBlockModelLoader.getInstance()
         );
         IModelManager.getInstance().registerModelLoader(
-                new ResourceLocation(Constants.MOD_ID, "bit"),
+                ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "bit"),
                 BitBlockModelLoader.getInstance()
         );
         IModelManager.getInstance().registerModelLoader(
-                new ResourceLocation(Constants.INTERACTABLE_MODEL_LOADER),
+                ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "interactable_model"),
                 new InteractableModelLoader()
         );
     }

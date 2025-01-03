@@ -1,8 +1,6 @@
 package mod.chiselsandbits.api;
 
-import mod.chiselsandbits.api.block.IBlockConstructionManager;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.blockinformation.IBlockInformationFactory;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
@@ -10,10 +8,9 @@ import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityOptions;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
+import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.client.model.baked.cache.IBakedModelCacheKeyCalculatorRegistry;
 import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRendererRegistry;
-import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
-import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
 import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
 import mod.chiselsandbits.api.client.variant.state.IClientStateVariantManager;
@@ -34,8 +31,8 @@ import mod.chiselsandbits.api.multistate.snapshot.ISnapshotFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.api.permissions.IPermissionHandler;
-import mod.chiselsandbits.api.plugin.IPluginManager;
 import mod.chiselsandbits.api.plugin.IPluginDiscoverer;
+import mod.chiselsandbits.api.plugin.IPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
@@ -301,9 +298,6 @@ public interface IChiselsAndBitsAPI
     IStateVariantManager getStateVariantManager();
 
     @NotNull
-    IBlockInformationColorManager getBlockInformationColorManager();
-
-    @NotNull
     ICuttingOperation getDefaultCuttingOperation();
 
     @NotNull
@@ -322,13 +316,7 @@ public interface IChiselsAndBitsAPI
     IPluginDiscoverer getPluginDiscoverer();
 
     @NotNull
-    IBlockConstructionManager getBlockConstructionManager();
-
-    @NotNull
     IClientStateVariantManager getClientStateVariantManager();
-
-    @NotNull
-    IBlockInformationFactory getBlockInformationFactory();
 
     @NotNull
     ILaunchPropertyManager getLaunchPropertyManager();

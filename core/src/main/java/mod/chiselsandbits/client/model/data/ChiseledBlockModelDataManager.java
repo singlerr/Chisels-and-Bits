@@ -1,7 +1,7 @@
 package mod.chiselsandbits.client.model.data;
 
 import com.google.common.collect.Table;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
@@ -37,7 +37,7 @@ public class ChiseledBlockModelDataManager
     {
         if (!force)
         {
-            if (!tileEntity.hasLevel() || !tileEntity.getLevel().isClientSide() || tileEntity == null)
+            if ( tileEntity == null || !tileEntity.hasLevel() || !Objects.requireNonNull(tileEntity.getLevel()).isClientSide())
             {
                 return;
             }
@@ -48,13 +48,13 @@ public class ChiseledBlockModelDataManager
 
     public void computeModelsSplit(
             final ChiseledBlockEntity tileEntity,
-            final Consumer<Table<RenderType, IBlockInformation, BakedModel>> onCompleteCallback,
+            final Consumer<Table<RenderType, BlockInformation, BakedModel>> onCompleteCallback,
             final boolean force
     )
     {
         if (!force)
         {
-            if (!tileEntity.hasLevel() || !tileEntity.getLevel().isClientSide() || tileEntity == null)
+            if (tileEntity == null || !tileEntity.hasLevel() || !Objects.requireNonNull(tileEntity.getLevel()).isClientSide())
             {
                 return;
             }

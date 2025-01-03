@@ -23,8 +23,7 @@ public class Fabric implements ModInitializer {
         PlatformInitializationHandler.getInstance().onInit(platform -> setChiselsAndBits(new ChiselsAndBits(
                 Objects::isNull,
                 target -> Optional.empty(),
-                FabricPluginManager.getInstance(),
-                ChiseledBlock::new
+                FabricPluginManager.getInstance()
         )));
     }
 

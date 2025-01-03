@@ -2,7 +2,6 @@ package mod.chiselsandbits;
 
 import mod.chiselsandbits.apiipml.ChiselsAndBitsAPI;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import mod.chiselsandbits.api.block.IBlockConstructionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityOptions;
 import mod.chiselsandbits.api.config.IChiselsAndBitsConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IAdaptingBitInventoryManager;
@@ -25,8 +24,7 @@ public class ChiselsAndBits
 	public ChiselsAndBits(
             IEligibilityOptions eligibilityOptions,
             IAdaptingBitInventoryManager adaptingBitInventoryManager,
-            IPluginDiscoverer pluginDiscoverer,
-            IBlockConstructionManager blockConstructionManager)
+            IPluginDiscoverer pluginDiscoverer)
 	{
 	    instance = this;
         LanguageHandler.loadLangPath("assets/chiselsandbits/lang/%s.json");
@@ -35,8 +33,7 @@ public class ChiselsAndBits
         IChiselsAndBitsAPI.Holder.setInstance(new ChiselsAndBitsAPI(
                 eligibilityOptions,
                 adaptingBitInventoryManager,
-                pluginDiscoverer,
-                blockConstructionManager
+                pluginDiscoverer
         ));
 
         ModBlockEntityTypes.onModConstruction();
@@ -54,6 +51,9 @@ public class ChiselsAndBits
         ModRecipeSerializers.onModConstruction();
         ModTags.onModConstruction();
         ModRecipeTypes.onModConstruction();
+        ModChangeTypes.onModConstruction();
+        ModMultiStateSnapshotTypes.onModConstruction();
+        ModDataComponentTypes.onModConstruction();
 
         ModEventHandler.onModConstruction();
 

@@ -1,7 +1,7 @@
 package mod.chiselsandbits.pattern.placement;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
@@ -41,7 +41,7 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
     @Override
     public @NotNull ResourceLocation getIcon()
     {
-        return new ResourceLocation(
+        return ResourceLocation.fromNamespaceAndPath(
           MOD_ID,
           "textures/icons/pattern_merge.png"
         );
@@ -86,7 +86,7 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
                     LocalStrings.PatternPlacementNotAChiseledBlock.getText());
         }
 
-        final Map<IBlockInformation, Integer> totalRemovedBits = source.stream()
+        final Map<BlockInformation, Integer> totalRemovedBits = source.stream()
           .filter(s -> !s.getBlockInformation().isAir())
           .filter(s -> {
               final Optional<IStateEntryInfo> o = areaMutator.getInAreaTarget(s.getStartPoint().add(areaMutator.getInWorldStartPoint()));
@@ -116,7 +116,7 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
                     LocalStrings.PatternPlacementNoBitSpace.getText());
         }
 
-        final Map<IBlockInformation, Integer> totalAddedBits = source.stream()
+        final Map<BlockInformation, Integer> totalAddedBits = source.stream()
           .filter(s -> !s.getBlockInformation().isAir())
           .filter(s -> {
               final Optional<IStateEntryInfo> o = areaMutator.getInAreaTarget(s.getStartPoint().add(areaMutator.getInWorldStartPoint()));

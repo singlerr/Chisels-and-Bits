@@ -7,8 +7,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.mojang.logging.LogUtils;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
@@ -30,12 +29,14 @@ import mod.chiselsandbits.registrars.ModModelProperties;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -183,7 +184,7 @@ public class ChiseledBlockModelDataExecutor {
                 });
     }
 
-    public static void updateModelDataPerContainedState(final ChiseledBlockEntity tileEntity, final Consumer<Table<RenderType, IBlockInformation, BakedModel>> resultConsumer) {
+    public static void updateModelDataPerContainedState(final ChiseledBlockEntity tileEntity, final Consumer<Table<RenderType, BlockInformation, BakedModel>> resultConsumer) {
         ensureThreadPoolSetup();
 
         final IBlockNeighborhood neighborhood = IBlockNeighborhoodBuilder.getInstance().build(
@@ -206,12 +207,12 @@ public class ChiseledBlockModelDataExecutor {
                 }
         );
 
-        CompletableFuture.supplyAsync(new Supplier<Table<RenderType, IBlockInformation, BakedModel>>() {
+        CompletableFuture.supplyAsync(new Supplier<Table<RenderType, BlockInformation, BakedModel>>() {
             @Override
-            public Table<RenderType, IBlockInformation, BakedModel> get() {
-                final HashBasedTable<RenderType, IBlockInformation, BakedModel> result = HashBasedTable.create();
+            public Table<RenderType, BlockInformation, BakedModel> get() {
+                final HashBasedTable<RenderType, BlockInformation, BakedModel> result = HashBasedTable.create();
 
-                for (IBlockInformation blockInformation : tileEntity.getStatistics().getContainedStates()) {
+                for (BlockInformation blockInformation : tileEntity.getStatistics().getContainedStates()) {
                     final Set<RenderType> renderTypes = BlockInformationUtils.extractRenderTypes(blockInformation);
 
                     final IAreaAccessor filtered = new RenderingAreaAccessor(blockInformation, tileEntity);

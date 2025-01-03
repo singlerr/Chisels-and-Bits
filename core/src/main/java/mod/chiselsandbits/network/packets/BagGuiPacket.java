@@ -1,19 +1,28 @@
 package mod.chiselsandbits.network.packets;
 
+import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.container.BagContainer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.network.FriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
 
 public final class BagGuiPacket extends ModPacket
 {
+
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "bag_gui");
+    public static final CustomPacketPayload.Type<BagGuiPacket> TYPE = new CustomPacketPayload.Type<>(ID);
+
 	private int slotNumber = -1;
 	private int mouseButton = -1;
 	private boolean duplicateButton = false;
 	private boolean holdingShift = false;
 
-    public BagGuiPacket(final FriendlyByteBuf buffer)
+    public BagGuiPacket(final RegistryFriendlyByteBuf buffer)
     {
         readPayload(buffer);
     }
@@ -34,7 +43,7 @@ public final class BagGuiPacket extends ModPacket
 	}
 
     @Override
-    public void writePayload(final FriendlyByteBuf buffer)
+    public void writePayload(final RegistryFriendlyByteBuf buffer)
     {
         buffer.writeInt( slotNumber );
         buffer.writeInt( mouseButton );
@@ -54,7 +63,7 @@ public final class BagGuiPacket extends ModPacket
 
 	@Override
 	public void readPayload(
-			final FriendlyByteBuf buffer )
+			final RegistryFriendlyByteBuf buffer )
 	{
         slotNumber = buffer.readInt();
         mouseButton = buffer.readInt();
@@ -62,4 +71,8 @@ public final class BagGuiPacket extends ModPacket
         holdingShift = buffer.readBoolean();
 	}
 
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

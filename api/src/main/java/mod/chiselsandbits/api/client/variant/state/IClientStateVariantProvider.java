@@ -3,8 +3,8 @@ package mod.chiselsandbits.api.client.variant.state;
 import com.communi.suggestu.scena.core.client.models.data.IBlockModelData;
 import mod.chiselsandbits.api.variant.state.IStateVariant;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 
 import java.util.List;
 
@@ -25,9 +25,9 @@ public interface IClientStateVariantProvider {
      * Invoked to add tooltip lines to the tooltip of an item containing the given variant.
      *
      * @param variant The variant contained in the stack in question.
-     * @param level The level.
+     * @param context The context.
      * @param tooltip The tooltip lines
      * @param flags The tooltip flags.
      */
-    void appendHoverText(IStateVariant variant, Level level, List<Component> tooltip, TooltipFlag flags);
+    void appendHoverText(IStateVariant variant, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flags);
 }

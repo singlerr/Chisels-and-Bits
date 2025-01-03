@@ -1,16 +1,23 @@
 package mod.chiselsandbits.network.packets;
 
+import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.input.ProcessingInputTracker;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class InputTrackerStatusUpdatePacket extends ModPacket
 {
 
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "input_tracker_status_update");
+    public static final CustomPacketPayload.Type<InputTrackerStatusUpdatePacket> TYPE = new CustomPacketPayload.Type<>(ID);
+
     private boolean isLeftMouse;
     private boolean started;
 
-    public InputTrackerStatusUpdatePacket(final FriendlyByteBuf buffer)
+    public InputTrackerStatusUpdatePacket(final RegistryFriendlyByteBuf buffer)
     {
         readPayload(buffer);
     }
@@ -21,14 +28,14 @@ public final class InputTrackerStatusUpdatePacket extends ModPacket
     }
 
     @Override
-    public void writePayload(final FriendlyByteBuf buffer)
+    public void writePayload(final RegistryFriendlyByteBuf buffer)
     {
         buffer.writeBoolean(this.isLeftMouse);
         buffer.writeBoolean(this.started);
     }
 
     @Override
-    public void readPayload(final FriendlyByteBuf buffer)
+    public void readPayload(final RegistryFriendlyByteBuf buffer)
     {
         this.isLeftMouse = buffer.readBoolean();
         this.started = buffer.readBoolean();
@@ -52,5 +59,10 @@ public final class InputTrackerStatusUpdatePacket extends ModPacket
                 ProcessingInputTracker.getInstance().onStoppedRightClicking(playerEntity);
             }
         }
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

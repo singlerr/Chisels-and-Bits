@@ -30,11 +30,11 @@ public class StringStateUtils
     public static int getStateIDFromName(
       final String name )
     {
-        final String parts[] = name.split( "[?&]" );
+        final String[] parts = name.split( "[?&]" );
 
         parts[0] = URLDecoder.decode( parts[0], StandardCharsets.UTF_8);
 
-        final Optional<Block> blk = IPlatformRegistryManager.getInstance().getBlockRegistry().getValue(new ResourceLocation(parts[0]));
+        final Optional<Block> blk = IPlatformRegistryManager.getInstance().getBlockRegistry().getValue(ResourceLocation.parse(parts[0]));
 
         if ( blk.isEmpty() || blk.get() instanceof AirBlock)
         {
@@ -48,7 +48,7 @@ public class StringStateUtils
         {
             try
             {
-                if ( parts[x].length() > 0 )
+                if (!parts[x].isEmpty())
                 {
                     final String[] nameValues = parts[x].split( "[=]" );
                     if ( nameValues.length == 2 )

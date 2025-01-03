@@ -1,11 +1,18 @@
 package mod.chiselsandbits.utils.container;
 
 import com.google.common.collect.Lists;
-import mod.chiselsandbits.api.util.INBTSerializable;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import mod.chiselsandbits.api.serialization.Serializable;
+import mod.chiselsandbits.api.util.constants.NbtConstants;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.ContainerListener;
@@ -17,9 +24,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-public class SimpleContainer implements Container, INBTSerializable<CompoundTag>
+public class SimpleContainer implements Container, Serializable.Registry<SimpleContainer>
 {
+    public static final Codec<SimpleContainer> CODEC = RecordCodecBuilder.create(
+        instance -> instance.group(
+            SlotData.CODEC.listOf().fieldOf(NbtConstants.SLOTS).forGetter(SimpleContainer::slots)
+        ).apply(instance, SimpleContainer::new)
+    );
+    public static final MapCodec<SimpleContainer> MAP_CODEC = SlotData.CODEC.listOf().fieldOf(NbtConstants.SLOTS).xmap(SimpleContainer::new, SimpleContainer::slots);
+    public static final StreamCodec<RegistryFriendlyByteBuf, SimpleContainer> STREAM_CODEC = SlotData.STREAM_CODEC.apply(ByteBufCodecs.list()).map(SimpleContainer::new, SimpleContainer::slots);
+
     private int                     size;
     private NonNullList<ItemStack>  items;
     private List<ContainerListener> listeners;
@@ -32,6 +48,12 @@ public class SimpleContainer implements Container, INBTSerializable<CompoundTag>
     public SimpleContainer(ItemStack... content) {
         this.size = content.length;
         this.items = NonNullList.of(ItemStack.EMPTY, content);
+    }
+
+    private SimpleContainer(List<SlotData> slotData) {
+        this.size = slotData.size();
+        this.items = NonNullList.withSize(size, ItemStack.EMPTY);
+        slotData.forEach(data -> this.items.set(data.index(), data.stack()));
     }
 
     public void addListener(ContainerListener param0) {
@@ -103,7 +125,7 @@ public class SimpleContainer implements Container, INBTSerializable<CompoundTag>
 
         for (final ItemStack stack : this.items)
         {
-            if (stack.isEmpty() || ItemStack.isSameItemSameTags(stack, input) && stack.getCount() < stack.getMaxStackSize())
+            if (stack.isEmpty() || ItemStack.isSameItemSameComponents(stack, input) && stack.getCount() < stack.getMaxStackSize())
             {
                 foundEmptyOrMatching = true;
                 break;
@@ -123,7 +145,7 @@ public class SimpleContainer implements Container, INBTSerializable<CompoundTag>
         }
     }
 
-    public void setItem(int index, ItemStack stack) {
+    public void setItem(int index, @NotNull ItemStack stack) {
         this.items.set(index, stack);
         if (!stack.isEmpty() && stack.getCount() > this.getMaxStackSize()) {
             stack.setCount(this.getMaxStackSize());
@@ -146,7 +168,7 @@ public class SimpleContainer implements Container, INBTSerializable<CompoundTag>
         }
     }
 
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
         return true;
     }
 
@@ -163,7 +185,7 @@ public class SimpleContainer implements Container, INBTSerializable<CompoundTag>
     }
 
     public String toString() {
-        return this.items.stream().filter((stack) -> !stack.isEmpty()).collect(Collectors.toList()).toString();
+        return this.items.stream().filter((stack) -> !stack.isEmpty()).toList().toString();
     }
 
     private void moveItemToEmptySlots(ItemStack input) {
@@ -181,7 +203,7 @@ public class SimpleContainer implements Container, INBTSerializable<CompoundTag>
     private void moveItemToOccupiedSlotsWithSameType(ItemStack input) {
         for(int index = 0; index < this.size; ++index) {
             ItemStack stack = this.getItem(index);
-            if (ItemStack.isSameItemSameTags(stack, input)) {
+            if (ItemStack.isSameItemSameComponents(stack, input)) {
                 this.moveItemsBetweenStacks(input, stack);
                 if (input.isEmpty()) {
                     return;
@@ -201,9 +223,9 @@ public class SimpleContainer implements Container, INBTSerializable<CompoundTag>
         }
     }
 
-    public void fromTag(ListTag param0) {
+    public void fromTag(ListTag param0, HolderLookup.Provider provider) {
         for(int var0 = 0; var0 < param0.size(); ++var0) {
-            ItemStack var1 = ItemStack.of(param0.getCompound(var0));
+            ItemStack var1 = ItemStack.parseOptional(provider, param0.getCompound(var0));
             if (!var1.isEmpty()) {
                 this.addItem(var1);
             }
@@ -211,13 +233,13 @@ public class SimpleContainer implements Container, INBTSerializable<CompoundTag>
 
     }
 
-    public ListTag createTag() {
+    public ListTag createTag(HolderLookup.Provider provider) {
         ListTag var0 = new ListTag();
 
         for(int var1 = 0; var1 < this.getContainerSize(); ++var1) {
             ItemStack var2 = this.getItem(var1);
             if (!var2.isEmpty()) {
-                var0.add(var2.save(new CompoundTag()));
+                var0.add(var2.save(provider, new CompoundTag()));
             }
         }
 
@@ -231,41 +253,42 @@ public class SimpleContainer implements Container, INBTSerializable<CompoundTag>
         setChanged();
     }
 
-    @Override
-    public CompoundTag serializeNBT()
-    {
-        ListTag nbtTagList = new ListTag();
-        for (int i = 0; i < items.size(); i++)
-        {
-            if (!items.get(i).isEmpty())
-            {
-                CompoundTag itemTag = new CompoundTag();
-                itemTag.putInt("Slot", i);
-                items.get(i).save(itemTag);
-                nbtTagList.add(itemTag);
-            }
-        }
-        CompoundTag nbt = new CompoundTag();
-        nbt.put("Items", nbtTagList);
-        nbt.putInt("Size", items.size());
-        return nbt;
+    private List<SlotData> slots() {
+        return IntStream.range(0, this.size)
+            .mapToObj(index -> new SlotData(index, this.items.get(index)))
+            .collect(Collectors.toList());
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag nbt)
-    {
-        setSize(nbt.contains("Size", Tag.TAG_INT) ? nbt.getInt("Size") : items.size());
-        ListTag tagList = nbt.getList("Items", Tag.TAG_COMPOUND);
-        for (int i = 0; i < tagList.size(); i++)
-        {
-            CompoundTag itemTags = tagList.getCompound(i);
-            int slot = itemTags.getInt("Slot");
+    public Codec<SimpleContainer> codec() {
+        return CODEC;
+    }
 
-            if (slot >= 0 && slot < items.size())
-            {
-                items.set(slot, ItemStack.of(itemTags));
-            }
-        }
-        setChanged();
+    @Override
+    public MapCodec<SimpleContainer> mapCodec() {
+        return MAP_CODEC;
+    }
+
+    @Override
+    public StreamCodec<RegistryFriendlyByteBuf, SimpleContainer> streamCodec() {
+        return STREAM_CODEC;
+    }
+
+    private record SlotData(int index, ItemStack stack) {
+
+        static Codec<SlotData> CODEC = RecordCodecBuilder.create(
+            instance -> instance.group(
+                Codec.INT.fieldOf("index").forGetter(SlotData::index),
+                ItemStack.CODEC.fieldOf("stack").forGetter(SlotData::stack)
+            ).apply(instance, SlotData::new)
+        );
+
+        static StreamCodec<RegistryFriendlyByteBuf, SlotData> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.VAR_INT,
+                SlotData::index,
+                ItemStack.OPTIONAL_STREAM_CODEC,
+                SlotData::stack,
+                SlotData::new
+        );
     }
 }

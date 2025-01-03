@@ -1,6 +1,6 @@
 package mod.chiselsandbits.client.util;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.client.model.baked.face.FaceManager;
 import mod.chiselsandbits.client.model.baked.face.model.BakedQuadAdapter;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
@@ -21,7 +21,7 @@ public final class QuadGenerationUtils {
         throw new IllegalStateException("Tried to instantiate: 'QuadGenerationUtils', but this is a utility class.");
     }
 
-    public static void generateQuads(List<BakedQuad> target, long primaryStateRenderSeed, @NotNull RenderType renderType, IBlockInformation blockInformation, Direction cullDirection, Vector3f from, Vector3f to) {
+    public static void generateQuads(List<BakedQuad> target, long primaryStateRenderSeed, @NotNull RenderType renderType, BlockInformation blockInformation, Direction cullDirection, Vector3f from, Vector3f to) {
         final Collection<ModelQuadLayer> quadLayers = FaceManager.getInstance().getCachedLayersFor(blockInformation, cullDirection, renderType, primaryStateRenderSeed, renderType);
 
         if (quadLayers != null) {

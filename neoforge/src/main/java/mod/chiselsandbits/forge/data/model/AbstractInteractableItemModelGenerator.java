@@ -25,14 +25,17 @@ public abstract class AbstractInteractableItemModelGenerator extends ItemModelPr
 
     @Override
     protected void registerModels() {
+        final ResourceLocation targetRegistryObjectKey = BuiltInRegistries.ITEM.getKey(this.targetRegistryObject.get());
+        final ResourceLocation targetModelLocation = targetRegistryObjectKey.withPrefix("item/").withSuffix("_spec");
+
         getBuilder(
                 Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(this.targetRegistryObject.get())).getPath()
         )
                 .parent(
-                        getExistingFile(new ResourceLocation(new ResourceLocation(Constants.MOD_ID, "item/" + Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(this.targetRegistryObject.get())).getPath()) + "_spec"))
+                        getExistingFile(targetModelLocation)
                 )
                 .customLoader((itemModelBuilder, existingFileHelper) -> new CustomLoaderBuilder<>(
-                        new ResourceLocation(Constants.INTERACTABLE_MODEL_LOADER),
+                        ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "interactable_model"),
                         itemModelBuilder,
                         existingFileHelper,
                         false

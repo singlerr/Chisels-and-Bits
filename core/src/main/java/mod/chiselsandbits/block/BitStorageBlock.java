@@ -2,23 +2,19 @@ package mod.chiselsandbits.block;
 
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.api.block.bitbag.IBitBagAcceptingBlock;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
-import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.item.BitBagItem;
+import mod.chiselsandbits.registrars.ModDataComponentTypes;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -32,7 +28,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
@@ -76,39 +71,37 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
     }
 
     @Override
-    public @NotNull InteractionResult use(
-      final @NotNull BlockState state, final Level worldIn, final @NotNull BlockPos pos, final @NotNull Player player, final @NotNull InteractionHand handIn, final @NotNull BlockHitResult hit)
-    {
-        final BlockEntity tileEntity = worldIn.getBlockEntity(pos);
+    protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, Level level, @NotNull BlockPos blockPos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result) {
+        final BlockEntity tileEntity = level.getBlockEntity(blockPos);
         if (!(tileEntity instanceof final BitStorageBlockEntity tank))
-            return InteractionResult.FAIL;
+            return ItemInteractionResult.FAIL;
 
         final ItemStack current = player.getInventory().getSelected();
 
         if (current.getItem() instanceof BitBagItem)
-            return InteractionResult.PASS;
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
         if (!current.isEmpty())
         {
             if (tank.addHeldBits(current, player))
             {
-                return InteractionResult.SUCCESS;
+                return ItemInteractionResult.SUCCESS;
             }
         }
         else
         {
             if (tank.addAllPossibleBits(player))
             {
-                return InteractionResult.SUCCESS;
+                return ItemInteractionResult.SUCCESS;
             }
         }
 
         if (tank.extractBits(player))
         {
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         }
 
-        return InteractionResult.FAIL;
+        return ItemInteractionResult.FAIL;
     }
 
     public float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos)
@@ -144,10 +137,9 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
     {
         final ItemStack tankStack = new ItemStack(ModItems.ITEM_BIT_STORAGE.get());
         if (bitTank.getContainedBlockInformation() != null && !bitTank.getContainedBlockInformation().isAir()) {
-            tankStack.getOrCreateTag().put(NbtConstants.BLOCK_INFORMATION, bitTank.getContainedBlockInformation().serializeNBT());
-            tankStack.getOrCreateTag().putInt(NbtConstants.COUNT, bitTank.getBits());
+            tankStack.set(ModDataComponentTypes.BLOCK_INFORMATION.get(), bitTank.getContainedBlockInformation());
+            tankStack.set(ModDataComponentTypes.COUNT.get(), bitTank.getBits());
         }
-
         return tankStack;
     }
 
@@ -157,33 +149,12 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
         return bitTank;
     }
 
-    public static boolean updateEntityFromStack(final ItemStack stack, final BitStorageBlockEntity blockEntity) {
-        if (stack.getOrCreateTag().contains(NbtConstants.CONTENTS)) {
-            final BlockState blockState = NbtUtils.readBlockState(blockEntity.getLevel().holderLookup(Registries.BLOCK), stack.getOrCreateTag().getCompound(NbtConstants.CONTENTS));
-            final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
-
-            blockEntity.setContents(
-                    new BlockInformation(blockState, IStateVariantManager.getInstance().getStateVariant(blockState, Optional.empty())),
-                    count
-            );
-
-            return true;
-        }
-
-        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_INFORMATION)) {
-            final BlockInformation blockInformation = new BlockInformation(stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_INFORMATION));
-            final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
-
-            blockEntity.setContents(
-                    blockInformation,
-                    count
-            );
-
-            return true;
-        }
-        return false;
+    public static void updateEntityFromStack(final ItemStack stack, final BitStorageBlockEntity blockEntity) {
+        blockEntity.setContents(
+            stack.getOrDefault(ModDataComponentTypes.BLOCK_INFORMATION.get(), BlockInformation.AIR),
+            stack.getOrDefault(ModDataComponentTypes.COUNT.get(), 0)
+        );
     }
-
 
     @Override
     public void onBitBagInteraction(final ItemStack bitBagStack, final Player player, final BlockHitResult blockRayTraceResult)
@@ -197,7 +168,7 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
 
         final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(bitBagStack);
 
-        final IBlockInformation containedState = storage.getContainedBlockInformation();
+        final BlockInformation containedState = storage.getContainedBlockInformation();
 
         if (player.isShiftKeyDown() && (containedState != null)) {
             final int maxAmountToInsert = bitInventory.getMaxInsertAmount(containedState);
@@ -214,14 +185,14 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
             bitInventory.extract(containedState, bitCountToInsert);
         }
         else if (!player.isShiftKeyDown()) {
-            final Optional<IBlockInformation> toExtractCandidate =
+            final Optional<BlockInformation> toExtractCandidate =
                 bitInventory.getContainedStates()
                   .entrySet()
                   .stream()
                   .max(Map.Entry.comparingByValue())
                   .map(Map.Entry::getKey);
             if (toExtractCandidate.isPresent()) {
-                final IBlockInformation toExtractState = toExtractCandidate.get();
+                final BlockInformation toExtractState = toExtractCandidate.get();
                 final int maxAmountToInsert = StateEntrySize.current().getBitsPerBlock();
                 final int bitCountToInsert = Math.min(bitInventory.getMaxExtractAmount(toExtractState), maxAmountToInsert);
 
@@ -229,7 +200,5 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
                 bitInventory.extract(toExtractState, bitCountToInsert);
             }
         }
-
-
     }
 }

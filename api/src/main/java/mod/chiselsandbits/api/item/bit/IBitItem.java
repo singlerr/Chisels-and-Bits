@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.item.bit;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.item.change.IChangeTrackingItem;
 import mod.chiselsandbits.api.item.click.IRightClickControllingItem;
@@ -24,7 +24,7 @@ public interface IBitItem extends IRightClickControllingItem, IWithHighlightItem
      * @return The block information contained in this bit item.
      */
     @NotNull
-    IBlockInformation getBlockInformation(final ItemStack stack);
+    BlockInformation getBlockInformation(final ItemStack stack);
 
     /**
      * Invoked when a merge operation of a bit inside a bitbag is beginning during a shift-click interaction

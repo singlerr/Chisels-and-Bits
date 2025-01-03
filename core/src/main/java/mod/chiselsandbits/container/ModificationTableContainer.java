@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -152,7 +153,8 @@ public class ModificationTableContainer extends AbstractContainerMenu
         this.selectedRecipe.set(-1);
         this.outputInventorySlot.set(ItemStack.EMPTY);
         if (!stack.isEmpty()) {
-            this.recipes = this.world.getRecipeManager().getRecipesFor(ModRecipeTypes.MODIFICATION_TABLE.get(), inventoryIn, this.world);
+            final CraftingInput input = CraftingInput.of(1,1, List.of(stack));
+            this.recipes = this.world.getRecipeManager().getRecipesFor(ModRecipeTypes.MODIFICATION_TABLE.get(), input, this.world);
             this.recipes.sort(Comparator.comparing(modificationTableRecipe -> Objects.requireNonNull(modificationTableRecipe.value().getOperation().getRegistryName()).toString()));
         }
     }
@@ -161,7 +163,8 @@ public class ModificationTableContainer extends AbstractContainerMenu
         if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipe.get())) {
             RecipeHolder<ModificationTableRecipe> modificationTableRecipe = this.recipes.get(this.selectedRecipe.get());
             this.inventory.setRecipeUsed(modificationTableRecipe);
-            this.outputInventorySlot.set(modificationTableRecipe.value().assemble(this.inputInventory, this.world.registryAccess()));
+            final CraftingInput input = CraftingInput.of(1,1, List.of(this.inputInventory.getItem(0)));
+            this.outputInventorySlot.set(modificationTableRecipe.value().assemble(input, this.world.registryAccess()));
         } else {
             this.outputInventorySlot.set(ItemStack.EMPTY);
         }
@@ -207,7 +210,7 @@ public class ModificationTableContainer extends AbstractContainerMenu
                 if (!this.moveItemStackTo(itemstack1, 2, 38, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (this.world.getRecipeManager().getRecipeFor(ModRecipeTypes.MODIFICATION_TABLE.get(), new SimpleContainer(itemstack1), this.world).isPresent()) {
+            } else if (this.world.getRecipeManager().getRecipeFor(ModRecipeTypes.MODIFICATION_TABLE.get(), CraftingInput.of(1,1,List.of(inputItemStack)), this.world).isPresent()) {
                 if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
                     return ItemStack.EMPTY;
                 }

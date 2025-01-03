@@ -134,7 +134,7 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
     @Override
     public @NotNull ResourceLocation getIcon()
     {
-        return new ResourceLocation(
+        return ResourceLocation.fromNamespaceAndPath(
           MOD_ID,
           "textures/icons/pattern_place.png"
         );

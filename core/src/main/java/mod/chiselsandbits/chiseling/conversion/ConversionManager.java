@@ -1,6 +1,6 @@
 package mod.chiselsandbits.chiseling.conversion;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.registrars.ModBlocks;
@@ -20,10 +20,10 @@ public class ConversionManager implements IConversionManager
     @Override
     public Optional<Block> getChiseledVariantOf(final Block block)
     {
-        if (!IEligibilityManager.getInstance().canBeChiseled(IBlockInformation.create(block)))
+        if (!IEligibilityManager.getInstance().canBeChiseled(new BlockInformation(block.defaultBlockState(), Optional.empty())))
             return Optional.empty();
 
-        return Optional.ofNullable(ModBlocks.CHISELED_BLOCK.get());
+        return Optional.of(ModBlocks.CHISELED_BLOCK.get());
     }
 
     private ConversionManager()

@@ -29,10 +29,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4fStack;
 
 public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
 
-    private static final ResourceLocation BAG_GUI_TEXTURE = new ResourceLocation(Constants.MOD_ID, "textures/gui/container/bitbag.png");
+    private static final ResourceLocation BAG_GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/container/bitbag.png");
 
     boolean requireConfirm = true;
     boolean dontThrow = false;
@@ -136,9 +137,9 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
 
         guiGraphics.blit(BAG_GUI_TEXTURE, xOffset, yOffset, 0,0, imageWidth, imageHeight);
 
-        PoseStack posestack = RenderSystem.getModelViewStack();
-        posestack.pushPose();
-        posestack.translate(this.leftPos, this.topPos, 0.0D);
+        Matrix4fStack posestack = RenderSystem.getModelViewStack();
+        posestack.pushMatrix();
+        posestack.translate(this.leftPos, this.topPos, 0.0f);
         RenderSystem.applyModelViewMatrix();
 
         hoveredBitSlot = null;
@@ -166,7 +167,7 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
             }
         }
 
-        posestack.popPose();
+        posestack.popMatrix();
         RenderSystem.applyModelViewMatrix();
         guiGraphics.pose().popPose();
 

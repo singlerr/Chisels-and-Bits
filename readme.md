@@ -24,4 +24,4 @@ If a mod maker wants to control the selection procedure for his or her blocks, h
 
 ### Cross Platform Compatibility:
 This mod uses [Scena](https://github.com/Communi-Suggestu/Scena) to run common code on both forge and fabric.
-This means that the mod is compatible with both forge and fabric, and that the code is shared between both platforms via the core subproject.
+This means that the mod is compatible with both neoforge and fabric, and that the code is shared between both platforms via the core subproject.

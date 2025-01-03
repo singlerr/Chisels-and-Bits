@@ -15,19 +15,19 @@ import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.named.IDynamicallyHighlightedNameItem;
 import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.api.util.LocalStrings;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.registrars.ModDataComponentTypes;
 import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -35,12 +35,10 @@ import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,8 +53,6 @@ public class ChiselItem extends DiggerItem implements IChiselItem, IDynamicallyH
       final Properties builderIn)
     {
         super(
-          0.1F,
-          -2.8F,
           tier,
           ModTags.Blocks.CHISELED_BLOCK,
           builderIn
@@ -64,19 +60,17 @@ public class ChiselItem extends DiggerItem implements IChiselItem, IDynamicallyH
     }
 
     @Override
-    public Component getName(final ItemStack stack)
+    public @NotNull Component getName(final ItemStack stack)
     {
-        if (stack.getOrCreateTag().contains("chiselError")) {
-            return Component.Serializer.fromJson(stack.getOrCreateTag().getString("chiselError"));
+        if (stack.has(ModDataComponentTypes.CHISEL_ERROR.get())) {
+            return Objects.requireNonNull(stack.get(ModDataComponentTypes.CHISEL_ERROR.get()));
         }
 
         return super.getName(stack);
     }
 
     @Override
-    public void appendHoverText(
-      @NotNull final ItemStack stack, @Nullable final Level worldIn, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
-    {
+    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn) {
         final IChiselMode mode = getMode(stack);
         if (mode.getGroup().isPresent())
         {
@@ -88,44 +82,20 @@ public class ChiselItem extends DiggerItem implements IChiselItem, IDynamicallyH
         }
 
 
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, context, tooltip, flagIn);
     }
 
     @NotNull
     @Override
     public IChiselMode getMode(final ItemStack stack)
     {
-        final CompoundTag stackNbt = stack.getOrCreateTag();
-        if (stackNbt.contains(NbtConstants.CHISEL_MODE))
-        {
-            final String chiselModeName = stackNbt.getString(NbtConstants.CHISEL_MODE);
-            try
-            {
-                final Optional<IChiselMode> registryMode = IChiselMode.getRegistry().get(new ResourceLocation(chiselModeName));
-                if (registryMode.isEmpty())
-                {
-                    return IChiselMode.getDefaultMode();
-                }
-
-                return registryMode.get();
-            }
-            catch (IllegalArgumentException illegalArgumentException)
-            {
-                LOGGER.error(String.format("An ItemStack got loaded with a name that is not a valid chisel mode: %s", chiselModeName));
-                this.setMode(stack, IChiselMode.getDefaultMode());
-            }
-        }
-
-        return IChiselMode.getDefaultMode();
+        return stack.getOrDefault(ModDataComponentTypes.CHISEL_MODE.get(), IChiselMode.getDefaultMode());
     }
 
     @Override
     public void setMode(final ItemStack stack, final IChiselMode mode)
     {
-        if (mode == null)
-            return;
-
-        stack.getOrCreateTag().putString(NbtConstants.CHISEL_MODE, Objects.requireNonNull(mode.getRegistryName()).toString());
+       stack.set(ModDataComponentTypes.CHISEL_MODE.get(), mode);
     }
 
     @NotNull
@@ -373,9 +343,19 @@ public class ChiselItem extends DiggerItem implements IChiselItem, IDynamicallyH
     }
 
     @Override
+    public DataComponentMap components() {
+        final DataComponentMap map = super.components();
+        final DataComponentMap.Builder builder = DataComponentMap.builder();
+
+        builder.addAll(map);
+        builder.set(DataComponents.MAX_DAMAGE, getMaxDamage());
+
+        return builder.build();
+    }
+
     public int getMaxDamage()
     {
-        return getTier().getUses() * IServerConfiguration.getInstance().getBitSize().get().getBitsPerBlock();
+        return getTier().getUses();
     }
 
     public int getBarWidth(ItemStack p_150900_) {
@@ -397,21 +377,13 @@ public class ChiselItem extends DiggerItem implements IChiselItem, IDynamicallyH
 
         if (chiselingContext.isPresent() && chiselingContext.get().getError().isPresent()) {
             final ItemStack errorStack = currentToolStack.copy();
-            errorStack.getOrCreateTag().putString(
-              "chiselError",
-              Component.Serializer.toJson(chiselingContext.get().getError().get())
-            );
-
+            errorStack.set(ModDataComponentTypes.CHISEL_ERROR.get(), chiselingContext.get().getError().get());
             return errorStack;
         }
 
         if (placingContext.isPresent() && placingContext.get().getError().isPresent()) {
             final ItemStack errorStack = currentToolStack.copy();
-            errorStack.getOrCreateTag().putString(
-              "chiselError",
-              Component.Serializer.toJson(placingContext.get().getError().get())
-            );
-
+            errorStack.set(ModDataComponentTypes.CHISEL_ERROR.get(), placingContext.get().getError().get());
             return errorStack;
         }
 

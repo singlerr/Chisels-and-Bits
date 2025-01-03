@@ -34,10 +34,7 @@ public class ModBlockTagGenerator extends BlockTagsProvider
                 .add(Blocks.PACKED_ICE)
                 .add(Blocks.PACKED_ICE);
         this.tag(ModTags.Blocks.CHISELED_BLOCK).add(
-                ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values()
-                        .stream()
-                        .map(IRegistryObject::get)
-                        .toArray(Block[]::new)
+                ModBlocks.CHISELED_BLOCK.get()
         );
 
         this.tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.CHISELED_PRINTER.get());

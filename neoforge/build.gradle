@@ -67,7 +67,7 @@ project.dependencies.forgeLibrary ("org.lz4:lz4-pure-java:${project.lz4Version}"
 project.tasks.processResources.from (project(":common").file("accesstransformer.cfg")) {
     into 'META-INF'
 }
-setupResourceProcessing(project.tasks.processResources)
+setupResourceProcessing(project.sourceSets.main)
 
 
 project.runs {
@@ -84,11 +84,12 @@ project.runs {
     }
 
     configureEach { run ->
-        run.modSource project(":api").sourceSets.main
-        run.modSource project(":core").sourceSets.main
         run.modSource sourceSets.main
 
-        run.jvmArguments.addAll "-Dmixin.debug=true", "-Dmixin.debug.export=true"
+        //TODO: Determine whether this is necessary when running within idea.
+        run.modSource project(":core").sourceSets.main
+        run.modSource project(":api").sourceSets.main
+
         run.dependencies { runDependencies ->
             libraryConfigs.each { config ->
                 runDependencies.runtime config
@@ -128,5 +129,8 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
     }
 }
 
-
-
+idea {
+    module {
+        excludeDirs += file("src/main/templates")
+    }
+}

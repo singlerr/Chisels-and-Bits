@@ -2,12 +2,19 @@ package mod.chiselsandbits.network.packets;
 
 import com.communi.suggestu.scena.core.dist.Dist;
 import com.communi.suggestu.scena.core.dist.DistExecutor;
+import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.network.handlers.ClientPacketHandlers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
 public class ExportPatternCommandMessagePacket extends ModPacket
 {
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "export_pattern_command_message");
+    public static final CustomPacketPayload.Type<ExportPatternCommandMessagePacket> TYPE = new CustomPacketPayload.Type<>(ID);
+
     private BlockPos target;
     private String   name;
 
@@ -17,20 +24,20 @@ public class ExportPatternCommandMessagePacket extends ModPacket
         this.name = name;
     }
 
-    public ExportPatternCommandMessagePacket(final FriendlyByteBuf buffer)
+    public ExportPatternCommandMessagePacket(final RegistryFriendlyByteBuf buffer)
     {
         readPayload(buffer);
     }
 
     @Override
-    public void writePayload(final FriendlyByteBuf buffer)
+    public void writePayload(final RegistryFriendlyByteBuf buffer)
     {
         buffer.writeBlockPos(target);
         buffer.writeUtf(name, 512);
     }
 
     @Override
-    public void readPayload(final FriendlyByteBuf buffer)
+    public void readPayload(final RegistryFriendlyByteBuf buffer)
     {
         target = buffer.readBlockPos();
         name = buffer.readUtf(512);
@@ -40,5 +47,10 @@ public class ExportPatternCommandMessagePacket extends ModPacket
     public void client()
     {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.handleExportPatternCommandMessage(target, name));
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

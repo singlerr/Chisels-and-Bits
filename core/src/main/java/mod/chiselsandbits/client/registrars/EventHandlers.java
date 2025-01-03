@@ -5,7 +5,7 @@ import com.communi.suggestu.scena.core.event.IGameEvents;
 import mod.chiselsandbits.client.input.FrameBasedInputTracker;
 import mod.chiselsandbits.client.logic.*;
 import mod.chiselsandbits.client.time.TickHandler;
-import mod.chiselsandbits.clipboard.CreativeClipboardManager;
+import mod.chiselsandbits.client.clipboard.CreativeClipboardManager;
 import mod.chiselsandbits.keys.KeyBindingManager;
 import mod.chiselsandbits.logic.MagnifyingGlassTooltipHandler;
 import mod.chiselsandbits.client.logic.ScrollBasedModeChangeHandler;
@@ -22,7 +22,7 @@ public final class EventHandlers {
             if (chunkAccess instanceof LevelChunk levelChunk)
                 ChiseledBlockModelUpdateHandler.updateAllModelDataInChunk(levelChunk);
         });
-        IGameEvents.getInstance().getPlayerJoinedWorldEvent().register((player, level) -> CreativeClipboardManager.getInstance().load());
+        IGameEvents.getInstance().getPlayerJoinedWorldEvent().register((player, level) -> CreativeClipboardManager.getInstance().load(level.registryAccess()));
         IClientEvents.getInstance().getClientTickStartedEvent().register(() -> {
             ToolNameHighlightTickHandler.handleClientTickForMagnifyingGlass();
             KeyBindingManager.getInstance().handleKeyPresses();
@@ -45,6 +45,8 @@ public final class EventHandlers {
 
             FrameBasedInputTracker.getInstance().onRenderFrame();
         });
-        IClientEvents.getInstance().getGatherTooltipEvent().register(MagnifyingGlassTooltipHandler::onItemTooltip);
+        IClientEvents.getInstance().getGatherTooltipEvent().register((itemStack, tooltipContext, tooltipFlag, list) -> {
+            MagnifyingGlassTooltipHandler.onItemTooltip(itemStack, list);
+        });
     }
 }

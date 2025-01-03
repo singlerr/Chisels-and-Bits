@@ -28,15 +28,15 @@ public class BakedQuadAdapter extends BakedQuadBuilder {
             final VertexFormat format = getVertexFormat();
             final VertexFormatElement element = format.getElements().get(elementIndex);
 
-            if (element.isPosition()) {
+            if (element == VertexFormatElement.POSITION) {
                 final VertexData vertexData = indexToVertexData.get(vertexIndex);
                 final float[] positionData = vertexData.positionData();
                 super.put(vertexIndex, elementIndex, positionData);
-            } else if (element.getUsage() == VertexFormatElement.Usage.UV && element.getIndex() == 0) {
+            } else if (element.usage() == VertexFormatElement.Usage.UV && element.index() == 0) {
                 final VertexData vertexData = indexToVertexData.get(vertexIndex);
                 final float[] uvData = vertexData.uvData();
                 super.put(vertexIndex, elementIndex, uvData);
-            } else if (element.getUsage() == VertexFormatElement.Usage.COLOR && this.colorOverride != -1) {
+            } else if (element.usage() == VertexFormatElement.Usage.COLOR && this.colorOverride != -1) {
                 final float[] colorData = new float[4];
                 colorData[0] = ((this.colorOverride >> 16) & 0xFF) / 255.0F;
                 colorData[1] = ((this.colorOverride >> 8) & 0xFF) / 255.0F;

@@ -1,29 +1,34 @@
 package mod.chiselsandbits.storage;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 
 /**
- * Represents a multi-threaded storage engine, which can process data for IO purposes.
+ * Represents a multithreaded storage engine, which can process data for IO purposes.
  */
-public interface IMultiThreadedStorageEngine extends IStorageEngine, Executor
+public interface IMultiThreadedStorageEngine<TPayload>
 {
-    /**
-     * Runs the save process off-thread and returns the scheduled task.
-     *
-     * @param resultSaver The builder which is able to produce a results processing task.
-     * @return The off-thread save task.
-     */
-    CompletableFuture<Void> serializeOffThread(Function<CompoundTag, CompletableFuture<Void>> resultSaver);
 
     /**
-     * Deserializes the given nbt data off-thread.
+     * Encodes the given payload off-thread.
      *
-     * @param tag The tag to deserialize.
-     * @return The off-thread deserialize task.
+     * @param payload The payload to encode.
+     * @param provider The holder lookup provider.
+     * @return The off-thread encode task.
      */
-    CompletableFuture<Void> deserializeOffThread(CompoundTag tag);
+    CompletableFuture<Tag> encodeAsync(TPayload payload, HolderLookup.Provider provider);
+
+    /**
+     * Decodes the given nbt data off-thread.
+     *
+     * @param tag The tag to decode.
+     * @param provider The holder lookup provider.
+     * @return The off-thread decode task.
+     */
+    CompletableFuture<TPayload> decodeAsync(Tag tag, HolderLookup.Provider provider);
 }

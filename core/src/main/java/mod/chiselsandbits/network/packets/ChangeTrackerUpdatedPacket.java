@@ -1,39 +1,59 @@
 package mod.chiselsandbits.network.packets;
 
+import mod.chiselsandbits.api.change.changes.IChange;
+import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.network.handlers.ClientPacketHandlers;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtAccounter;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.Deque;
+import java.util.LinkedList;
 
 public final class ChangeTrackerUpdatedPacket extends ModPacket
 {
-    private CompoundTag tag;
 
-    public ChangeTrackerUpdatedPacket(FriendlyByteBuf byteBuf)
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "change_tracker_updated");
+    public static final CustomPacketPayload.Type<ChangeTrackerUpdatedPacket> TYPE = new CustomPacketPayload.Type<>(ID);
+
+    private Deque<IChange> changes;
+
+    public ChangeTrackerUpdatedPacket(RegistryFriendlyByteBuf byteBuf)
     {
         readPayload(byteBuf);
     }
 
-    public ChangeTrackerUpdatedPacket(final CompoundTag tag)
+    public ChangeTrackerUpdatedPacket(final Deque<IChange> changes)
     {
-        this.tag = tag;
+        this.changes = changes;
     }
 
     @Override
-    public void writePayload(final FriendlyByteBuf buffer)
+    public void writePayload(final RegistryFriendlyByteBuf buffer)
     {
-        buffer.writeNbt(this.tag);
+        //We directly use the RFBB here as it is the same instance, and because we need that type.
+        buffer.writeCollection(this.changes, (fbb, change) -> IChange.STREAM_CODEC.encode(buffer, change));
     }
 
     @Override
-    public void readPayload(final FriendlyByteBuf buffer)
+    public void readPayload(final RegistryFriendlyByteBuf buffer)
     {
-        this.tag = (CompoundTag) buffer.readNbt(NbtAccounter.unlimitedHeap());
+        this.changes = buffer.readCollection(
+                size -> new LinkedList<>(),
+                (fbb) -> IChange.STREAM_CODEC.decode(buffer)
+        );
     }
 
     @Override
     public void client()
     {
-        ClientPacketHandlers.handleChangeTrackerUpdated(this.tag);
+        ClientPacketHandlers.handleChangeTrackerUpdated(this.changes);
+    }
+
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

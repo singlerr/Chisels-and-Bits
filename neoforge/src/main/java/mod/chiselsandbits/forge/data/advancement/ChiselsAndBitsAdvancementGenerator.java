@@ -15,6 +15,7 @@ import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -25,7 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ChiselsAndBitsAdvancementGenerator extends AdvancementProvider
 {
     @SubscribeEvent
@@ -46,21 +47,15 @@ public class ChiselsAndBitsAdvancementGenerator extends AdvancementProvider
                     .display(ModItems.ITEM_CHISEL_DIAMOND.get(),
                             Component.translatable("mod.chiselsandbits.advancements.root.title"),
                             Component.translatable("mod.chiselsandbits.advancements.root.description"),
-                            new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"),
+                            ResourceLocation.withDefaultNamespace("textures/gui/advancements/backgrounds/stone.png"),
                             AdvancementType.CHALLENGE,
                             true,
                             true,
                             true)
-                    .addCriterion("chisel", InventoryChangeTrigger.TriggerInstance.hasItems(new ItemPredicate(
-                            Optional.of(ModTags.Items.CHISEL),
-                            Optional.empty(),
-                            MinMaxBounds.Ints.ANY,
-                            MinMaxBounds.Ints.ANY,
-                            List.of(),
-                            List.of(),
-                            Optional.empty(),
-                            Optional.empty()
-                    )))
+                    .addCriterion("chisel", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item()
+                            .of(ModTags.Items.CHISEL)
+                            .withCount(MinMaxBounds.Ints.ANY)
+                            .build()))
                     .save(consumer, Constants.MOD_ID + ":chiselsandbits/root");
 
             AdvancementHolder findChiselables = Advancement.Builder.advancement()
@@ -68,7 +63,7 @@ public class ChiselsAndBitsAdvancementGenerator extends AdvancementProvider
                     .display(ModItems.MAGNIFYING_GLASS.get(),
                             Component.translatable("mod.chiselsandbits.advancements.find-chiselables.title"),
                             Component.translatable("mod.chiselsandbits.advancements.find-chiselables.description"),
-                            new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"),
+                            ResourceLocation.withDefaultNamespace("textures/gui/advancements/backgrounds/stone.png"),
                             AdvancementType.TASK,
                             true,
                             true,
@@ -81,21 +76,15 @@ public class ChiselsAndBitsAdvancementGenerator extends AdvancementProvider
                     .display(ModItems.ITEM_BIT_BAG_DEFAULT.get(),
                             Component.translatable("mod.chiselsandbits.advancements.collect-bits.title"),
                             Component.translatable("mod.chiselsandbits.advancements.collect-bits.description"),
-                            new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"),
+                            ResourceLocation.withDefaultNamespace("textures/gui/advancements/backgrounds/stone.png"),
                             AdvancementType.TASK,
                             true,
                             true,
                             true)
-                    .addCriterion("bit_bag", InventoryChangeTrigger.TriggerInstance.hasItems(new ItemPredicate(
-                            Optional.of(ModTags.Items.BIT_BAG),
-                            Optional.empty(),
-                            MinMaxBounds.Ints.ANY,
-                            MinMaxBounds.Ints.ANY,
-                            List.of(),
-                            List.of(),
-                            Optional.empty(),
-                            Optional.empty()
-                    )))
+                    .addCriterion("bit_bag", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item()
+                            .of(ModTags.Items.BIT_BAG)
+                            .withCount(MinMaxBounds.Ints.ANY)
+                            .build()))
                     .save(consumer, Constants.MOD_ID + ":chiselsandbits/collect_bits");
 
             AdvancementHolder makeTank = Advancement.Builder.advancement()
@@ -103,7 +92,7 @@ public class ChiselsAndBitsAdvancementGenerator extends AdvancementProvider
                     .display(ModBlocks.BIT_STORAGE.get(),
                             Component.translatable("mod.chiselsandbits.advancements.make-tank.title"),
                             Component.translatable("mod.chiselsandbits.advancements.make-tank.description"),
-                            new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"),
+                            ResourceLocation.withDefaultNamespace("textures/gui/advancements/backgrounds/stone.png"),
                             AdvancementType.TASK,
                             true,
                             true,

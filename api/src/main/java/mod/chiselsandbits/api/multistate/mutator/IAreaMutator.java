@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.multistate.mutator;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import net.minecraft.core.BlockPos;
@@ -29,7 +29,7 @@ public interface IAreaMutator extends IAreaAccessor {
      * @throws SpaceOccupiedException When the space is not clear and as such the bit can not be set.
      */
     void setInAreaTarget(
-            IBlockInformation blockInformation,
+            BlockInformation blockInformation,
             Vec3 inAreaTarget
     ) throws SpaceOccupiedException;
 
@@ -43,7 +43,7 @@ public interface IAreaMutator extends IAreaAccessor {
      * @throws SpaceOccupiedException When the space is not clear and as such the bit can not be set.
      */
     void setInBlockTarget(
-            IBlockInformation blockInformation,
+            BlockInformation blockInformation,
             BlockPos inAreaBlockPosOffset,
             Vec3 inBlockTarget
     ) throws SpaceOccupiedException;
@@ -76,7 +76,7 @@ public interface IAreaMutator extends IAreaAccessor {
      * @param inAreaTarget     The in area offset.
      */
     default void overrideInAreaTarget(
-            IBlockInformation blockInformation,
+            BlockInformation blockInformation,
             Vec3 inAreaTarget
     ) {
         try {
@@ -95,7 +95,7 @@ public interface IAreaMutator extends IAreaAccessor {
      * @param inBlockTarget        The offset in the targeted block.
      */
     default void overrideInAreaTarget(
-            IBlockInformation blockInformation,
+            BlockInformation blockInformation,
             BlockPos inAreaBlockPosOffset,
             Vec3 inBlockTarget
     ) {

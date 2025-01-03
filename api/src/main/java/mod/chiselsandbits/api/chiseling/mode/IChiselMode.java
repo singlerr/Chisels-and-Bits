@@ -2,6 +2,7 @@ package mod.chiselsandbits.api.chiseling.mode;
 
 import com.communi.suggestu.scena.core.registries.ICustomRegistry;
 import com.communi.suggestu.scena.core.registries.ICustomRegistryEntry;
+import com.mojang.serialization.Codec;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -19,6 +20,8 @@ import java.util.Optional;
 
 /**
  * Represents a chiselable operation that can be completed by a chisel or bit for example.
+ * <p>
+ *     Has to be immutable as it is used in data components.
  */
 public interface IChiselMode extends ICustomRegistryEntry, IToolMode<IToolModeGroup>
 {

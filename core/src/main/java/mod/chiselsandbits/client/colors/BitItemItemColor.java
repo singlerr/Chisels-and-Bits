@@ -2,8 +2,7 @@ package mod.chiselsandbits.client.colors;
 
 import com.communi.suggestu.scena.core.client.fluid.IClientFluidManager;
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.item.bit.BitItem;
 import net.minecraft.client.Minecraft;
@@ -28,21 +27,21 @@ public class BitItemItemColor implements ItemColor
         if (!(stack.getItem() instanceof BitItem))
             return 0xffffff;
 
-        final IBlockInformation blockInformation = ((BitItem) stack.getItem()).getBlockInformation(stack);
-        if(blockInformation.getBlockState().getBlock() instanceof LiquidBlock) {
+        final BlockInformation blockInformation = ((BitItem) stack.getItem()).getBlockInformation(stack);
+        if(blockInformation.blockState().getBlock() instanceof LiquidBlock) {
             if ((!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown())) {
                 return -1; //No coloring on liquids when pressing shifts -> Buckets
             }
 
             return IClientFluidManager.getInstance().getFluidColor(new FluidInformation(
-                    blockInformation.getBlockState().getFluidState().getType(),
+                    blockInformation.blockState().getFluidState().getType(),
                     1
             ));
         }
 
         if ((!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()))
         {
-            final Block block = blockInformation.getBlockState().getBlock();
+            final Block block = blockInformation.blockState().getBlock();
             final Item item = block.asItem();
             int tintValue = tint & TINT_MASK;
 
@@ -59,7 +58,7 @@ public class BitItemItemColor implements ItemColor
             return 0xffffff;
         }
 
-        final ItemStack workingStack = new ItemStack(blockInformation.getBlockState().getBlock(), 1);
+        final ItemStack workingStack = new ItemStack(blockInformation.blockState().getBlock(), 1);
         if (workingStack.getItem() instanceof AirItem)
             return 0xffffff;
 

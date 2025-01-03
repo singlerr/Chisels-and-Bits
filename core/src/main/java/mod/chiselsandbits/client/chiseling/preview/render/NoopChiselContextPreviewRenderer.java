@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class NoopChiselContextPreviewRenderer implements IChiselContextPreviewRenderer
 {
-    static ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, "noop");
+    static ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "noop");
 
     @Override
     public ResourceLocation getId()

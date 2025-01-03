@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 public class ChiseledPrinterScreen extends AbstractContainerScreen<ChiseledPrinterContainer>
 {
 
-    private static final ResourceLocation GUI_TEXTURES = new ResourceLocation(Constants.MOD_ID, "textures/gui/container/chisel_printer.png");
+    private static final ResourceLocation GUI_TEXTURES = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/container/chisel_printer.png");
 
     public ChiseledPrinterScreen(final ChiseledPrinterContainer screenContainer, final Inventory inv, final Component titleIn)
     {

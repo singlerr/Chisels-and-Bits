@@ -1,6 +1,5 @@
 package mod.chiselsandbits.client.model.baked.cache;
 
-import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.client.model.baked.cache.IBakedModelCacheKey;
 import mod.chiselsandbits.api.client.model.baked.cache.IBakedModelCacheKeyCalculator;
 import mod.chiselsandbits.api.client.model.baked.cache.IBakedModelCacheKeyCalculatorRegistry;

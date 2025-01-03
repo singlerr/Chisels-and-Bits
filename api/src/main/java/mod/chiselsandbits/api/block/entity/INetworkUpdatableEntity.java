@@ -1,28 +1,42 @@
 package mod.chiselsandbits.api.block.entity;
 
+import mod.chiselsandbits.api.serialization.Serializable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 /**
  * Marks the entity as a network updatable entity.
  */
-public interface INetworkUpdatableEntity
+public interface INetworkUpdatableEntity<TPayload>
 {
 
     /**
-     * {@return The position of the block entity.}
+     * {@return The registry access for this entity.}
      */
-    BlockPos getBlockPos();
+    RegistryAccess registryAccess();
 
     /**
-     * Writes the current state of the entity to the buffer.
-     * @param buffer The buffer to write to.
+     * {@return The position of the block.}
      */
-    void serializeInto(FriendlyByteBuf buffer);
+    BlockPos blockPos();
 
     /**
-     * Reads the current state of the entity from the buffer.
-     * @param buffer The buffer to read from.
+     * {@return The payload to transfer.}
      */
-    void deserializeFrom(FriendlyByteBuf buffer);
+    TPayload payload();
+
+    /**
+     * {@return The stream codec used to serialize the payload.}
+     */
+    StreamCodec<RegistryFriendlyByteBuf, TPayload> streamCodec();
+
+    /**
+     * Called when the client receives a payload useful for updating the entity.
+     *
+     * @param payload The payload to receive.
+     */
+    void receivePayload(final TPayload payload);
 }

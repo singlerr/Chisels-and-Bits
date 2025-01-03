@@ -6,7 +6,6 @@ import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.metadata.IMetadataKey;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
-import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
@@ -14,9 +13,10 @@ import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.permissions.IPermissionHandler;
 import mod.chiselsandbits.api.util.VectorUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -274,14 +274,17 @@ public class ChiselingContext implements IChiselingContext
 
         final AtomicBoolean broken = new AtomicBoolean(false);
         final int currentDamage = causingItemStack.getDamageValue();
-        this.causingItemStack.hurtAndBreak(damage, playerEntity, playerEntity -> {
-            broken.set(true);
+        if (world instanceof ServerLevel level && playerEntity instanceof ServerPlayer player) {
+            this.causingItemStack.hurtAndBreak(damage, level, player, item -> {
+                broken.set(true);
 
-            InteractionHand hand = InteractionHand.MAIN_HAND;
-            if (playerEntity.getOffhandItem() == causingItemStack)
-                hand = InteractionHand.OFF_HAND;
-            playerEntity.broadcastBreakEvent(hand);
-        });
+                EquipmentSlot hand = EquipmentSlot.MAINHAND;
+                if (playerEntity.getOffhandItem() == causingItemStack)
+                    hand = EquipmentSlot.OFFHAND;
+
+                player.onEquippedItemBroken(item, hand);
+            });
+        }
 
         onDamaged.run();
         if (broken.get()) {

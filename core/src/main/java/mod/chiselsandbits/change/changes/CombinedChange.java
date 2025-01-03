@@ -1,29 +1,46 @@
 package mod.chiselsandbits.change.changes;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mod.chiselsandbits.api.change.changes.IChange;
+import mod.chiselsandbits.api.change.changes.IChangeType;
 import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
-import mod.chiselsandbits.api.util.INBTSerializable;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.Validate;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class CombinedChange implements IChange
 {
-    private final Collection<IChange> changes;
 
-    public CombinedChange(final Collection<IChange> changes) {this.changes = changes;}
+    public static final MapCodec<CombinedChange> MAP_CODEC = RecordCodecBuilder.mapCodec(
+            instance -> instance.group(
+                    IChange.CODEC.listOf().fieldOf("changes").forGetter(CombinedChange::getChanges)
+            ).apply(instance, CombinedChange::new)
+    );
 
-    public CombinedChange(final Tag tag)
-    {
-        Validate.isInstanceOf(CompoundTag.class, tag);
-        this.changes = new ArrayList<>();
-        this.deserializeNBT((CompoundTag) tag);
+    public static final StreamCodec<RegistryFriendlyByteBuf, CombinedChange> STREAM_CODEC = StreamCodec.composite(
+            IChange.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            CombinedChange::getChanges,
+            CombinedChange::new
+    );
+
+    private final List<IChange> changes;
+
+    public CombinedChange(final List<IChange> changes) {this.changes = changes;}
+
+    public List<IChange> getChanges() {
+        return changes;
     }
 
     @Override
@@ -71,21 +88,7 @@ public class CombinedChange implements IChange
     }
 
     @Override
-    public CompoundTag serializeNBT()
-    {
-        final CompoundTag tag = new CompoundTag();
-
-        tag.put("changes", this.changes.stream().map(INBTSerializable::serializeNBT).collect(Collectors.toCollection(ListTag::new)));
-
-        return tag;
-    }
-
-    @Override
-    public void deserializeNBT(final CompoundTag nbt)
-    {
-        final ListTag tag = nbt.getList("changes", Tag.TAG_COMPOUND);
-
-        this.changes.clear();
-        this.changes.addAll(tag.stream().map(BitChange::new).collect(Collectors.toList()));
+    public IChangeType getType() {
+        return ChangeType.COMBINED;
     }
 }

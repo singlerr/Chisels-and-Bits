@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "@id@",
+  "version": "@version@",
+
+  "name": "@name@",
+  "description": "@description@",
+  "authors": [
+    "@author@"
+  ],
+  "contact": {
+    "sources": "@sources@"
+  },
+
+  "license": "@license@",
+  "icon": "logo.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "@package@.Fabric"
+    ],
+    "client": [
+      "@package@.client.FabricClient"
+    ]
+  },
+  "mixins": [
+    "chisels-and-bits.mixins.json"
+  ],
+  "accessWidener" : "accesswidener.accesswidener",
+
+  "depends": {
+    "fabricloader": ">=@fabricLoaderVersion@",
+    "fabric": ">=@fabricVersion@",
+    "minecraft": "@minecraftVersion@",
+    "java": ">=17",
+    "scena": ">=@scenaVersion@"
+  },
+  "suggests": {
+  }
+}

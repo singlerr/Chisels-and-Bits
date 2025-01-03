@@ -1,8 +1,7 @@
 package mod.chiselsandbits.client.model.baked.base;
 
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.resources.model.BakedModel;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class BaseBakedBlockModel extends BaseBakedPerspectiveModel implements BakedModel

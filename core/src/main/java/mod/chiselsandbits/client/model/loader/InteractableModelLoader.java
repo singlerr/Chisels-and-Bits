@@ -21,7 +21,7 @@ public final class InteractableModelLoader implements IModelSpecificationLoader<
     public InteractableItemModel read(@NotNull final JsonDeserializationContext deserializationContext, final JsonObject modelContents)
     {
         final String parent = modelContents.get("parent").getAsString();
-        final ResourceLocation parentLocation = new ResourceLocation(parent);
+        final ResourceLocation parentLocation = ResourceLocation.parse(parent);
 
         return new InteractableItemModel(parentLocation);
     }

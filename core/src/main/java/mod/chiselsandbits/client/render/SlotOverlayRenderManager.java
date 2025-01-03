@@ -1,6 +1,5 @@
 package mod.chiselsandbits.client.render;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.client.tool.mode.icon.SelectedToolModeRendererRegistry;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;

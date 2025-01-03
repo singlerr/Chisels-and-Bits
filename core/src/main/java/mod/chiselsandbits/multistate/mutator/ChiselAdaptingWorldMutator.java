@@ -3,9 +3,8 @@ package mod.chiselsandbits.multistate.mutator;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.util.VectorUtils;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
@@ -396,7 +395,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
     @SuppressWarnings("deprecation")
     @Override
     public void setInAreaTarget(
-      final IBlockInformation blockInformation,
+      final BlockInformation blockInformation,
       final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
         if (getWorld().isOutsideBuildHeight(getPos())) {
@@ -436,7 +435,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
             throw new SpaceOccupiedException();
         }
 
-        final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(blockInformation.getBlockState());
+        final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(blockInformation.blockState());
         if (optionalWithConvertedBlock.isPresent())
         {
             final Block convertedBlock = optionalWithConvertedBlock.get();
@@ -459,7 +458,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
     }
 
     @Override
-    public void setInBlockTarget(final IBlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final BlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -516,7 +515,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
             return;
         }
 
-        final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(newBlockInformation.getBlockState());
+        final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(newBlockInformation.blockState());
         if (optionalWithConvertedBlock.isPresent())
         {
             final Block convertedBlock = optionalWithConvertedBlock.get();
@@ -627,8 +626,8 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
         final Optional<IStateVariant> stateVariant = IStateVariantManager.getInstance()
           .getStateVariant(blockState, Optional.ofNullable(blockEntity));
 
-        IBlockInformation currentState = new BlockInformation(blockState, stateVariant);
-        IBlockInformation initializationState = currentState;
+        BlockInformation currentState = new BlockInformation(blockState, stateVariant);
+        BlockInformation initializationState = currentState;
         if (currentState.isAir())
         {
             //This happens when placing into an empty blockspace.
@@ -644,7 +643,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
             };
         }
 
-        final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(currentState.getBlockState());
+        final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(currentState.blockState());
         if (optionalWithConvertedBlock.isPresent())
         {
             final Block convertedBlock = optionalWithConvertedBlock.get();
@@ -725,10 +724,10 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
             return Shapes.empty();
         }
 
-        if (currentState.isAir() && type.isValidFor(currentState.getBlockState()))
+        if (currentState.isAir() && type.isValidFor(currentState.blockState()))
             return Shapes.block().move(offset.getX(), offset.getY(), offset.getZ());
 
-        return currentState.getBlockState().getShape(getWorld(), getPos()).move(offset.getX(), offset.getY(), offset.getZ());
+        return currentState.blockState().getShape(getWorld(), getPos()).move(offset.getX(), offset.getY(), offset.getZ());
     }
 
     @Override
@@ -746,7 +745,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
 
     private static class MutablePreAdaptedStateEntry implements IInWorldMutableStateEntryInfo
     {
-        private final IBlockInformation blockInformation;
+        private final BlockInformation blockInformation;
         private final LevelAccessor    world;
         private final Vec3     startPoint;
         private final Vec3     endPoint;
@@ -756,7 +755,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
         private final StateClearer clearCallback;
 
         public MutablePreAdaptedStateEntry(
-          final IBlockInformation blockInformation,
+          final BlockInformation blockInformation,
           final LevelAccessor world,
           final BlockPos blockPos,
           final Vec3i inBlockOffset,
@@ -773,7 +772,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
         }
 
         @Override
-        public @NotNull IBlockInformation getBlockInformation()
+        public @NotNull BlockInformation getBlockInformation()
         {
             return blockInformation;
         }
@@ -803,7 +802,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
         }
 
         @Override
-        public void setBlockInformation(final IBlockInformation blockInformation) throws SpaceOccupiedException
+        public void setBlockInformation(final BlockInformation blockInformation) throws SpaceOccupiedException
         {
             setCallback.set(blockInformation, getStartPoint());
         }

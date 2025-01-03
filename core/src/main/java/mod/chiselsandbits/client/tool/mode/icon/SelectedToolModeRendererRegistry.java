@@ -30,7 +30,7 @@ public class SelectedToolModeRendererRegistry implements ISelectedToolModeIconRe
     @Override
     public ISelectedToolModeIconRenderer getCurrent()
     {
-        return rendererMap.getOrDefault(new ResourceLocation(IClientConfiguration.getInstance().getToolModeRenderer().get()),
+        return rendererMap.getOrDefault(ResourceLocation.parse(IClientConfiguration.getInstance().getToolModeRenderer().get()),
           rendererMap.get(RootGroupTopLeftSelectedToolModeIconRenderer.ID));
     }
 

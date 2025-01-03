@@ -6,10 +6,8 @@ import com.communi.suggestu.scena.core.client.rendering.IRenderingManager;
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import com.google.common.collect.Lists;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.client.model.baked.cache.IBakedModelCacheKey;
-import mod.chiselsandbits.api.client.model.baked.cache.IBakedModelCacheKeyCalculatorRegistry;
 import mod.chiselsandbits.api.client.variant.state.IClientStateVariantManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.client.model.baked.cache.BakedModelCacheKeyCalculatorRegistry;
@@ -37,7 +35,6 @@ import net.minecraft.world.level.material.Fluids;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -54,8 +51,10 @@ public final class FaceManager {
     private final SimpleMaxSizedCache<Key, Collection<ModelQuadLayer>> cache = new SimpleMaxSizedCache<>(
             IClientConfiguration.getInstance().getFaceLayerCacheSize()::get
     );
-    private final SimpleMaxSizedCache<IBlockInformation, Integer> colorCache = new SimpleMaxSizedCache<>(
-            () -> IPlatformRegistryManager.getInstance().getBlockStateIdMap().size() == 0 ? 1000 : IPlatformRegistryManager.getInstance().getBlockStateIdMap().size()
+    private final SimpleMaxSizedCache<BlockInformation, Integer> colorCache = new SimpleMaxSizedCache<>(
+            () -> {
+                return IPlatformRegistryManager.getInstance().getBlockStateIdMap().size() == 0 ? 1000 : IPlatformRegistryManager.getInstance().getBlockStateIdMap().size();
+            }
     );
 
 
@@ -67,7 +66,7 @@ public final class FaceManager {
     }
 
     private static Optional<ModelQuadLayer> createQuadLayer(
-            final BakedQuad quad, IBlockInformation blockInformation, final Direction cullDirection, final int stateColor) {
+            final BakedQuad quad, BlockInformation blockInformation, final Direction cullDirection, final int stateColor) {
         if (quad.getDirection() != cullDirection)
             return Optional.empty();
 
@@ -89,7 +88,7 @@ public final class FaceManager {
     }
 
     private static BakedModel solveModel(
-            final IBlockInformation state,
+            final BlockInformation state,
             final BakedModel originalModel,
             final long primaryStateRenderSeed,
             final RenderType renderType
@@ -137,7 +136,7 @@ public final class FaceManager {
 
     private static boolean hasFaces(
             final BakedModel model,
-            final IBlockInformation state,
+            final BlockInformation state,
             final Direction f,
             final long primaryStateRenderSeed,
             final RenderType renderType) {
@@ -163,7 +162,7 @@ public final class FaceManager {
     }
 
     public static TextureAtlasSprite findTexture(
-            final IBlockInformation state,
+            final BlockInformation state,
             final BakedModel model,
             final Direction myFace,
             final long primaryStateRenderSeed,
@@ -197,13 +196,13 @@ public final class FaceManager {
 
         if (isMissingTexture(texture)) {
             try {
-                texture = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(state.getBlockState());
+                texture = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(state.blockState());
             } catch (final Exception ignored) {
             }
         }
 
         if (texture == null) {
-            texture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(new ResourceLocation("missingno"));
+            texture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(ResourceLocation.withDefaultNamespace("missingno"));
         }
 
         return texture;
@@ -240,7 +239,7 @@ public final class FaceManager {
 
     private static List<BakedQuad> getModelQuads(
             final BakedModel model,
-            final IBlockInformation state,
+            final BlockInformation state,
             final Direction f,
             final long primaryStateRenderSeed,
             final RenderType renderType) {
@@ -248,9 +247,9 @@ public final class FaceManager {
         RANDOM.setSeed(primaryStateRenderSeed);
         try {
             if (model instanceof IDataAwareBakedModel dataAwareBakedModel) {
-                return dataAwareBakedModel.getQuads(state.getBlockState(), f, RANDOM, IClientStateVariantManager.getInstance().getBlockModelData(state), renderType);
+                return dataAwareBakedModel.getQuads(state.blockState(), f, RANDOM, IClientStateVariantManager.getInstance().getBlockModelData(state), renderType);
             } else {
-                return model.getQuads(state.getBlockState(), f, RANDOM);
+                return model.getQuads(state.blockState(), f, RANDOM);
             }
         } catch (final Throwable ignored) {
         }
@@ -272,9 +271,9 @@ public final class FaceManager {
             if (secondModel != null) {
                 try {
                     if (secondModel instanceof IDataAwareBakedModel dataAwareBakedModel) {
-                        return dataAwareBakedModel.getQuads(state.getBlockState(), f, RANDOM, IClientStateVariantManager.getInstance().getBlockModelData(state), renderType);
+                        return dataAwareBakedModel.getQuads(state.blockState(), f, RANDOM, IClientStateVariantManager.getInstance().getBlockModelData(state), renderType);
                     } else {
-                        return secondModel.getQuads(state.getBlockState(), f, RANDOM);
+                        return secondModel.getQuads(state.blockState(), f, RANDOM);
                     }
                 } catch (final Throwable ignored) {
                 }
@@ -391,7 +390,7 @@ public final class FaceManager {
     }
 
     public Collection<ModelQuadLayer> getCachedLayersFor(
-            final IBlockInformation state,
+            final BlockInformation state,
             final Direction face,
             final RenderType layer,
             long primaryStateRenderSeed,
@@ -400,7 +399,7 @@ public final class FaceManager {
             return null;
         }
 
-        final BakedModel model = solveModel(state, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state.getBlockState()), primaryStateRenderSeed, renderType);
+        final BakedModel model = solveModel(state, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state.blockState()), primaryStateRenderSeed, renderType);
         final IBakedModelCacheKey modelCacheKey = BakedModelCacheKeyCalculatorRegistry.getInstance()
                 .getCacheKey(model, primaryStateRenderSeed);
 
@@ -415,14 +414,14 @@ public final class FaceManager {
     }
 
     private List<ModelQuadLayer> buildFaceQuadLayers(
-            final IBlockInformation blockInformation,
+            final BlockInformation blockInformation,
             final Direction cullDirection,
             final long primaryStateRenderSeed,
             @NotNull final RenderType renderType,
             @NotNull final BakedModel model) {
-        final int lv = IClientConfiguration.getInstance().getUseGetLightValue().get() ? blockInformation.getBlockState().getLightEmission() : 0;
+        final int lv = IClientConfiguration.getInstance().getUseGetLightValue().get() ? blockInformation.blockState().getLightEmission() : 0;
 
-        final Fluid fluid = blockInformation.getBlockState().getFluidState().getType();
+        final Fluid fluid = blockInformation.blockState().getFluidState().getType();
         if (fluid != Fluids.EMPTY) {
             final ModelQuadLayer.Builder builder = ModelQuadLayer.Builder.create(blockInformation);
             builder.setQuadOrientation(cullDirection);
@@ -451,25 +450,18 @@ public final class FaceManager {
         final List<ModelQuadLayer> layers = Lists.newArrayList();
         final int color = getColorFor(blockInformation);
 
-        if (model != null) {
-            final List<BakedQuad> quads = getModelQuads(model, blockInformation, cullDirection, primaryStateRenderSeed, renderType);
-            quads.forEach(quad -> createQuadLayer(quad, blockInformation, cullDirection, color).ifPresent(layers::add));
-        }
+        final List<BakedQuad> quads = getModelQuads(model, blockInformation, cullDirection, primaryStateRenderSeed, renderType);
+        quads.forEach(quad -> createQuadLayer(quad, blockInformation, cullDirection, color).ifPresent(layers::add));
 
         return layers;
     }
 
-    private int getColorFor(final IBlockInformation state) {
+    private int getColorFor(final BlockInformation state) {
         return colorCache.get(state, () -> {
-            final Optional<Integer> dynamicColor = IBlockInformationColorManager.getInstance()
-                    .getColor(state);
-
-            if (dynamicColor.isPresent()) {
-                return dynamicColor.get();
-            }
+            //TODO: Introduce a way for external systems to provide a color for a face based on the state variant.
 
             int out;
-            final Fluid fluid = state.getBlockState().getFluidState().getType();
+            final Fluid fluid = state.blockState().getFluidState().getType();
             if (fluid != Fluids.EMPTY) {
                 out = IClientFluidManager.getInstance().getFluidColor(fluid);
             } else {
@@ -486,7 +478,7 @@ public final class FaceManager {
         });
     }
 
-    private record Key(IBlockInformation blockState, RenderType renderType, Direction direction,
+    private record Key(BlockInformation blockState, RenderType renderType, Direction direction,
                        IBakedModelCacheKey modelKey, RenderType type) {
     }
 }

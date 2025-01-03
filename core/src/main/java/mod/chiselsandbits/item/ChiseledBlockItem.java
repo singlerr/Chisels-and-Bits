@@ -1,9 +1,9 @@
 package mod.chiselsandbits.item;
 
 import com.google.common.base.Suppliers;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshotType;
 import mod.chiselsandbits.api.util.VectorUtils;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
@@ -20,11 +20,10 @@ import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockInformationUtils;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.block.ChiseledBlock;
-import mod.chiselsandbits.item.multistate.MultiStateItemStackManager;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.multistate.snapshot.SimpleSnapshot;
+import mod.chiselsandbits.registrars.ModDataComponentTypes;
 import mod.chiselsandbits.registrars.ModModificationOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -45,7 +44,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,7 +59,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
         final int blockStateCount = (StateEntrySize.current().getBitsPerBlockSide() / 4) *
                                       (StateEntrySize.current().getBitsPerBlockSide() / 4) *
                                       (StateEntrySize.current().getBitsPerBlockSide() / 4);
-        final List<IBlockInformation> blockInformation = new ArrayList<>(blockStateCount);
+        final List<BlockInformation> blockInformation = new ArrayList<>(blockStateCount);
         for (int i = 0; i < blockStateCount; i++)
         {
             blockInformation.add(BlockInformationUtils.getRandomSupportedInformation(random));
@@ -79,12 +77,12 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
 
               final int size = StateEntrySize.current().getBitsPerBlockSide() / 4;
               final int blockInformationIndex = index.getX() + (index.getY() * size) + (index.getZ() * size * size);
-              final IBlockInformation info = blockInformation.get(blockInformationIndex);
+              final BlockInformation info = blockInformation.get(blockInformationIndex);
               stateEntryInfo.overrideState(info);
           });
 
         final ItemStack stack = results.toItemStack().toBlockStack();
-        stack.getOrCreateTag().putBoolean(NbtConstants.DEFAULT_INSTANCE_INDICATOR, true);
+        stack.set(ModDataComponentTypes.IS_DEFAULT_INSTANCE.get(), true);
         return stack;
     });
 
@@ -96,12 +94,13 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     @Override
     public @NotNull Component getName(final @NotNull ItemStack stack)
     {
-        if (stack.getOrCreateTag().contains(NbtConstants.DEFAULT_INSTANCE_INDICATOR) &&
-              stack.getOrCreateTag().getBoolean(NbtConstants.DEFAULT_INSTANCE_INDICATOR)) {
+        if (stack.getOrDefault(ModDataComponentTypes.IS_DEFAULT_INSTANCE.get(), false)) {
             return LocalStrings.DefaultChiseledBlockItemName.getText();
         }
 
-        return super.getName(stack);
+        final IMultiStateItemStack multiStateItemStack = this.createItemStack(stack);
+        final Component primaryStateComponent = multiStateItemStack.getStatistics().getPrimaryState().blockState().getBlock().getName();
+        return LocalStrings.ChiseledBlockItemName.getText(primaryStateComponent);
     }
 
     /**
@@ -114,7 +113,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     @Override
     public IMultiStateItemStack createItemStack(final ItemStack stack)
     {
-        return MultiStateItemStackManager.getInstance().getManagedStack(stack, SingleBlockMultiStateItemStack::new);
+        return new SingleBlockMultiStateItemStack(stack);
     }
 
     @NotNull
@@ -192,10 +191,8 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     }
 
     @Override
-    public void appendHoverText(
-      final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
-    {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
         HelpTextUtils.build(LocalStrings.HelpBitBag, tooltip);
     }
 
@@ -245,7 +242,10 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     public void setMode(final ItemStack stack, final IModificationOperation mode)
     {
         final IMultiStateItemStack multiStateItemStack = this.createItemStack(stack);
-        mode.apply(multiStateItemStack);
+        final IMultiStateSnapshot snapshot = multiStateItemStack.createSnapshot();
+        mode.apply(snapshot);
+        final IMultiStateItemStack resultStack = snapshot.toItemStack();
+        resultStack.writeDataTo(stack);
     }
 
     @Override

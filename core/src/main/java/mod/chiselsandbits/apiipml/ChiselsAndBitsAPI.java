@@ -3,9 +3,7 @@ package mod.chiselsandbits.apiipml;
 import com.communi.suggestu.scena.core.dist.DistExecutor;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import mod.chiselsandbits.api.block.IBlockConstructionManager;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.blockinformation.IBlockInformationFactory;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
@@ -15,7 +13,6 @@ import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityOptions;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.model.baked.cache.IBakedModelCacheKeyCalculatorRegistry;
 import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRendererRegistry;
-import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
 import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
 import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
@@ -42,17 +39,15 @@ import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.change.ChangeTrackerManger;
 import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
 import mod.chiselsandbits.chiseling.conversion.ConversionManager;
 import mod.chiselsandbits.chiseling.eligibility.EligibilityManager;
 import mod.chiselsandbits.client.chiseling.preview.render.ChiselContextPreviewRendererRegistry;
-import mod.chiselsandbits.client.colors.BlockInformationColorManager;
 import mod.chiselsandbits.client.sharing.PatternSharingManager;
 import mod.chiselsandbits.client.tool.mode.icon.SelectedToolModeRendererRegistry;
 import mod.chiselsandbits.client.variant.state.ClientStateVariantManager;
-import mod.chiselsandbits.clipboard.CreativeClipboardManager;
+import mod.chiselsandbits.client.clipboard.CreativeClipboardManager;
 import mod.chiselsandbits.inventory.management.BitInventoryManager;
 import mod.chiselsandbits.item.bit.BitItemManager;
 import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
@@ -75,21 +70,17 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
 {
     private final IEligibilityOptions eligibilityOptions;
     private final IAdaptingBitInventoryManager adaptingBitInventoryManager;
     private final IPluginDiscoverer pluginDiscoverer;
-    private final IBlockConstructionManager blockConstructionManager;
 
-    public ChiselsAndBitsAPI(IEligibilityOptions eligibilityOptions, IAdaptingBitInventoryManager adaptingBitInventoryManager, IPluginDiscoverer pluginDiscoverer, IBlockConstructionManager blockConstructionManager)
+    public ChiselsAndBitsAPI(IEligibilityOptions eligibilityOptions, IAdaptingBitInventoryManager adaptingBitInventoryManager, IPluginDiscoverer pluginDiscoverer)
     {
         this.eligibilityOptions = eligibilityOptions;
         this.adaptingBitInventoryManager = adaptingBitInventoryManager;
         this.pluginDiscoverer = pluginDiscoverer;
-        this.blockConstructionManager = blockConstructionManager;
     }
 
     /**
@@ -333,15 +324,6 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     }
 
     @Override
-    public @NotNull IBlockInformationColorManager getBlockInformationColorManager()
-    {
-        return DistExecutor.unsafeRunForDist(
-          () -> BlockInformationColorManager::getInstance,
-          () -> () -> (IBlockInformationColorManager) blockInformation -> Optional.empty()
-        );
-    }
-
-    @Override
     public @NotNull ICuttingOperation getDefaultCuttingOperation()
     {
         return null;
@@ -375,21 +357,11 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     }
 
     @Override
-    public @NotNull IBlockConstructionManager getBlockConstructionManager() {
-        return blockConstructionManager;
-    }
-
-    @Override
     public @NotNull IClientStateVariantManager getClientStateVariantManager() {
         return DistExecutor.unsafeRunForDist(
                 () -> ClientStateVariantManager::getInstance,
                 () -> () -> null
         );
-    }
-
-    @Override
-    public @NotNull IBlockInformationFactory getBlockInformationFactory() {
-        return BlockInformation::new;
     }
 
     @Override

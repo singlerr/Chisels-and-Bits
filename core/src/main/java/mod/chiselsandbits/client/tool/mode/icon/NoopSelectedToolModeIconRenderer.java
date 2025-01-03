@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class NoopSelectedToolModeIconRenderer implements ISelectedToolModeIconRenderer
 {
-    static ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, "noop");
+    static ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "noop");
 
     @Override
     public ResourceLocation getId()

@@ -2,9 +2,7 @@ package mod.chiselsandbits.client.render;
 
 import com.communi.suggestu.scena.core.util.TransformationUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.*;
 import mod.chiselsandbits.api.measuring.IMeasurement;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.api.measuring.MeasuringType;
@@ -96,31 +94,29 @@ public final class MeasurementRenderer
             else if (measurement.getMode().getGroup().map(g -> g == MeasuringType.DISTANCE).orElse(false))
             {
                 final VertexConsumer bufferIn = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get());
-                bufferIn.vertex(poseStack.last().pose(),
+                bufferIn.addVertex(poseStack.last().pose(),
                   (float) (measurement.getFrom().x() - xView),
                   (float) (measurement.getFrom().y() - yView),
                   (float) (measurement.getFrom().z() - zView))
-                  .color(
+                  .setColor(
                     (float) measurement.getMode().getColorVector().x(),
                     (float) measurement.getMode().getColorVector().y(),
                     (float) measurement.getMode().getColorVector().z(),
                     (float) measurement.getMode().getAlphaChannel()
                   )
-                  .normal(poseStack.last().normal(), 0, 1, 0)
-                  .endVertex();
+                  .setNormal(poseStack.last(), 0, 1, 0);
 
-                bufferIn.vertex(poseStack.last().pose(),
+                bufferIn.addVertex(poseStack.last().pose(),
                   (float) (measurement.getTo().x() - xView),
                   (float) (measurement.getTo().y() - yView),
                   (float) (measurement.getTo().z() - zView))
-                  .color(
+                  .setColor(
                     (float) measurement.getMode().getColorVector().x(),
                     (float) measurement.getMode().getColorVector().y(),
                     (float) measurement.getMode().getColorVector().z(),
                     (float) measurement.getMode().getAlphaChannel()
                   )
-                  .normal(poseStack.last().normal(), 0, 1, 0)
-                  .endVertex();
+                  .setNormal(poseStack.last(), 0, 1, 0);
 
                 final Vec3 lengths = VectorUtils.absolute(measurement.getTo().subtract(measurement.getFrom()));
                 final double totalLength = lengths.length();
@@ -162,7 +158,7 @@ public final class MeasurementRenderer
         matrixStack.scale(scale, -scale, (float) zScale);
         matrixStack.translate(-fontRenderer.width(size) * 0.5, 0, 0);
         RenderSystem.disableDepthTest();
-        MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+        MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
         fontRenderer.drawInBatch(size.getString(), 0, 0, measurement.getMode().getColor().getTextColor(), false, matrixStack.last().pose(), buffer, Font.DisplayMode.SEE_THROUGH, 0, 15728880);
         matrixStack.translate(-fontRenderer.width(owner) * 0.5, -fontRenderer.lineHeight, 0);
         fontRenderer.drawInBatch(owner.getString(), 0, 0, measurement.getMode().getColor().getTextColor(), false, matrixStack.last().pose(), buffer, Font.DisplayMode.SEE_THROUGH, 0, 15728880);
@@ -213,10 +209,10 @@ public final class MeasurementRenderer
         final Entity view = Minecraft.getInstance().cameraEntity != null ? Minecraft.getInstance().cameraEntity : Minecraft.getInstance().player;
         if (view != null)
         {
-            final float yaw = view.yRotO + (view.getYRot() - view.yRotO) * Minecraft.getInstance().getFrameTime();
+            final float yaw = view.yRotO + (view.getYRot() - view.yRotO) * Minecraft.getInstance().gameRenderer.getMainCamera().getPartialTickTime();
             matrixStack.mulPose(TransformationUtils.quatFromXYZ(new Vector3f(0, 180-yaw, 0), true));
 
-            final float pitch = view.xRotO + (view.getXRot() - view.xRotO) * Minecraft.getInstance().getFrameTime();
+            final float pitch = view.xRotO + (view.getXRot() - view.xRotO) * Minecraft.getInstance().gameRenderer.getMainCamera().getPartialTickTime();
             matrixStack.mulPose(TransformationUtils.quatFromXYZ(new Vector3f(-pitch, 0, 0), true));
         }
     }

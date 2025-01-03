@@ -3,8 +3,7 @@ package mod.chiselsandbits.block.entities;
 import com.communi.suggestu.scena.core.blockstate.ILevelBasedPropertyAccessor;
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
 import com.communi.suggestu.scena.core.fluid.IFluidManager;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
@@ -20,8 +19,13 @@ import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -29,13 +33,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public class BitStorageBlockEntity extends BlockEntity implements Container {
 
-    private IBlockInformation state = null;
+    private BlockInformation state = null;
     private int bits = 0;
 
     private int oldLV = -1;
@@ -45,20 +50,22 @@ public class BitStorageBlockEntity extends BlockEntity implements Container {
     }
 
     @Override
-    public void load(final @NotNull CompoundTag nbt) {
-        super.load(nbt);
+    protected void loadAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider lookup) {
+        super.loadAdditional(nbt, lookup);
 
         final CompoundTag tag = nbt.getCompound(NbtConstants.BLOCK_INFORMATION);
-        state = new BlockInformation(tag);
+        final RegistryOps<Tag> ops = RegistryOps.create(NbtOps.INSTANCE, lookup);
+        state = BlockInformation.CODEC.decode(ops, tag).getOrThrow().getFirst();
         bits = nbt.getInt(NbtConstants.BITS);
     }
 
     @Override
-    public void saveAdditional(final @NotNull CompoundTag compound) {
-        super.saveAdditional(compound);
+    public void saveAdditional(final @NotNull CompoundTag compound, HolderLookup.@NotNull Provider lookup) {
+        super.saveAdditional(compound, lookup);
 
         if (state != null) {
-            compound.put(NbtConstants.BLOCK_INFORMATION, state.serializeNBT());
+            final RegistryOps<Tag> ops = RegistryOps.create(NbtOps.INSTANCE, lookup);
+            compound.put(NbtConstants.BLOCK_INFORMATION, BlockInformation.CODEC.encodeStart(ops, state).getOrThrow());
             compound.putInt(NbtConstants.BITS, bits);
         }
     }
@@ -69,8 +76,8 @@ public class BitStorageBlockEntity extends BlockEntity implements Container {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag() {
-        return saveWithFullMetadata();
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider lookup) {
+        return saveWithFullMetadata(lookup);
     }
 
     public boolean addAllPossibleBits(
@@ -188,8 +195,8 @@ public class BitStorageBlockEntity extends BlockEntity implements Container {
                     return true;
                 }
             } else if (IEligibilityManager.getInstance().canBeChiseled(current)) {
-                final IBlockInformation stackState = ItemStackUtils.getStateFromItem(current);
-                if (stackState.getBlockState().getBlock() != Blocks.AIR) {
+                final BlockInformation stackState = ItemStackUtils.getStateFromItem(current);
+                if (stackState.blockState().getBlock() != Blocks.AIR) {
                     if (this.state == null || state.isAir()) {
                         this.state = stackState;
                         this.bits = StateEntrySize.current().getBitsPerBlock();
@@ -245,7 +252,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container {
             final ItemStack is = getItem(0);
             if (!is.isEmpty()) {
                 if (is.getItem() instanceof final IBitItem bitItem) {
-                    final IBlockInformation blockState = bitItem.getBlockInformation(is);
+                    final BlockInformation blockState = bitItem.getBlockInformation(is);
 
                     BitInventoryUtils.insertIntoOrSpawn(
                             playerIn,
@@ -262,8 +269,8 @@ public class BitStorageBlockEntity extends BlockEntity implements Container {
         return false;
     }
 
-    public IBlockInformation getContainedBlockInformation() {
-        return state == null ? IBlockInformation.AIR : state;
+    public BlockInformation getContainedBlockInformation() {
+        return state == null ? BlockInformation.AIR : state;
     }
 
     public int getBits() {
@@ -303,7 +310,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container {
             return ItemStack.EMPTY;
         }
 
-        final IBlockInformation currentState = state;
+        final BlockInformation currentState = state;
         final int toRemove = Math.min(count, bits);
         bits -= toRemove;
 
@@ -321,8 +328,8 @@ public class BitStorageBlockEntity extends BlockEntity implements Container {
     public void setItem(final int index, final @NotNull ItemStack itemStack) {
         if (!(itemStack.getItem() instanceof IBitItem bitItem)) {
             if (IEligibilityManager.getInstance().canBeChiseled(itemStack) && this.state == null && this.bits == 0) {
-                final IBlockInformation blockInformation = ItemStackUtils.getStateFromItem(itemStack);
-                if (blockInformation.getBlockState().getBlock() != Blocks.AIR) {
+                final BlockInformation blockInformation = ItemStackUtils.getStateFromItem(itemStack);
+                if (blockInformation.blockState().getBlock() != Blocks.AIR) {
                     this.state = blockInformation;
                     this.bits = StateEntrySize.current().getBitsPerBlock();
                     saveAndUpdate();
@@ -369,9 +376,9 @@ public class BitStorageBlockEntity extends BlockEntity implements Container {
             return dynamicFluid;
 
         return Optional.of(new FluidInformation(
-                ((LiquidBlock) state.getBlockState().getBlock()).getFluidState(state.getBlockState()).getType(),
+                ((LiquidBlock) state.blockState().getBlock()).fluid.getSource(),
                 amount,
-                new CompoundTag()
+                DataComponentPatch.EMPTY
         ));
     }
 
@@ -387,8 +394,8 @@ public class BitStorageBlockEntity extends BlockEntity implements Container {
         if (dynamicFluid.isPresent())
             return true;
 
-        return state.getBlockState().getBlock() instanceof LiquidBlock liquidBlock &&
-                !liquidBlock.getFluidState(state.getBlockState()).isEmpty();
+        return state.blockState().getBlock() instanceof LiquidBlock liquidBlock &&
+                !liquidBlock.fluid.getSource().isSame(Fluids.EMPTY);
     }
 
     public void extractBits(final int count) {
@@ -399,7 +406,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container {
         saveAndUpdate();
     }
 
-    public void insertBits(final int bitCountToInsert, final IBlockInformation blockInformation) {
+    public void insertBits(final int bitCountToInsert, final BlockInformation blockInformation) {
         if (state == null || blockInformation.equals(state)) {
             this.bits = Math.max(StateEntrySize.current().getBitsPerBlock(), bitCountToInsert + bits);
             this.state = blockInformation;

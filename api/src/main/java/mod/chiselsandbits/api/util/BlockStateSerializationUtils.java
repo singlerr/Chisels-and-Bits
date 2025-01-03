@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.function.IntFunction;
 import java.util.function.ToIntFunction;
 
 public class BlockStateSerializationUtils
@@ -38,7 +39,7 @@ public class BlockStateSerializationUtils
     }
 
     public static BlockState deserialize(final FriendlyByteBuf buffer) {
-        return buffer.readById(Block.BLOCK_STATE_REGISTRY);
+        return buffer.readById(Block.BLOCK_STATE_REGISTRY::byId);
     }
 
     public static void serialize(final FriendlyByteBuf buf, final BlockState blockState) {

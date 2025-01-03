@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.forge.utils.CollectorUtils;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.registrars.ModTags;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -26,19 +28,22 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator {
     private final boolean shapeless;
     private final List<String> pattern;
     private final Map<Character, TagKey<Item>> tagMap;
     private final Map<Character, ItemLike> itemMap;
+
     public SimpleItemsRecipeGenerator(
             final PackOutput generator,
             final ItemLike itemProvider,
             final String pattern,
-            final Map<Character, TagKey<Item>> tagMap, final Map<Character, ItemLike> itemMap) {
-        super(generator, itemProvider);
+            final Map<Character, TagKey<Item>> tagMap, final Map<Character, ItemLike> itemMap,
+            final CompletableFuture<HolderLookup.Provider> registries) {
+        super(generator, itemProvider, registries);
         this.shapeless = false;
         this.pattern = Arrays.asList(pattern.split(";"));
         this.tagMap = tagMap;
@@ -49,8 +54,9 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator {
             final PackOutput generator,
             final ItemLike itemProvider,
             final List<TagKey<Item>> tagMap,
-            final List<ItemLike> itemMap) {
-        super(generator, itemProvider);
+            final List<ItemLike> itemMap,
+            final CompletableFuture<HolderLookup.Provider> registries) {
+        super(generator, itemProvider, registries);
         this.shapeless = true;
         this.pattern = ImmutableList.of("   ", "   ", "   ");
         this.tagMap = tagMap.stream().collect(CollectorUtils.toEnumeratedCharacterKeyedMap());
@@ -69,7 +75,8 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator {
                         ),
                         ImmutableMap.of(
                                 'b', ModItems.ITEM_BLOCK_BIT.get()
-                        )
+                        ),
+                        event.getLookupProvider()
                 )
         );
 
@@ -80,10 +87,11 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator {
                         "cg ;s  ;   ",
                         ImmutableMap.of(
                                 'c', ModTags.Items.CHISEL,
-                                'g', Tags.Items.GLASS,
+                                'g', Tags.Items.GLASS_BLOCKS,
                                 's', Tags.Items.RODS_WOODEN
                         ),
-                        ImmutableMap.of()
+                        ImmutableMap.of(),
+                        event.getLookupProvider()
                 )
         );
 
@@ -94,10 +102,11 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator {
                         "  s;isy;ii ",
                         ImmutableMap.of(
                                 'i', Tags.Items.INGOTS_IRON,
-                                's', Tags.Items.STRING,
+                                's', Tags.Items.STRINGS,
                                 'y', Tags.Items.DYES_YELLOW
                         ),
-                        ImmutableMap.of()
+                        ImmutableMap.of(),
+                        event.getLookupProvider()
                 )
         );
 
@@ -110,7 +119,8 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator {
                                 Tags.Items.DYES_BLACK,
                                 Tags.Items.DYES_YELLOW
                         ),
-                        ImmutableList.of()
+                        ImmutableList.of(),
+                        event.getLookupProvider()
                 )
         );
 
@@ -123,7 +133,8 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator {
                         ),
                         ImmutableList.of(
                                 Items.HONEY_BOTTLE
-                        )
+                        ),
+                        event.getLookupProvider()
                 )
         );
 
@@ -137,7 +148,8 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator {
                         ),
                         ImmutableMap.of(
                                 'b', ModItems.ITEM_BLOCK_BIT.get()
-                        )
+                        ),
+                        event.getLookupProvider()
                 )
         );
 
@@ -148,7 +160,8 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator {
                         ImmutableList.of(),
                         ImmutableList.of(
                                 Blocks.WET_SPONGE
-                        )
+                        ),
+                        event.getLookupProvider()
                 )
         );
     }

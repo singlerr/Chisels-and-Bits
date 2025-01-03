@@ -5,25 +5,29 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.entity.INetworkUpdatableEntity;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
+import mod.chiselsandbits.api.change.changes.IChange;
 import mod.chiselsandbits.api.client.screen.AbstractChiselsAndBitsScreen;
 import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.sharing.PatternIOException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.client.screens.widgets.ChangeTrackerOperationsWidget;
-import mod.chiselsandbits.clipboard.CreativeClipboardUtils;
+import mod.chiselsandbits.client.clipboard.CreativeClipboardUtils;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.network.packets.GivePlayerPatternCommandPacket;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.Deque;
 
 public final class ClientPacketHandlers
 {
@@ -42,15 +46,24 @@ public final class ClientPacketHandlers
                     tileEntity = Minecraft.getInstance().level.getBlockEntity(blockPos);
                 }
 
-                if (tileEntity instanceof INetworkUpdatableEntity networkUpdatableEntity) {
-                    networkUpdatableEntity.deserializeFrom(updateData);
+                if (tileEntity instanceof INetworkUpdatableEntity<?> networkUpdatableEntity) {
+                    handleBlockEntityUpdate(networkUpdatableEntity, updateData);
                 }
             }
         }
     }
 
-    public static void handleChangeTrackerUpdated(final CompoundTag tag) {
-        IChangeTrackerManager.getInstance().getChangeTracker(Minecraft.getInstance().player).deserializeNBT(tag);
+    private static <T> void handleBlockEntityUpdate(INetworkUpdatableEntity<T> blockEntity, final FriendlyByteBuf updateData) {
+        final RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(updateData, blockEntity.registryAccess());
+        final StreamCodec<RegistryFriendlyByteBuf, T> codec = blockEntity.streamCodec();
+
+        final T payload = codec.decode(buf);
+
+        blockEntity.receivePayload(payload);
+    }
+
+    public static void handleChangeTrackerUpdated(final Deque<IChange> tag) {
+        IChangeTrackerManager.getInstance().getChangeTracker(Minecraft.getInstance().player).setChanges(tag);
         if(Minecraft.getInstance().screen instanceof AbstractChiselsAndBitsScreen)
         {
             ((AbstractChiselsAndBitsScreen) Minecraft.getInstance().screen).getWidgets()
@@ -63,7 +76,7 @@ public final class ClientPacketHandlers
 
     public static void handleNeighborUpdated(final BlockPos toUpdate, final BlockPos from) {
         Minecraft.getInstance().level.getBlockState(toUpdate)
-          .neighborChanged(
+          .handleNeighborChanged(
             Minecraft.getInstance().level,
             toUpdate,
             Minecraft.getInstance().level.getBlockState(from).getBlock(),
@@ -74,7 +87,7 @@ public final class ClientPacketHandlers
 
     public static void handleAddMultiStateToClipboard(final ItemStack stack) {
         final IMultiStateItemStack itemStack = new SingleBlockMultiStateItemStack(stack);
-        CreativeClipboardUtils.addBrokenBlock(itemStack);
+        CreativeClipboardUtils.addBrokenBlock(itemStack, Minecraft.getInstance().level.registryAccess());
     }
 
     public static void handleExportPatternCommandMessage(final BlockPos target, final String name) {
@@ -93,7 +106,7 @@ public final class ClientPacketHandlers
         final Either<IMultiStateItemStack, PatternIOException> importResult = IPatternSharingManager.getInstance().importPattern(name);
         importResult.ifLeft(stack -> {
             ChiselsAndBits.getInstance().getNetworkChannel()
-              .sendToServer(new GivePlayerPatternCommandPacket(stack.serializeNBT()));
+              .sendToServer(new GivePlayerPatternCommandPacket(stack.createSnapshot()));
         });
         importResult.ifRight(e -> {
             Minecraft.getInstance().player.sendSystemMessage(e.getErrorMessage());

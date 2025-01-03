@@ -3,13 +3,14 @@ package mod.chiselsandbits.inventory.bit;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
-import net.minecraft.nbt.CompoundTag;
+import mod.chiselsandbits.components.data.SlottedBitInventoryData;
+import mod.chiselsandbits.registrars.ModDataComponentTypes;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,25 +20,42 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SlottedBitInventoryItemStack extends SlottedBitInventory implements IBitInventoryItemStack
 {
-    private final Function<CompoundTag, ItemStack> saveBuilder;
 
-    public SlottedBitInventoryItemStack(final int size, final Function<CompoundTag, ItemStack> saveBuilder)
+    private final ItemStack stack;
+
+    @SuppressWarnings("deprecation")
+    public SlottedBitInventoryItemStack(final ItemStack source, final int size)
     {
         super(size);
+        this.stack = source;
 
-        this.saveBuilder = saveBuilder;
+        final SlottedBitInventoryData data = this.stack.getOrDefault(ModDataComponentTypes.SLOTTED_BIT_INVENTORY_DATA.get(), SlottedBitInventoryData.EMPTY);
+        data.data().forEach((slotIndex, slotData) -> {
+            final BlockInformation blockInformation = slotData.blockInformation();
+            final int count = slotData.count();
+            this.slotMap.put(slotIndex, new BitSlot(blockInformation, count));
+        });
     }
 
     @Override
     public ItemStack toItemStack()
     {
-        final CompoundTag compoundNBT = this.serializeNBT();
-        return this.saveBuilder.apply(compoundNBT);
+        final SlottedBitInventoryData data = new SlottedBitInventoryData(
+                this.slotMap.int2ObjectEntrySet().stream()
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                entry -> new SlottedBitInventoryData.BitSlotData(entry.getValue().getBlockInformation(), entry.getValue().getCount())
+                        ))
+        );
+
+        final ItemStack clone = stack.copy();
+        clone.set(ModDataComponentTypes.SLOTTED_BIT_INVENTORY_DATA.get(), data);
+
+        return clone;
     }
 
     @Override
@@ -45,7 +63,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     {
         return getContents().stream()
           .sorted(Comparator.comparingInt(BitSlot::getCount).reversed())
-          .map(slot -> Component.translatable("chiselsandbits.bitbag.contents.enum.entry", slot.getCount(), slot.getBlockInformation().getBlockState().getBlock().getName()))
+          .map(slot -> Component.translatable("chiselsandbits.bitbag.contents.enum.entry", slot.getCount(), slot.getBlockInformation().blockState().getBlock().getName()))
           .collect(Collectors.toList());
     }
 
@@ -56,7 +74,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     }
 
     @Override
-    public void clear(final IBlockInformation state)
+    public void clear(final BlockInformation state)
     {
         final Int2ObjectMap<BitSlot> slots = new Int2ObjectArrayMap<>(this.slotMap);
 
@@ -73,7 +91,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     @Override
     public void convert(Player player) {
         // Get counts of all the bits present in the bag and clear it.
-        final Map<IBlockInformation, Integer> contentMap = Maps.newHashMap();
+        final Map<BlockInformation, Integer> contentMap = Maps.newHashMap();
         this.slotMap.values().forEach(bitSlot -> {
                     contentMap.putIfAbsent(bitSlot.getBlockInformation(), 0);
                     contentMap.compute(bitSlot.getBlockInformation(), (s, c) -> (c == null ? 0 : c) + bitSlot.getCount());
@@ -81,13 +99,11 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
         );
         this.slotMap.clear();
 
-
-
-        List<Map.Entry<IBlockInformation, Integer>> toSort = new ArrayList<>(contentMap.entrySet());
-        toSort.sort(Map.Entry.<IBlockInformation, Integer>comparingByValue().reversed());
+        List<Map.Entry<BlockInformation, Integer>> toSort = new ArrayList<>(contentMap.entrySet());
+        toSort.sort(Map.Entry.<BlockInformation, Integer>comparingByValue().reversed());
 
         int slotIndex = 0;
-        for (Map.Entry<IBlockInformation, Integer> e : toSort)
+        for (Map.Entry<BlockInformation, Integer> e : toSort)
         {
             int count = e.getValue();
             if (count == 0) {
@@ -97,7 +113,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
             // Give player items for each 4096 bits they have (full block) 16^3
             while (count >= IServerConfiguration.getInstance().getBitSize().get().getBitsPerBlock()) {
                 // Give the block to the player
-                ItemStack block = new ItemStack(e.getKey().getBlockState().getBlock().asItem());
+                ItemStack block = new ItemStack(e.getKey().blockState().getBlock().asItem());
                 if (player.getInventory().add(block)) {
                     count -= IServerConfiguration.getInstance().getBitSize().get().getBitsPerBlock();
                 } else {
@@ -123,7 +139,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     @Override
     public void sort()
     {
-        final Map<IBlockInformation, Integer> contentMap = Maps.newHashMap();
+        final Map<BlockInformation, Integer> contentMap = Maps.newHashMap();
         this.slotMap.values().forEach(bitSlot -> {
             contentMap.putIfAbsent(bitSlot.getBlockInformation(), 0);
             contentMap.compute(bitSlot.getBlockInformation(), (s, c) -> (c == null ? 0 : c) + bitSlot.getCount());
@@ -132,11 +148,11 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
 
         this.slotMap.clear();
 
-        List<Map.Entry<IBlockInformation, Integer>> toSort = new ArrayList<>(contentMap.entrySet());
-        toSort.sort(Map.Entry.<IBlockInformation, Integer>comparingByValue().reversed());
+        List<Map.Entry<BlockInformation, Integer>> toSort = new ArrayList<>(contentMap.entrySet());
+        toSort.sort(Map.Entry.<BlockInformation, Integer>comparingByValue().reversed());
 
         int slotIndex = 0;
-        for (Map.Entry<IBlockInformation, Integer> e : toSort)
+        for (Map.Entry<BlockInformation, Integer> e : toSort)
         {
             int count = e.getValue();
             if (count == 0)
@@ -200,7 +216,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
             return;
         }
 
-        final IBlockInformation state = bitItem.getBlockInformation(stack);
+        final BlockInformation state = bitItem.getBlockInformation(stack);
 
         final BitSlot bitSlot = this.slotMap.getOrDefault(index, new BitSlot());
         bitSlot.setBlockInformation(state);
@@ -226,14 +242,6 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     {
         this.slotMap.clear();
         onChange();
-    }
-
-    @Override
-    protected void onChange()
-    {
-        super.onChange();
-        //We invoke to itemStack for sure to guarantee the saving.
-        toItemStack();
     }
 
     @Override

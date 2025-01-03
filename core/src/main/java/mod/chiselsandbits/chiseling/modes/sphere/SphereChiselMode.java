@@ -3,7 +3,7 @@ package mod.chiselsandbits.chiseling.modes.sphere;
 import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Either;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -128,7 +128,7 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
         return context.getMutator().map(mutator -> {
             try (IBatchMutation ignored =
                          mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity))) {
-                final Map<IBlockInformation, Integer> resultingBitCount = Maps.newHashMap();
+                final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                 final Predicate<IStateEntryInfo> filter = context.getStateFilter()
                         .map(factory -> factory.apply(mutator))
@@ -137,7 +137,7 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
                 final int totalModifiedStates = mutator.inWorldMutableStream()
                         .filter(filter)
                         .mapToInt(state -> {
-                            final IBlockInformation currentState = state.getBlockInformation();
+                            final BlockInformation currentState = state.getBlockInformation();
 
                             return context.tryDamageItemAndDoOrSetBrokenError(
                                     () -> {
@@ -196,7 +196,7 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
         }
 
         return context.getMutator().map(mutator -> {
-            final IBlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
+            final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
             if (heldBlockState.isAir()) {
                 return ClickProcessingState.DEFAULT;
             }
@@ -224,7 +224,7 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
                             .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                 }
             } else {
-                context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlockState().getBlock().getName()));
+                context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.blockState().getBlock().getName()));
             }
 
             if (missingBitCount == 0) {

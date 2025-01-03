@@ -1,15 +1,14 @@
 package mod.chiselsandbits.api.item.multistate;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.api.util.INBTSerializable;
-import net.minecraft.nbt.CompoundTag;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.serialization.RawSerializable;
 
 import java.util.Set;
 
 /**
  * The statistics of a multi state itemstack.
  */
-public interface IStatistics extends INBTSerializable<CompoundTag>
+public interface IStatistics extends RawSerializable
 {
 
     /**
@@ -18,7 +17,7 @@ public interface IStatistics extends INBTSerializable<CompoundTag>
      *
      * @return The primary blockstate.
      */
-    IBlockInformation getPrimaryState();
+    BlockInformation getPrimaryState();
 
     /**
      * Indicates if the multistate object is empty.
@@ -32,5 +31,5 @@ public interface IStatistics extends INBTSerializable<CompoundTag>
      *
      * @return All states in the object.
      */
-    Set<IBlockInformation> getContainedStates();
+    Set<BlockInformation> getContainedStates();
 }

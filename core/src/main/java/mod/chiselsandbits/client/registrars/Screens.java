@@ -6,8 +6,6 @@ import mod.chiselsandbits.client.screens.ChiseledPrinterScreen;
 import mod.chiselsandbits.client.screens.ModificationTableScreen;
 import mod.chiselsandbits.registrars.ModContainerTypes;
 
-import java.util.function.Consumer;
-
 public final class Screens {
 
     private Screens() {

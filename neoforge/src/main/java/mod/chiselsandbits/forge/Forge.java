@@ -8,7 +8,6 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.ChiselsAndBitsClient;
 import mod.chiselsandbits.forge.platform.ForgeAdaptingBitInventoryManager;
-import mod.chiselsandbits.forge.platform.ForgeBlockConstructionManager;
 import mod.chiselsandbits.forge.platform.ForgePluginDiscoverer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -38,8 +37,7 @@ public class Forge
             setChiselsAndBits(new ChiselsAndBits(
                     block -> block == IBlockExtension.class,
                     ForgeAdaptingBitInventoryManager.getInstance(),
-                    ForgePluginDiscoverer.getInstance(),
-                    ForgeBlockConstructionManager.getInstance()
+                    ForgePluginDiscoverer.getInstance()
             ));
 
             DistExecutor.runWhenOn(Dist.CLIENT, () -> Client::init);

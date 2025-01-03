@@ -2,7 +2,7 @@ package mod.chiselsandbits.chiseling.modes.draw;
 
 import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
 import com.google.common.collect.Maps;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
@@ -41,10 +41,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -104,7 +101,7 @@ public class DrawnWallChiselMode extends AbstractCustomRegistryEntry implements 
         context.getMutator().ifPresent(mutator -> {
             try (IBatchMutation ignored =
                          mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity))) {
-                final Map<IBlockInformation, Integer> resultingBitCount = Maps.newHashMap();
+                final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                 final Predicate<IStateEntryInfo> filter = context.getStateFilter()
                         .map(factory -> factory.apply(mutator))
@@ -113,7 +110,7 @@ public class DrawnWallChiselMode extends AbstractCustomRegistryEntry implements 
                 mutator.inWorldMutableStream()
                         .filter(filter)
                         .forEach(state -> {
-                            final IBlockInformation currentState = state.getBlockInformation();
+                            final BlockInformation currentState = state.getBlockInformation();
                             if (context.tryDamageItem()) {
                                 resultingBitCount.putIfAbsent(currentState, 0);
                                 resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
@@ -149,7 +146,7 @@ public class DrawnWallChiselMode extends AbstractCustomRegistryEntry implements 
             return;
 
         context.getMutator().ifPresent(mutator -> {
-            final IBlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
+            final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
             if (heldBlockState.isAir()) {
                 return;
             }
@@ -177,7 +174,7 @@ public class DrawnWallChiselMode extends AbstractCustomRegistryEntry implements 
                             .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                 }
             } else {
-                context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlockState().getBlock().getName()));
+                context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.blockState().getBlock().getName()));
             }
 
             if (missingBitCount == 0) {
@@ -249,7 +246,7 @@ public class DrawnWallChiselMode extends AbstractCustomRegistryEntry implements 
         if (!(stateFilter instanceof WallAreaFilter lineAreaFilter))
             return Shapes.empty();
 
-        final BlockPos offset = VectorUtils.invert(mutator.getInWorldEndBlockPoint());
+        final BlockPos offset = VectorUtils.invert(mutator.getInWorldStartBlockPoint());
 
         final List<Vec3i> startPoints = lineAreaFilter.anchors;
         return VoxelShapeUtils.batchCombine(Shapes.empty(), BooleanOp.OR, true, startPoints.stream()

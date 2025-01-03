@@ -6,13 +6,15 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.block.ChiseledBlock;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.packs.PackResources;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.*;
+import net.minecraft.server.packs.repository.KnownPack;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoader;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import org.jetbrains.annotations.NotNull;
@@ -20,9 +22,10 @@ import org.slf4j.Logger;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.Consumer;
 
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class AddPackFindersEventHandler {
 
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -33,23 +36,28 @@ public class AddPackFindersEventHandler {
             try {
                 Path coreJarPath = Path.of(ChiselsAndBits.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
-                final PackResources packResources = new PathPackResources(
-                        "chiselsandbits-core",
-                        coreJarPath,
-                        true
-                );
-
-                final Pack corePack = Pack.readMetaAndCreate(
+                final PackLocationInfo packLocationInfo = new PackLocationInfo(
                         "chiselsandbits-core",
                         Component.literal("Chisels & Bits Core"),
-                        true,
-                        new SinglePackResourceResourcesSupplier(packResources),
-                        PackType.CLIENT_RESOURCES,
-                        Pack.Position.BOTTOM,
-                        PackSource.BUILT_IN
+                        PackSource.BUILT_IN,
+                        Optional.of(
+                                new KnownPack(Constants.MOD_ID, "core", ModList.get().getModFileById(Constants.MOD_ID).versionString())
+                        )
                 );
 
-                registrar.accept(corePack);
+                final PackResources packResources = new PathPackResources(
+                        packLocationInfo,
+                        coreJarPath
+                );
+
+                final Pack pack = Pack.readMetaAndCreate(
+                        packLocationInfo,
+                        new SinglePackResourceResourcesSupplier(packResources),
+                        event.getPackType(),
+                        new PackSelectionConfig(true, Pack.Position.TOP, true)
+                );
+
+                registrar.accept(pack);
             } catch (URISyntaxException e) {
                 LOGGER.error("Failed to inject Core Resource Pack. C&B Assets will not be loaded!", e);
             }
@@ -59,12 +67,12 @@ public class AddPackFindersEventHandler {
     private record SinglePackResourceResourcesSupplier(PackResources packResources) implements Pack.ResourcesSupplier {
 
         @Override
-        public @NotNull PackResources openPrimary(@NotNull String s) {
+        public PackResources openPrimary(PackLocationInfo location) {
             return packResources();
         }
 
         @Override
-        public @NotNull PackResources openFull(@NotNull String s, Pack.@NotNull Info info) {
+        public PackResources openFull(PackLocationInfo location, Pack.Metadata metadata) {
             return packResources();
         }
     }

@@ -1,5 +1,6 @@
 package mod.chiselsandbits.client.model.baked.bit;
 
+import com.communi.suggestu.scena.core.client.rendering.IRenderingManager;
 import mod.chiselsandbits.client.model.baked.base.BaseSmartModel;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,6 +19,6 @@ public class DataAwareBitBlockBakedModel extends BaseSmartModel
     public BakedModel resolve(
       final BakedModel originalModel, final ItemStack stack, final Level world, final LivingEntity entity)
     {
-        return BitBlockBakedModelManager.getInstance().get(stack, world, entity);
+        return IRenderingManager.getInstance().getModelManager().adaptToPlatform(BitBlockBakedModelManager.getInstance().get(stack, world, entity));
     }
 }

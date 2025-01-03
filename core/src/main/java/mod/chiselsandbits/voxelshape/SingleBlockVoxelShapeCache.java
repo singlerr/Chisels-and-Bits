@@ -1,7 +1,6 @@
 package mod.chiselsandbits.voxelshape;
 
 import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -28,10 +27,10 @@ public class SingleBlockVoxelShapeCache {
     }
 
     private VoxelShape createShape(final CollisionType type) {
-        final VoxelShape shape = IVoxelShapeManager.getInstance().get(blockEntity, CollisionType.COLLIDEABLE_ONLY);
+        final VoxelShape shape = IVoxelShapeManager.getInstance().get(blockEntity, type);
 
         if (type.canBeEmptyWithJustFluids() && shape.isEmpty()) {
-            final boolean justFluids = blockEntity.stream().allMatch(stateEntry -> stateEntry.getBlockInformation().isAir() || !stateEntry.getBlockInformation().getBlockState().getFluidState().isEmpty());
+            final boolean justFluids = blockEntity.stream().allMatch(stateEntry -> stateEntry.getBlockInformation().isAir() || !stateEntry.getBlockInformation().blockState().getFluidState().isEmpty());
             return justFluids ? shape : Shapes.block();
         }
 

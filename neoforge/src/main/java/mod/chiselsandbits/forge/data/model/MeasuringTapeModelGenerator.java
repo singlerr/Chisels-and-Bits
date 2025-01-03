@@ -5,13 +5,14 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class MeasuringTapeModelGenerator extends ItemModelProvider
 {
     private MeasuringTapeModelGenerator(final DataGenerator generator, final ExistingFileHelper existingFileHelper)
@@ -30,7 +31,7 @@ public class MeasuringTapeModelGenerator extends ItemModelProvider
     {
         getBuilder("measuring_tape")
           .parent(new ModelFile.UncheckedModelFile("item/generated"))
-          .texture("layer0", new ResourceLocation(Constants.MOD_ID, "item/tape_measure"))
+          .texture("layer0", ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "item/tape_measure"))
           .transforms()
           .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)
           .rotation(-80, 260, -40)
@@ -54,8 +55,8 @@ public class MeasuringTapeModelGenerator extends ItemModelProvider
           .end()
           .end()
           .override()
-          .predicate(new ResourceLocation(Constants.MOD_ID, "is_measuring"), 1)
-          .model(new ModelFile.UncheckedModelFile(new ResourceLocation(Constants.MOD_ID, "item/measuring_tape_is_measuring")))
+          .predicate(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "is_measuring"), 1)
+          .model(new ModelFile.UncheckedModelFile(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "item/measuring_tape_is_measuring")))
           .end();
 
         getBuilder("measuring_tape_is_measuring")

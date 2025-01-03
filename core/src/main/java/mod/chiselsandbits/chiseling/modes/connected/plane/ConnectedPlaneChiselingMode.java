@@ -3,7 +3,7 @@ package mod.chiselsandbits.chiseling.modes.connected.plane;
 import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -92,7 +92,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
               {
                   context.setComplete();
 
-                  final Map<IBlockInformation, Integer> resultingBitCount = Maps.newHashMap();
+                  final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                   final Predicate<IStateEntryInfo> filter = context.getStateFilter()
                     .map(builder -> builder.apply(mutator))
@@ -101,7 +101,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                   final int totalDamage = mutator.inWorldMutableStream()
                     .filter(filter)
                     .mapToInt(state -> {
-                        final IBlockInformation currentState = state.getBlockInformation();
+                        final BlockInformation currentState = state.getBlockInformation();
 
                         return context.tryDamageItemAndDoOrSetBrokenError(
                           () -> {
@@ -199,7 +199,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
         }
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
-              final IBlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
+              final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
               if (heldBlockState.isAir())
               {
                   context.setError(LocalStrings.ChiselAttemptFailedNoPlaceableBitHeld.getText());
@@ -234,7 +234,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
               }
               else
               {
-                  context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlockState().getBlock().getName()));
+                  context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.blockState().getBlock().getName()));
               }
 
               if (missingBitCount == 0)

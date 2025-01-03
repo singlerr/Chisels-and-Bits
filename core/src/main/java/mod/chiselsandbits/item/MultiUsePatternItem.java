@@ -1,6 +1,7 @@
 package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.api.exceptions.SealingNotSupportedException;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.pattern.IMultiUsePatternItem;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.sealing.ISupportsUnsealing;
@@ -41,7 +42,7 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
 
     @Override
     public void appendHoverText(
-      final @NotNull ItemStack stack, final @Nullable Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
+      final @NotNull ItemStack stack, final @Nullable TooltipContext context, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
     {
         final IPatternPlacementType mode = getMode(stack);
         if (mode.getGroup().isPresent())
@@ -69,7 +70,8 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
         if (source.getItem() instanceof ISupportsUnsealing)
         {
             final ItemStack seal = new ItemStack(ModItems.SINGLE_USE_PATTERN_ITEM.get());
-            seal.setTag(source.getOrCreateTag().copy());
+            final IMultiStateItemStack stack = createItemStack(source);
+            stack.writeDataTo(seal);
             return seal;
         }
 

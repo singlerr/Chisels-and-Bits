@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.inventory.bit;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 
 /**

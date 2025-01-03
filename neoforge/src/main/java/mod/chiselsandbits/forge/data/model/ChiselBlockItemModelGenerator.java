@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.model.generators.CustomLoaderBuilder;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
@@ -20,9 +21,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ChiselBlockItemModelGenerator extends ItemModelProvider implements DataProvider {
-    private static final ResourceLocation LOADER = new ResourceLocation(Constants.MOD_ID, "chiseled_block");
+    private static final ResourceLocation LOADER = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "chiseled_block");
 
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event) {
@@ -35,11 +36,6 @@ public class ChiselBlockItemModelGenerator extends ItemModelProvider implements 
 
     @Override
     protected void registerModels() {
-        ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values()
-                .stream()
-                .map(IRegistryObject::get)
-                .forEach(this::actOnBlockWithLoader);
-
         actOnBlockWithLoader(ModBlocks.CHISELED_BLOCK.get());
         actOnItemWithLoader(ModItems.CHISELED_BLOCK.get());
     }
@@ -48,7 +44,7 @@ public class ChiselBlockItemModelGenerator extends ItemModelProvider implements 
         getBuilder(
                 Objects.requireNonNull(BuiltInRegistries.BLOCK.getKey(block)).getPath()
         )
-                .parent(getExistingFile(new ResourceLocation("item/generated")))
+                .parent(getExistingFile(ResourceLocation.withDefaultNamespace("item/generated")))
                 .customLoader((itemModelBuilder, existingFileHelper) -> new CustomLoaderBuilder<>(LOADER, itemModelBuilder, existingFileHelper, false) {
                 });
     }
@@ -57,7 +53,7 @@ public class ChiselBlockItemModelGenerator extends ItemModelProvider implements 
         getBuilder(
                 Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item)).getPath()
         )
-                .parent(getExistingFile(new ResourceLocation("item/generated")))
+                .parent(getExistingFile(ResourceLocation.withDefaultNamespace("item/generated")))
                 .customLoader((itemModelBuilder, existingFileHelper) -> new CustomLoaderBuilder<>(LOADER, itemModelBuilder, existingFileHelper, false) {
                 });
     }

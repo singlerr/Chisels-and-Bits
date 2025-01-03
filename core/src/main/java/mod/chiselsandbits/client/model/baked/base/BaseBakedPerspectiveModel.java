@@ -1,7 +1,6 @@
 package mod.chiselsandbits.client.model.baked.base;
 
 import com.communi.suggestu.scena.core.client.models.baked.ITransformAwareBakedModel;
-import com.communi.suggestu.scena.core.util.TransformationUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
 import net.minecraft.client.renderer.block.model.ItemTransform;
@@ -12,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import static com.communi.suggestu.scena.core.util.TransformationUtils.*;
+import static com.communi.suggestu.scena.core.util.TransformationUtils.quatFromXYZ;
 
 public abstract class BaseBakedPerspectiveModel implements BakedModel, ITransformAwareBakedModel
 {

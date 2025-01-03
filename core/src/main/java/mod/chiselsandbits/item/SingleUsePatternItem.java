@@ -13,29 +13,28 @@ import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
-import mod.chiselsandbits.item.multistate.MultiStateItemStackManager;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
+import mod.chiselsandbits.registrars.ModDataComponentTypes;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.registrars.ModPatternPlacementTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class SingleUsePatternItem extends Item implements IPatternItem
 {
@@ -48,11 +47,13 @@ public class SingleUsePatternItem extends Item implements IPatternItem
     @Override
     public @NotNull Component getName(final ItemStack item)
     {
-        if (!item.getOrCreateTag().contains("highlight"))
-            return super.getName(item);
+        if (item.has(ModDataComponentTypes.HIGHLIGHT.get()))
+        {
+            final Component highlight = item.get(ModDataComponentTypes.HIGHLIGHT.get());
+            return Objects.requireNonNull(highlight).copy().withStyle(ChatFormatting.RED);
+        }
 
-        final String highlightTextJson = item.getOrCreateTag().getString("highlight");
-        return Component.Serializer.fromJson(highlightTextJson).withStyle(ChatFormatting.RED);
+        return super.getName(item);
     }
 
     /**
@@ -67,11 +68,11 @@ public class SingleUsePatternItem extends Item implements IPatternItem
     {
         //Take care of an empty pattern.
         //Generally the case when this is a stack from the creative menu.
-        if (stack.getOrCreateTag().isEmpty()) {
+        if (!SingleBlockMultiStateItemStack.hasData(stack)) {
             return EmptySnapshot.Stack.INSTANCE;
         }
 
-        return MultiStateItemStackManager.getInstance().getManagedStack(stack, SingleBlockMultiStateItemStack::new);
+        return new SingleBlockMultiStateItemStack(stack);
     }
 
     @Override
@@ -89,8 +90,7 @@ public class SingleUsePatternItem extends Item implements IPatternItem
                 return InteractionResult.FAIL;
 
             final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
-            final ItemStack snapshotPatternStack = areaMutator.createSnapshot().toItemStack().toPatternStack();
-            context.getItemInHand().setTag(snapshotPatternStack.getOrCreateTag().copy());
+            areaMutator.createSnapshot().toItemStack().writeDataTo(context.getItemInHand());
             return InteractionResult.SUCCESS;
         }
 
@@ -145,7 +145,8 @@ public class SingleUsePatternItem extends Item implements IPatternItem
             if (!(source.getItem() instanceof IMultiUsePatternItem))
             {
                 final ItemStack seal = new ItemStack(ModItems.MULTI_USE_PATTERN_ITEM.get());
-                seal.setTag(source.getOrCreateTag().copy());
+                final IMultiStateItemStack stack = createItemStack(source);
+                stack.writeDataTo(seal);
                 return seal;
             }
 
@@ -157,7 +158,7 @@ public class SingleUsePatternItem extends Item implements IPatternItem
 
     @Override
     public void appendHoverText(
-      final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
+      final @NotNull ItemStack stack, @Nullable final TooltipContext worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
     {
         final IPatternPlacementType mode = getMode(stack);
         if (mode.getGroup().isPresent())
@@ -180,17 +181,13 @@ public class SingleUsePatternItem extends Item implements IPatternItem
     @Override
     public @NotNull IPatternPlacementType getMode(final ItemStack stack)
     {
-        return ModPatternPlacementTypes.REGISTRY_SUPPLIER.get().get(
-          stack.getOrCreateTag().contains("mode") ?
-            new ResourceLocation(stack.getOrCreateTag().getString("mode")) :
-            ModPatternPlacementTypes.PLACEMENT.getId()
-        ).orElse(ModPatternPlacementTypes.PLACEMENT.get());
+        return stack.getOrDefault(ModDataComponentTypes.PATTERN_PLACEMENT_TYPE.get(), ModPatternPlacementTypes.PLACEMENT.get());
     }
 
     @Override
     public void setMode(final ItemStack stack, final IPatternPlacementType mode)
     {
-        stack.getOrCreateTag().putString("mode", mode.getRegistryName().toString());
+        stack.set(ModDataComponentTypes.PATTERN_PLACEMENT_TYPE.get(), mode);
     }
 
     @Override

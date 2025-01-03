@@ -3,11 +3,8 @@ package mod.chiselsandbits.registrars;
 import com.communi.suggestu.scena.core.registries.deferred.IRegistrar;
 import com.communi.suggestu.scena.core.registries.deferred.IRegistryObject;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import mod.chiselsandbits.api.block.IBlockConstructionManager;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.block.*;
-import mod.chiselsandbits.materials.LegacyMaterialManager;
 import mod.chiselsandbits.utils.ReflectionHelperBlock;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
@@ -16,14 +13,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
-import java.util.Set;
 
 public final class ModBlocks
 {
 
     private static final Logger                                        LOGGER                        = LogManager.getLogger();
     private static final IRegistrar<Block> BLOCK_REGISTRAR               = IRegistrar.create(Registries.BLOCK, Constants.MOD_ID);
-    public static final  IRegistryObject<BitStorageBlock>              BIT_STORAGE                   =
+    public static final IRegistryObject<BitStorageBlock> BIT_STORAGE =
       BLOCK_REGISTRAR.register("bit_storage", () -> new BitStorageBlock(BlockBehaviour.Properties.of()
         .strength(1.5F, 6.0F)
         .requiresCorrectToolForDrops()
@@ -78,7 +74,7 @@ public final class ModBlocks
 
     public static IRegistryObject<Block> CHISELED_BLOCK = BLOCK_REGISTRAR.register(
             "chiseled",
-            () -> IBlockConstructionManager.getInstance().createChiseledBlock(BlockBehaviour.Properties.of()
+            () -> new ChiseledBlock(BlockBehaviour.Properties.of()
                     .strength(1.5f, 6f)
                     .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
                     .isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
@@ -96,16 +92,6 @@ public final class ModBlocks
 
     public static void onModConstruction()
     {
-        LegacyMaterialManager.getInstance()
-          .getMaterialNames()
-          .forEach((name) -> {
-              MATERIAL_TO_BLOCK_CONVERSIONS.put(name, BLOCK_REGISTRAR.register("chiseled" + name, () -> new MateriallyChiseledConversionBlock(BlockBehaviour.Properties.of()
-                .strength(1.5f, 6f)
-                .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
-                .isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
-                .isSuffocating((p_test_1_, p_test_2_, p_test_3_) -> false)
-                .noOcclusion())));
-          });
         LOGGER.info("Loaded block configuration.");
     }
 }

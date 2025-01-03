@@ -1,18 +1,15 @@
 package mod.chiselsandbits.api.item.multistate;
 
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IGenerallyModifiableAreaMutator;
-import mod.chiselsandbits.api.util.IPacketBufferSerializable;
+import mod.chiselsandbits.api.multistate.mutator.IMirrorAndRotateble;
+import mod.chiselsandbits.api.serialization.RawSerializable;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import mod.chiselsandbits.api.util.INBTSerializable;
 
 /**
  * The itemstack sensitive version of the multistate item.
  */
-public interface IMultiStateItemStack extends IGenerallyModifiableAreaMutator,
-                                                INBTSerializable<CompoundTag>,
-                                                IPacketBufferSerializable
-{
+public interface IMultiStateItemStack extends IAreaAccessor, IMirrorAndRotateble {
     /**
      * The statistics of the itemstack.
      *
@@ -34,4 +31,9 @@ public interface IMultiStateItemStack extends IGenerallyModifiableAreaMutator,
      * @return The single use patter from this multi state itemstack.
      */
     ItemStack toPatternStack();
+
+    /**
+     * Writes the state data to the itemstack.
+     */
+    void writeDataTo(ItemStack stack);
 }

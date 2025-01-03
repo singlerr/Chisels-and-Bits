@@ -1,13 +1,11 @@
 package mod.chiselsandbits.client.model.baked.face.model;
 
-import mod.chiselsandbits.utils.ModelUtil;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
-import net.minecraft.core.Direction;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class ModelVertexDataReader extends BaseModelReader {
 
@@ -37,10 +35,10 @@ public class ModelVertexDataReader extends BaseModelReader {
             vertexDataBuilder = VertexData.Builder.create();
         }
 
-        if (ele.getUsage() == VertexFormatElement.Usage.UV && ele.getIndex() == 0) {
+        if (ele.usage() == VertexFormatElement.Usage.UV && ele.index() == 0) {
             vertexDataBuilder.withU(data[0]);
             vertexDataBuilder.withV(data[1]);
-        } else if (ele.getUsage() == VertexFormatElement.Usage.POSITION) {
+        } else if (ele.usage() == VertexFormatElement.Usage.POSITION) {
             vertexDataBuilder.withX(data[0]);
             vertexDataBuilder.withY(data[1]);
             vertexDataBuilder.withZ(data[2]);

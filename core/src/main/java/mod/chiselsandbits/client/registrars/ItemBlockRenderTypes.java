@@ -15,10 +15,7 @@ public final class ItemBlockRenderTypes
 
     public static void onClientConstruction() {
         IRenderTypeManager.getInstance().registerBlockFallbackRenderTypes(registrar -> {
-            ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values()
-                    .stream().map(IRegistryObject::get)
-                    .forEach(b -> registrar.register(b, RenderType.translucent()));
-
+            registrar.register(ModBlocks.CHISELED_BLOCK.get(), RenderType.translucent());
             registrar.register(ModBlocks.BIT_STORAGE.get(), RenderType.cutoutMipped());
             registrar.register(ModBlocks.CHISELED_PRINTER.get(), RenderType.cutoutMipped());
         });

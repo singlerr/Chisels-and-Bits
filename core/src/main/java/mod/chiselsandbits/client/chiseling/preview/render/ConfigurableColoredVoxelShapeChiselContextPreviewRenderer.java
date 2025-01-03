@@ -6,7 +6,6 @@ import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRenderer;
 import mod.chiselsandbits.api.config.IClientConfiguration;
-import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.render.ModRenderTypes;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
@@ -23,7 +22,7 @@ import java.util.List;
 
 public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implements IChiselContextPreviewRenderer
 {
-    static ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, "default");
+    static ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "default");
 
     @Override
     public ResourceLocation getId()
@@ -50,7 +49,7 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
             false);
 
         final VoxelShape modeShape = currentContextSnapshot.getMode().getShape(currentContextSnapshot);
-        final VoxelShape renderedShape = Shapes.joinUnoptimized(boundingShape, modeShape, BooleanOp.AND);
+        final VoxelShape renderedShape = modeShape; // Shapes.joinUnoptimized(boundingShape, modeShape, BooleanOp.AND);
 
         final List<? extends Float> color = currentContextSnapshot.getModeOfOperandus() == ChiselingOperation.CHISELING ?
                                  IClientConfiguration.getInstance().getPreviewChiselingColor().get() :

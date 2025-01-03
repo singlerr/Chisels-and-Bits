@@ -1,11 +1,7 @@
 package mod.chiselsandbits.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexSorting;
+import com.mojang.blaze3d.vertex.*;
 import mod.chiselsandbits.api.client.render.preview.placement.PlacementPreviewRenderMode;
 import mod.chiselsandbits.api.placement.PlacementResult;
 import net.minecraft.client.Minecraft;
@@ -19,6 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -34,7 +31,8 @@ public class ChiseledBlockGhostRenderer
 {
     private static final ChiseledBlockGhostRenderer INSTANCE = new ChiseledBlockGhostRenderer();
 
-    private static final BufferBuilderTransparent BUFFER = new BufferBuilderTransparent();
+    private static final ByteBufferBuilder BUFFER_BUILDER = new ByteBufferBuilder(2097152);
+    private static BufferBuilderTransparent BUFFER = null;
 
     public static ChiseledBlockGhostRenderer getInstance()
     {
@@ -69,7 +67,6 @@ public class ChiseledBlockGhostRenderer
         final boolean renderColoredGhost = (placementResult.isSuccess() && success.isColoredGhost())
                 || (!placementResult.isSuccess() && failure.isColoredGhost());
 
-        BUFFER.setAlphaPercentage(color.w());
         final BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(renderStack, null, null, 0);
 
         if (!renderColoredGhost || !ignoreDepth)
@@ -102,7 +99,8 @@ public class ChiseledBlockGhostRenderer
                     ? ModRenderTypes.GHOST_BLOCK_PREVIEW_GREATER.get()
                     : ModRenderTypes.GHOST_BLOCK_PREVIEW.get();
         }
-        BUFFER.begin(renderType.mode(), renderType.format());
+        BUFFER = new BufferBuilderTransparent(BUFFER_BUILDER, renderType.mode(), renderType.format());
+        BUFFER.setAlphaPercentage(color.w());
         if (renderColoredGhost)
         {
             renderModelLists(
@@ -123,7 +121,11 @@ public class ChiseledBlockGhostRenderer
               BUFFER
             );
         }
-        renderType.end(BUFFER, RenderSystem.getVertexSorting());
+
+        final MeshData meshData = BUFFER.buildOrThrow();
+        meshData.sortQuads(BUFFER_BUILDER, RenderSystem.getVertexSorting());
+        renderType.draw(meshData);
+        BUFFER = null;
     }
 
     private static final float[] DIRECTIONAL_BRIGHTNESS = {0.5f, 1f, 0.7f, 0.7f, 0.6f, 0.6f};
@@ -222,11 +224,11 @@ public class ChiseledBlockGhostRenderer
     {
         // Get vertex data
         final int[] vertices = bakedQuad.getVertices();
-        final int vertexCount = vertices.length / DefaultVertexFormat.BLOCK.getIntegerSize();
+        final int vertexCount = vertices.length / (DefaultVertexFormat.BLOCK.getVertexSize() / 4);
 
         try (final MemoryStack memorystack = MemoryStack.stackPush()) {
             // Setup buffers
-            final ByteBuffer bytebuffer = memorystack.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
+            final ByteBuffer bytebuffer = memorystack.malloc(DefaultVertexFormat.BLOCK.getVertexSize()); //Exact amount of bytes in a vertex / 4 * 4 for each vertex results in no further operation compared to the byte count..
             final IntBuffer intbuffer = bytebuffer.asIntBuffer();
 
             for (int v = 0; v < vertexCount; ++v)
@@ -242,10 +244,9 @@ public class ChiseledBlockGhostRenderer
                         1f);
                 pos.mul(pose);
 
-                buffer.vertex(pos.x(), pos.y(), pos.z())
-                      .color(color.x(), color.y(), color.z(), 1f)
-                      .normal(normal.x(), normal.y(), normal.z())
-                      .endVertex();
+                buffer.addVertex(pos.x(), pos.y(), pos.z())
+                      .setColor(color.x(), color.y(), color.z(), 1f)
+                      .setNormal(normal.x(), normal.y(), normal.z());
             }
         }
     }
@@ -254,27 +255,47 @@ public class ChiseledBlockGhostRenderer
     {
         private float alphaPercentage;
 
-        public BufferBuilderTransparent()
+        public BufferBuilderTransparent(ByteBufferBuilder memory, VertexFormat.Mode mode, VertexFormat format)
         {
-            super(2097152);
+            super(memory, mode, format);
         }
 
-        public void setAlphaPercentage(final float alphaPercentage)
-        {
+        public void setAlphaPercentage(final float alphaPercentage) {
             this.alphaPercentage = Mth.clamp(alphaPercentage, 0, 1);
         }
 
         @Override
-        public VertexConsumer color(int red, int green, int blue, int alpha)
-        {
-            return super.color(red, green, blue, (int) (alpha * alphaPercentage));
+        public @NotNull VertexConsumer setColor(int red, int green, int blue, int alpha) {
+            return super.setColor(red, green, blue, (int) (alpha * alphaPercentage));
         }
 
         @Override
-        public void vertex(float x, float y, float z, float red, float green, float blue, float alpha, float texU,
-                           float texV, int overlayUV, int lightmapUV, float normalX, float normalY, float normalZ)
+        public @NotNull VertexConsumer setColor(int argb)
         {
-            super.vertex(x, y, z, red, green, blue, alpha * alphaPercentage, texU, texV, overlayUV, lightmapUV, normalX, normalY, normalZ);
+            final int newAlpha = (int) ((argb >> 24) * alphaPercentage);
+            return super.setColor((newAlpha << 24) | (argb & 0x00ffffff));
+        }
+
+        @Override
+        public void addVertex(float x, float y, float z, int argb, float texU,
+                              float texV, int overlayUV, int lightmapUV, float normalX, float normalY, float normalZ) {
+            final int newAlpha = (int) ((argb >> 24) * alphaPercentage);
+            super.addVertex(x, y, z, (newAlpha << 24) | (argb & 0x00ffffff), texU, texV, overlayUV, lightmapUV, normalX, normalY, normalZ);
+        }
+
+        public void putBulkData(
+                PoseStack.Pose pose,
+                BakedQuad quad,
+                float[] brightness,
+                float red,
+                float green,
+                float blue,
+                float alpha,
+                int[] lightmap,
+                int packedOverlay,
+                boolean readAlpha
+        ) {
+            super.putBulkData(pose, quad, brightness, red, green, blue, alpha * alphaPercentage, lightmap, packedOverlay, readAlpha);
         }
     }
 }

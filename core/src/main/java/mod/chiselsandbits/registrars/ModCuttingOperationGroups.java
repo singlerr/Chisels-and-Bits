@@ -18,7 +18,7 @@ public final class ModCuttingOperationGroups
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return new ResourceLocation(Constants.MOD_ID, "textures/icons/rotate.png");
+            return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/rotate.png");
         }
 
         @Override
@@ -32,7 +32,7 @@ public final class ModCuttingOperationGroups
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return new ResourceLocation(Constants.MOD_ID, "textures/icons/rotate.png");
+            return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/rotate.png");
         }
 
         @Override

@@ -1,19 +1,20 @@
 package mod.chiselsandbits.inventory.bit;
 
 import com.google.common.collect.Maps;
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.inventory.bit.watchable.IWatch;
 import mod.chiselsandbits.api.inventory.bit.watchable.IWatchableBitInventory;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
-import mod.chiselsandbits.api.util.INBTSerializable;
-import mod.chiselsandbits.api.util.IPacketBufferSerializable;
+import mod.chiselsandbits.api.serialization.Serializable;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +22,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
-public class SlottedBitInventory extends AbstractBitInventory implements IWatchableBitInventory, INBTSerializable<CompoundTag>
+public class SlottedBitInventory extends AbstractBitInventory implements IWatchableBitInventory
 {
     protected final int size;
     protected final Int2ObjectMap<BitSlot> slotMap = new Int2ObjectArrayMap<>();
@@ -41,7 +42,10 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         if (bitSlot == null)
             return ItemStack.EMPTY;
 
-        return bitSlot.internalStack;
+        return IChiselsAndBitsAPI.getInstance().getBitItemManager().create(
+            bitSlot.getBlockInformation(),
+            bitSlot.getCount()
+        );
     }
 
     @Override
@@ -63,7 +67,7 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         if (!(stack.getItem() instanceof final IBitItem bitItem))
             throw new IllegalArgumentException("Can not insert a none bit item into the inventory.");
 
-        final IBlockInformation state = bitItem.getBlockInformation(stack);
+        final BlockInformation state = bitItem.getBlockInformation(stack);
 
         BitSlot slot = slotMap.get(index);
         if (slot == null)
@@ -86,32 +90,6 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         return () -> this.onChangeCallbacks.remove(id);
     }
 
-    @Override
-    public CompoundTag serializeNBT()
-    {
-        final CompoundTag data = new CompoundTag();
-
-        this.slotMap.forEach((index, slot) -> data.put(index.toString(), slot.serializeNBT()));
-
-        return data;
-    }
-
-    @Override
-    public void deserializeNBT(final CompoundTag nbt)
-    {
-        this.slotMap.clear();
-
-        nbt.getAllKeys().forEach(indexRep -> {
-            final int index = Integer.parseInt(indexRep);
-            final BitSlot slot = new BitSlot();
-            slot.deserializeNBT(nbt.getCompound(indexRep));
-
-            this.slotMap.put(index, slot);
-        });
-
-        onChange();
-    }
-
     protected Collection<BitSlot> getContents() {
         return this.slotMap.values();
     }
@@ -126,78 +104,39 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         return this.slotMap.isEmpty() || this.slotMap.values().stream().allMatch(slot -> slot.getCount() == 0);
     }
 
-    protected static final class BitSlot implements INBTSerializable<CompoundTag>, IPacketBufferSerializable {
+    protected static final class BitSlot {
 
-        private IBlockInformation blockInformation = BlockInformation.AIR;
-        private ItemStack        internalStack    = ItemStack.EMPTY;
+        private BlockInformation blockInformation = BlockInformation.AIR;
+        private int count;
 
         public BitSlot()
         {
         }
 
-        public BitSlot(final IBlockInformation blockInformation, final int count)
+        public BitSlot(final BlockInformation blockInformation, final int count)
         {
             this.blockInformation = blockInformation;
-            this.internalStack = IBitItemManager.getInstance().create(blockInformation, count);
+            this.count = count;
         }
 
-        @Override
-        public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
-        {
-            blockInformation.serializeInto(packetBuffer);
-            packetBuffer.writeVarInt(getCount());
-        }
-
-        @Override
-        public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
-        {
-            blockInformation = new BlockInformation(packetBuffer);
-
-            final int count = packetBuffer.readVarInt();
-            internalStack = IBitItemManager.getInstance().create(blockInformation, count);
-        }
-
-        @Override
-        public CompoundTag serializeNBT()
-        {
-            final CompoundTag data = new CompoundTag();
-
-            data.put(NbtConstants.BLOCK_INFORMATION, blockInformation.serializeNBT());
-            data.putInt(NbtConstants.COUNT, getCount());
-
-            return data;
-        }
-
-        @Override
-        public void deserializeNBT(final CompoundTag nbt)
-        {
-            blockInformation = new BlockInformation(nbt.getCompound(NbtConstants.BLOCK_INFORMATION));
-            final int count = nbt.getInt(NbtConstants.COUNT);
-            internalStack = IBitItemManager.getInstance().create(blockInformation, count);
-        }
-
-        public IBlockInformation getBlockInformation()
+        public BlockInformation getBlockInformation()
         {
             return blockInformation;
         }
 
         public int getCount()
         {
-            return internalStack.getCount();
+            return count;
         }
 
-        public void setBlockInformation(final IBlockInformation blockInformation)
+        public void setBlockInformation(final BlockInformation blockInformation)
         {
-            if (this.blockInformation.equals(blockInformation))
-                return;
-
             this.blockInformation = blockInformation;
-            internalStack = IBitItemManager.getInstance().create(blockInformation, 1);
         }
 
         public void setCount(final int count)
         {
-            this.internalStack.setCount(count);
+            this.count = count;
         }
     }
 }

@@ -1,11 +1,8 @@
 package mod.chiselsandbits.client.screens.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.client.screen.widget.AbstractChiselsAndBitsButton;
 import mod.chiselsandbits.client.icon.IconManager;
-import mod.chiselsandbits.client.icon.IconSpriteUploader;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -20,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 public class GuiIconButton extends AbstractChiselsAndBitsButton
 {
     private static final WidgetSprites SPRITES = new WidgetSprites(
-            new ResourceLocation("widget/button"), new ResourceLocation("widget/button_disabled"), new ResourceLocation("widget/button_highlighted")
+            ResourceLocation.withDefaultNamespace("widget/button"), ResourceLocation.withDefaultNamespace("widget/button_disabled"), ResourceLocation.withDefaultNamespace("widget/button_highlighted")
     );
     public static final int SIZE = 20;
     TextureAtlasSprite icon;

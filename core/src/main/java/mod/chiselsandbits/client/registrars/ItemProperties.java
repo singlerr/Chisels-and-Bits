@@ -13,7 +13,7 @@ public final class ItemProperties {
 
     public static void onClientConstruction() {
         IModelManager.getInstance().registerItemModelProperty(registrar -> {
-            registrar.registerItemModelProperty(ModItems.MEASURING_TAPE.get(), new ResourceLocation(Constants.MOD_ID, "is_measuring"), (stack, clientWorld, livingEntity, value) -> {
+            registrar.registerItemModelProperty(ModItems.MEASURING_TAPE.get(), ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "is_measuring"), (stack, clientWorld, livingEntity, value) -> {
                 if (stack.getItem() != ModItems.MEASURING_TAPE.get())
                     return 0;
 

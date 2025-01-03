@@ -7,13 +7,18 @@ import mod.chiselsandbits.api.sealing.ISupportsUnsealing;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.VectorUtils;
+import mod.chiselsandbits.components.data.InteractionData;
+import mod.chiselsandbits.registrars.ModDataComponentTypes;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -26,43 +31,37 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class UnsealItem extends Item implements IUnsealItem
-{
+public class UnsealItem extends Item implements IUnsealItem {
 
     private final String CONST_INTERACTION = "Interaction";
     private final String CONST_SIMULATION = "Simulation";
 
-    public UnsealItem(final Properties properties)
-    {
+    public UnsealItem(final Properties properties) {
         super(properties);
     }
 
     @Override
-    public boolean isInteracting(final ItemStack stack)
-    {
-        return stack.getItem() == this && stack.getOrCreateTag().contains(CONST_INTERACTION);
+    public boolean isInteracting(final ItemStack stack) {
+        return stack.getItem() == this && stack.has(ModDataComponentTypes.INTERACTION_TARGET.get());
     }
 
     @Override
-    public ItemStack getInteractionTarget(final ItemStack stack)
-    {
-        return isInteracting(stack) ? ItemStack.of(stack.getOrCreateTagElement(CONST_INTERACTION)) : ItemStack.EMPTY;
+    public ItemStack getInteractionTarget(final ItemStack stack) {
+        return stack.getOrDefault(ModDataComponentTypes.INTERACTION_TARGET.get(), InteractionData.EMPTY).stack();
     }
 
     @Override
-    public boolean isRunningASimulatedInteraction(final ItemStack stack)
-    {
-        return isInteracting(stack) && stack.getOrCreateTag().contains(CONST_SIMULATION);
+    public boolean isRunningASimulatedInteraction(final ItemStack stack) {
+        return isInteracting(stack) && stack.getOrDefault(ModDataComponentTypes.IS_SIMULATING.get(), false);
     }
 
     @Override
-    public float getBobbingTickCount()
-    {
+    public float getBobbingTickCount() {
         return 32;
     }
 
     @Override
-    public int getUseDuration(@NotNull ItemStack stack) {
+    public int getUseDuration(ItemStack $$0, LivingEntity $$1) {
         return 64;
     }
 
@@ -75,7 +74,7 @@ public class UnsealItem extends Item implements IUnsealItem
         for (int i = 0; i < 20; i++) {
             Vec3 motion = VectorUtils.offsetRandomly(Vec3.ZERO, world.random, 1 / 8f);
             world.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack), location.x, location.y,
-              location.z, motion.x, motion.y, motion.z);
+                    location.z, motion.x, motion.y, motion.z);
         }
     }
 
@@ -86,7 +85,7 @@ public class UnsealItem extends Item implements IUnsealItem
         if (isInteracting(stack)) {
             ItemStack interactionTarget = getInteractionTarget(stack);
             player.getInventory().placeItemBackInInventory(interactionTarget);
-            stack.getOrCreateTag().remove(CONST_INTERACTION);
+            stack.remove(ModDataComponentTypes.INTERACTION_TARGET.get());
         }
     }
 
@@ -100,17 +99,25 @@ public class UnsealItem extends Item implements IUnsealItem
 
             if (worldIn.isClientSide) {
                 spawnParticles(entityLiving.getEyePosition(1)
-                                 .add(entityLiving.getLookAngle()
+                                .add(entityLiving.getLookAngle()
                                         .scale(.5f)),
-                  target, worldIn);
+                        target, worldIn);
                 return stack;
             }
 
             if (!pattern.isEmpty()) {
                 IPlayerInventoryManager.getInstance().giveToPlayer(player, pattern);
             }
-            stack.getOrCreateTag().remove(CONST_INTERACTION);
-            stack.hurtAndBreak(1, entityLiving, p -> p.broadcastBreakEvent(p.getUsedItemHand()));
+            stack.remove(ModDataComponentTypes.INTERACTION_TARGET.get());
+            if (worldIn instanceof ServerLevel serverLevel && entityLiving instanceof ServerPlayer playerEntity) {
+                stack.hurtAndBreak(1, serverLevel, playerEntity, item -> {
+                    EquipmentSlot hand = EquipmentSlot.MAINHAND;
+                    if (playerEntity.getOffhandItem() == stack)
+                        hand = EquipmentSlot.OFFHAND;
+
+                    player.onEquippedItemBroken(item, hand);
+                });
+            }
         }
 
         return stack;
@@ -131,8 +138,7 @@ public class UnsealItem extends Item implements IUnsealItem
             ItemStack item = itemInOtherHand.copy();
             ItemStack target = item.split(1);
             playerIn.startUsingItem(handIn);
-            itemstack.getOrCreateTag()
-              .put(CONST_INTERACTION, target.save(new CompoundTag()));
+            itemstack.set(ModDataComponentTypes.INTERACTION_TARGET.get(), new InteractionData(target));
             playerIn.setItemInHand(otherHand, item);
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemstack);
         }
@@ -142,12 +148,9 @@ public class UnsealItem extends Item implements IUnsealItem
 
     private static ItemStack createPattern(final ItemStack targetStack) {
         if (targetStack.getItem() instanceof ISupportsUnsealing) {
-            try
-            {
+            try {
                 return ((ISupportsUnsealing) targetStack.getItem()).unseal(targetStack);
-            }
-            catch (SealingNotSupportedException e)
-            {
+            } catch (SealingNotSupportedException e) {
                 return targetStack;
             }
         }
@@ -156,10 +159,8 @@ public class UnsealItem extends Item implements IUnsealItem
     }
 
     @Override
-    public void appendHoverText(
-      final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
-    {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(final @NotNull ItemStack stack, @NotNull final TooltipContext context, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
         HelpTextUtils.build(LocalStrings.HelpSealant, tooltip);
     }
 }

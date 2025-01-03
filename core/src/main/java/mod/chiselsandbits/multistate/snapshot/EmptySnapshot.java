@@ -1,29 +1,34 @@
 package mod.chiselsandbits.multistate.snapshot;
 
 import com.google.common.collect.ImmutableMap;
-import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import mod.chiselsandbits.api.block.storage.StateEntryStorage;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.multistate.IStatistics;
-import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshotType;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
+import mod.chiselsandbits.registrars.ModMultiStateSnapshotTypes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -32,20 +37,24 @@ public class EmptySnapshot implements IMultiStateSnapshot
     public static final EmptySnapshot INSTANCE = new EmptySnapshot();
 
     private static final IMultiStateObjectStatistics EMPTY_STATISTICS = new IMultiStateObjectStatistics() {
+
         @Override
-        public CompoundTag serializeNBT()
-        {
-            return new CompoundTag();
+        public Codec<?> codec() {
+            return Codec.unit(EMPTY_STATISTICS);
         }
 
         @Override
-        public void deserializeNBT(final CompoundTag nbt)
-        {
-
+        public MapCodec<?> mapCodec() {
+            return MapCodec.unit(EMPTY_STATISTICS);
         }
 
         @Override
-        public IBlockInformation getPrimaryState()
+        public StreamCodec<?, ?> streamCodec() {
+            return StreamCodec.unit(EMPTY_STATISTICS);
+        }
+
+        @Override
+        public BlockInformation getPrimaryState()
         {
             return BlockInformation.AIR;
         }
@@ -57,9 +66,9 @@ public class EmptySnapshot implements IMultiStateSnapshot
         }
 
         @Override
-        public Map<IBlockInformation, Integer> getStateCounts()
+        public Map<BlockInformation, Integer> getStateCounts()
         {
-            return ImmutableMap.<IBlockInformation, Integer>builder().build();
+            return ImmutableMap.<BlockInformation, Integer>builder().build();
         }
 
         @Override
@@ -109,9 +118,6 @@ public class EmptySnapshot implements IMultiStateSnapshot
         {
             return false;
         }
-
-        @Override
-        public BitSet getCollideableEntries(final CollisionType collisionType) { return BitSet.valueOf(new long[0]); }
     };
 
     @Override
@@ -177,14 +183,14 @@ public class EmptySnapshot implements IMultiStateSnapshot
 
     @Override
     public void setInAreaTarget(
-      final IBlockInformation blockState,
+      final BlockInformation blockState,
       final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
 
     }
 
     @Override
-    public void setInBlockTarget(final IBlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final BlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
 
     }
@@ -202,6 +208,11 @@ public class EmptySnapshot implements IMultiStateSnapshot
     }
 
     @Override
+    public IMultiStateSnapshotType getType() {
+        return ModMultiStateSnapshotTypes.EMPTY.get();
+    }
+
+    @Override
     public IMultiStateItemStack toItemStack()
     {
         return Stack.INSTANCE;
@@ -213,6 +224,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
         return EMPTY_STATISTICS;
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public IMultiStateSnapshot clone()
     {
@@ -245,38 +257,44 @@ public class EmptySnapshot implements IMultiStateSnapshot
 
         public static final Stack INSTANCE = new Stack();
 
+        public static final IStatistics EMPTY_STACK_STATISTICS = new IStatistics() {
+            @Override
+            public Codec<?> codec() {
+                return Codec.unit(EMPTY_STACK_STATISTICS);
+            }
+
+            @Override
+            public MapCodec<?> mapCodec() {
+                return MapCodec.unit(EMPTY_STACK_STATISTICS);
+            }
+
+            @Override
+            public StreamCodec<?, ?> streamCodec() {
+                return StreamCodec.unit(EMPTY_STACK_STATISTICS);
+            }
+
+            @Override
+            public BlockInformation getPrimaryState()
+            {
+                return BlockInformation.AIR;
+            }
+
+            @Override
+            public boolean isEmpty()
+            {
+                return true;
+            }
+
+            @Override
+            public Set<BlockInformation> getContainedStates() {
+                return Collections.emptySet();
+            }
+        };
+
         @Override
         public IStatistics getStatistics()
         {
-            return new IStatistics() {
-                @Override
-                public IBlockInformation getPrimaryState()
-                {
-                    return BlockInformation.AIR;
-                }
-
-                @Override
-                public boolean isEmpty()
-                {
-                    return true;
-                }
-
-                @Override
-                public CompoundTag serializeNBT()
-                {
-                    return new CompoundTag();
-                }
-
-                @Override
-                public void deserializeNBT(final CompoundTag nbt)
-                {
-                }
-
-                @Override
-                public Set<IBlockInformation> getContainedStates() {
-                    return Collections.emptySet();
-                }
-            };
+            return EMPTY_STATISTICS;
         }
 
         @Override
@@ -289,6 +307,11 @@ public class EmptySnapshot implements IMultiStateSnapshot
         public ItemStack toPatternStack()
         {
             return ItemStack.EMPTY;
+        }
+
+        @Override
+        public void writeDataTo(ItemStack stack) {
+            //Noop
         }
 
         @Override
@@ -344,62 +367,6 @@ public class EmptySnapshot implements IMultiStateSnapshot
           final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
         {
             //Noop
-        }
-
-        @Override
-        public Stream<IMutableStateEntryInfo> mutableStream()
-        {
-            return Stream.empty();
-        }
-
-        @Override
-        public void setInAreaTarget(
-          final IBlockInformation blockInformation,
-          final Vec3 inAreaTarget) throws SpaceOccupiedException
-        {
-
-        }
-
-        @Override
-        public void setInBlockTarget(final IBlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
-        {
-
-        }
-
-        @Override
-        public void clearInAreaTarget(final Vec3 inAreaTarget)
-        {
-
-        }
-
-        @Override
-        public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
-        {
-
-        }
-
-        @Override
-        public void serializeInto(@NotNull final FriendlyByteBuf packetBuffer)
-        {
-
-        }
-
-        @Override
-        public void deserializeFrom(@NotNull final FriendlyByteBuf packetBuffer)
-        {
-
-        }
-
-        @Override
-        public CompoundTag serializeNBT()
-        {
-            return new CompoundTag();
-        }
-
-        @Override
-        public void deserializeNBT(final CompoundTag nbt)
-        {
-
         }
 
         @Override

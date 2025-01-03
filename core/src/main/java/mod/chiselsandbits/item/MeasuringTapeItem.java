@@ -14,10 +14,10 @@ import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.keys.KeyBindingManager;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.network.packets.MeasurementsResetPacket;
+import mod.chiselsandbits.registrars.ModDataComponentTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -30,7 +30,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -47,19 +46,13 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
     @Override
     public MeasuringMode getMode(final ItemStack stack)
     {
-        if (!stack.getOrCreateTag().contains("mode"))
-            return MeasuringMode.WHITE_BIT;
-
-        return MeasuringMode.valueOf(stack.getOrCreateTag().getString("mode"));
+        return stack.getOrDefault(ModDataComponentTypes.MEASURING_MODE.get(), MeasuringMode.WHITE_BIT);
     }
 
     @Override
     public void setMode(final ItemStack stack, final MeasuringMode mode)
     {
-        if (mode == null)
-            return;
-
-        stack.getOrCreateTag().putString("mode", mode.toString());
+        stack.set(ModDataComponentTypes.MEASURING_MODE.get(), mode);
     }
 
     @Override
@@ -158,43 +151,24 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
     @Override
     public @NotNull Optional<Vec3> getStart(final @NotNull ItemStack stack)
     {
-        if (!stack.getOrCreateTag().contains("start"))
-            return Optional.empty();
-
-        final CompoundTag start = stack.getOrCreateTag().getCompound("start");
-        return Optional.of(
-          new Vec3(
-            start.getDouble("x"),
-            start.getDouble("y"),
-            start.getDouble("z")
-          )
-        );
+        return Optional.ofNullable(stack.get(ModDataComponentTypes.START.get()));
     }
 
     @Override
     public void setStart(final @NotNull ItemStack stack, final @NotNull Vec3 start)
     {
-        final CompoundTag compoundNBT = new CompoundTag();
-
-        compoundNBT.putDouble("x", start.x());
-        compoundNBT.putDouble("y", start.y());
-        compoundNBT.putDouble("z", start.z());
-
-        stack.getOrCreateTag().put("start", compoundNBT);
+        stack.set(ModDataComponentTypes.START.get(), start);
     }
 
     @Override
     public void clear(final @NotNull ItemStack stack)
     {
-        stack.getOrCreateTag().remove("start");
+        stack.remove(ModDataComponentTypes.START.get());
     }
 
     @Override
-    public void appendHoverText(
-      final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
-    {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
-
+    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             if (KeyBindingManager.getInstance().hasBeenInitialized()) {
                 HelpTextUtils.build(

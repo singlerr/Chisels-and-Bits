@@ -7,6 +7,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
@@ -14,7 +15,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ReflectionHelperBlockStateGenerator extends BlockStateProvider implements DataProvider
 {
     public ReflectionHelperBlockStateGenerator(final DataGenerator gen, final ExistingFileHelper exFileHelper)
@@ -45,7 +46,7 @@ public class ReflectionHelperBlockStateGenerator extends BlockStateProvider impl
     {
         getVariantBuilder(block)
           .forAllStates(blockState -> ConfiguredModel.builder()
-            .modelFile(models().getExistingFile(new ResourceLocation("air")))
+            .modelFile(models().getExistingFile(ResourceLocation.withDefaultNamespace("air")))
             .build());
     }
 }

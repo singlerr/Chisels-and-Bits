@@ -1,16 +1,14 @@
 package mod.chiselsandbits.change;
 
-import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.changes.IChange;
 import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
-import mod.chiselsandbits.api.util.INBTSerializable;
 import mod.chiselsandbits.change.changes.BitChange;
 import mod.chiselsandbits.change.changes.CombinedChange;
-import mod.chiselsandbits.network.packets.ChangeTrackerUpdatedPacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -26,7 +24,7 @@ import java.util.stream.Collectors;
 public class ChangeTracker implements IChangeTracker
 {
     protected final Player player;
-    protected final LinkedList<CombinedChange> changes = new LinkedList<>();
+    protected final LinkedList<IChange> changes = new LinkedList<>();
     protected int currentIndex = 0;
 
     public ChangeTracker()
@@ -56,7 +54,7 @@ public class ChangeTracker implements IChangeTracker
                 e.getValue(),
                 afterState.get(e.getKey())
               ))
-              .collect(Collectors.toSet())
+              .collect(Collectors.toList())
           )
         );
 
@@ -75,6 +73,13 @@ public class ChangeTracker implements IChangeTracker
     public Deque<IChange> getChanges()
     {
         return new LinkedList<>(changes);
+    }
+
+    @Override
+    public void setChanges(Deque<IChange> changes) {
+        this.changes.clear();
+        this.changes.addAll(changes);
+        sendUpdate();
     }
 
     @Override
@@ -140,23 +145,6 @@ public class ChangeTracker implements IChangeTracker
             currentIndex = Math.max(0, currentIndex - 1);
             sendUpdate();
         }
-    }
-
-    @Override
-    public CompoundTag serializeNBT()
-    {
-        final CompoundTag tag = new CompoundTag();
-        tag.put("changes", this.changes.stream().map(INBTSerializable::serializeNBT).collect(Collectors.toCollection(ListTag::new)));
-        tag.putInt("index", this.currentIndex);
-        return tag;
-    }
-
-    @Override
-    public void deserializeNBT(final CompoundTag nbt)
-    {
-        this.changes.clear();
-        this.changes.addAll(nbt.getList("changes", Tag.TAG_COMPOUND).stream().map(CombinedChange::new).toList());
-        this.currentIndex = nbt.getInt("index");
     }
 
     private void sendUpdate() {

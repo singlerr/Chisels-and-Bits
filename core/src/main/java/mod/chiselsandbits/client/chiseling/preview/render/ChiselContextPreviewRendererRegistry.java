@@ -30,7 +30,7 @@ public class ChiselContextPreviewRendererRegistry implements IChiselContextPrevi
     @Override
     public IChiselContextPreviewRenderer getCurrent()
     {
-        return rendererMap.getOrDefault(new ResourceLocation(IClientConfiguration.getInstance().getPreviewRenderer().get()),
+        return rendererMap.getOrDefault(ResourceLocation.parse(IClientConfiguration.getInstance().getPreviewRenderer().get()),
           rendererMap.get(ConfigurableColoredVoxelShapeChiselContextPreviewRenderer.ID));
     }
 

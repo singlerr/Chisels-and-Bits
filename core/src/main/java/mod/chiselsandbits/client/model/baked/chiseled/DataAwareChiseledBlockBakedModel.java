@@ -12,9 +12,11 @@ import mod.chiselsandbits.client.util.BlockInformationUtils;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModModelProperties;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -28,7 +30,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("ConstantConditions")
 public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
 {
-    private static final SimpleMaxSizedCache<CompoundTag, BakedModel> STACK_MODEL_CACHE = new SimpleMaxSizedCache<>(
+    private static final SimpleMaxSizedCache<Tag, BakedModel> STACK_MODEL_CACHE = new SimpleMaxSizedCache<>(
       IClientConfiguration.getInstance().getStackModelCacheSize()::get
     );
 
@@ -82,7 +84,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
         if (!(item instanceof final IMultiStateItem multiStateItem))
             return NullBakedModel.instance;
 
-        final CompoundTag cacheKey = stack.save(new CompoundTag());
+        final Tag cacheKey = stack.save(Minecraft.getInstance().level.registryAccess());
         return STACK_MODEL_CACHE.get(cacheKey, () -> {
             final IMultiStateItemStack multiStateItemStack = multiStateItem.createItemStack(stack);
 

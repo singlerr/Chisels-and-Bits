@@ -8,11 +8,9 @@ import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.api.util.RayTracingUtils;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.registrars.ModDataComponentTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -26,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class WrenchItem extends Item implements IWithModeItem<IModificationOperation>, IRightClickControllingItem
@@ -43,32 +39,13 @@ public class WrenchItem extends Item implements IWithModeItem<IModificationOpera
     @Override
     public IModificationOperation getMode(final ItemStack stack)
     {
-        final CompoundTag stackNbt = stack.getOrCreateTag();
-        if (stackNbt.contains(NbtConstants.MODIFICATION_MODE))
-        {
-            final String modeName = stackNbt.getString(NbtConstants.MODIFICATION_MODE);
-            try {
-                final Optional<IModificationOperation> registryMode = IModificationOperation.getRegistry().get(new ResourceLocation(modeName));
-                return registryMode.orElseGet(IModificationOperation::getDefaultMode);
-            }
-            catch (IllegalArgumentException illegalArgumentException) {
-                LOGGER.error(String.format("An ItemStack got loaded with a name that is not a valid modification mode: %s", modeName));
-                this.setMode(stack, IModificationOperation.getDefaultMode());
-            }
-        }
-
-        return IModificationOperation.getDefaultMode();
+        return stack.getOrDefault(ModDataComponentTypes.MODIFICATION_OPERATION.get(), IModificationOperation.getDefaultMode());
     }
 
     @Override
     public void setMode(final ItemStack stack, final IModificationOperation mode)
     {
-        if (mode == null)
-        {
-            return;
-        }
-
-        stack.getOrCreateTag().putString(NbtConstants.MODIFICATION_MODE, Objects.requireNonNull(mode.getRegistryName()).toString());
+        stack.set(ModDataComponentTypes.MODIFICATION_OPERATION.get(), mode);
     }
 
     @NotNull

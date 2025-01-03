@@ -2,7 +2,7 @@ package mod.chiselsandbits.client.model.baked.bit;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -28,8 +29,8 @@ public class BitBlockBakedModelManager
 {
     private static final Logger                         LOGGER            = LogManager.getLogger();
     private static final BitBlockBakedModelManager      INSTANCE          = new BitBlockBakedModelManager();
-    private final        Cache<IBlockInformation, BakedModel> modelCache        = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
-    private final        Cache<IBlockInformation, BakedModel> largeModelCache   = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+    private final        Cache<BlockInformation, BakedModel> modelCache        = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+    private final        Cache<BlockInformation, BakedModel> largeModelCache   = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
     private final        NonNullList<ItemStack>         alternativeStacks = NonNullList.create();
 
     private BitBlockBakedModelManager()
@@ -55,7 +56,7 @@ public class BitBlockBakedModelManager
           stack,
           world,
           entity,
-          (!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown())
+                !Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown() || Screen.hasShiftDown()
         );
     }
 
@@ -90,7 +91,7 @@ public class BitBlockBakedModelManager
 
     public BakedModel get(
       final boolean large,
-      IBlockInformation blockInformation,
+      @Nullable BlockInformation blockInformation,
       Level level,
       final LivingEntity entity)
     {
@@ -101,7 +102,7 @@ public class BitBlockBakedModelManager
                 return NullBakedModel.instance;
         }
         
-        if (blockInformation.isAir() || blockInformation == null)
+        if (blockInformation == null || blockInformation.isAir())
         {
             if (alternativeStacks.isEmpty()) {
                 ModCreativeTabs.BITS.get().buildContents(new CreativeModeTab.ItemDisplayParameters(FeatureFlags.VANILLA_SET, false, level.registryAccess()));
@@ -119,8 +120,8 @@ public class BitBlockBakedModelManager
             blockInformation = ((IBitItem) alternativeStack.getItem()).getBlockInformation(alternativeStack);
         }
 
-        final Cache<IBlockInformation, BakedModel> target = large ? largeModelCache : modelCache;
-        final IBlockInformation workingState = blockInformation;
+        final Cache<BlockInformation, BakedModel> target = large ? largeModelCache : modelCache;
+        final BlockInformation workingState = blockInformation;
         try
         {
             Level finalLevel = level;
@@ -128,11 +129,11 @@ public class BitBlockBakedModelManager
                 if (large)
                 {
                     ItemStack lookupStack = IStateVariantManager.getInstance().getItemStack(workingState).orElseGet(
-                      () -> new ItemStack(workingState.getBlockState().getBlock())
+                      () -> new ItemStack(workingState.blockState().getBlock())
                     );
-                    if (workingState.getBlockState().getBlock() instanceof LiquidBlock)
+                    if (workingState.blockState().getBlock() instanceof LiquidBlock)
                     {
-                        lookupStack = new ItemStack(workingState.getBlockState().getFluidState().getType().getBucket());
+                        lookupStack = new ItemStack(workingState.blockState().getFluidState().getType().getBucket());
                     }
                     return Minecraft.getInstance().getItemRenderer().getModel(
                       lookupStack,

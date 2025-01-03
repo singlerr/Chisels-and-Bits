@@ -129,9 +129,9 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     }
 
     @Override
-    public float[] getBeaconColorMultiplier(BlockState state, LevelReader levelReader, BlockPos pos, BlockPos beaconPos) {
+    public Integer getBeaconColorMultiplier(BlockState state, LevelReader levelReader, BlockPos pos, BlockPos beaconPos) {
         markMethod();
-        return new float[4];
+        return 0;
     }
 
     @Override
@@ -160,5 +160,11 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
 
     public void setLastInvokedThreadLocalMethodName(String lastInvokedThreadLocalMethodName) {
         this.lastInvokedThreadLocalMethodName.set(lastInvokedThreadLocalMethodName);
+    }
+
+    @Override
+    protected boolean isRandomlyTicking(BlockState $$0) {
+        markMethod();
+        return false;
     }
 }

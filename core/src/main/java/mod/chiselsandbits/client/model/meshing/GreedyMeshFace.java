@@ -1,11 +1,11 @@
 package mod.chiselsandbits.client.model.meshing;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.core.Direction;
 import org.joml.Vector3f;
 
 public record GreedyMeshFace(
-        IBlockInformation faceValue,
+        BlockInformation faceValue,
         Vector3f lowerLeft,
         Vector3f upperLeft,
         Vector3f lowerRight,

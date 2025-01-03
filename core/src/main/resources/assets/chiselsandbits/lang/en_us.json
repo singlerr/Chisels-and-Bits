@@ -389,6 +389,7 @@
   "mod.chiselsandbits.pattern.cutting.across.axis.x": "Cutting across the X axis.",
   "mod.chiselsandbits.pattern.cutting.across.axis.y": "Cutting across the Y axis.",
   "mod.chiselsandbits.pattern.cutting.across.axis.z": "Cutting across the Z axis.",
+  "mod.chiselsandbits.chiseled-block-item.name": "Chiseled %s",
 
   "mod.chiselsandbits.creative-tab.bits.name": "Bits",
   "mod.chiselsandbits.name": "Chisels & Bits",

@@ -1,10 +1,7 @@
 package mod.chiselsandbits.client.screens.widgets;
 
 import com.communi.suggestu.scena.core.util.TransformationUtils;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.client.screen.widget.AbstractChiselsAndBitsWidget;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
@@ -12,10 +9,6 @@ import mod.chiselsandbits.api.util.ColorUtils;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;

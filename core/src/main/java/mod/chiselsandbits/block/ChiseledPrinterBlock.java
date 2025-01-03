@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -154,13 +155,12 @@ public class ChiseledPrinterBlock extends Block implements EntityBlock
 
     @Override
     public void appendHoverText(
-      final @NotNull ItemStack stack, @Nullable final BlockGetter worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
+            @NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag)
     {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        HelpTextUtils.build(LocalStrings.ChiselStationHelp, tooltip);
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        HelpTextUtils.build(LocalStrings.ChiselStationHelp, tooltipComponents);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onRemove(BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {

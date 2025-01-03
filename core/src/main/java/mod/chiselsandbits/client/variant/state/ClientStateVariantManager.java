@@ -1,13 +1,12 @@
 package mod.chiselsandbits.client.variant.state;
 
 import com.communi.suggestu.scena.core.client.models.data.IBlockModelData;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.client.variant.state.IClientStateVariantManager;
 import mod.chiselsandbits.api.client.variant.state.IClientStateVariantProvider;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
 import java.util.ArrayList;
@@ -45,23 +44,23 @@ public final class ClientStateVariantManager implements IClientStateVariantManag
     }
 
     @Override
-    public IBlockModelData getBlockModelData(IBlockInformation blockInformation) {
+    public IBlockModelData getBlockModelData(BlockInformation blockInformation) {
         bakeProviders();
-        if (blockInformation.getVariant().isEmpty() || !providers.containsKey(blockInformation.getBlockState().getBlock()))
+        if (blockInformation.variant().isEmpty() || !providers.containsKey(blockInformation.blockState().getBlock()))
             return IBlockModelData.empty();
 
-        return providers.get(blockInformation.getBlockState().getBlock()).getBlockModelData(blockInformation.getVariant().get());
+        return providers.get(blockInformation.blockState().getBlock()).getBlockModelData(blockInformation.variant().get());
     }
 
     @Override
-    public void appendHoverText(IBlockInformation blockInformation, Level level, List<Component> tooltip, TooltipFlag flags) {
+    public void appendHoverText(BlockInformation blockInformation, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flags) {
         bakeProviders();
-        if (blockInformation.getVariant().isEmpty() || !providers.containsKey(blockInformation.getBlockState().getBlock()))
+        if (blockInformation.variant().isEmpty() || !providers.containsKey(blockInformation.blockState().getBlock()))
             return;
 
         final List<Component> variantLines = new ArrayList<>();
-        blockInformation.getVariant().ifPresent(variant -> {
-            providers.get(blockInformation.getBlockState().getBlock()).appendHoverText(variant, level, variantLines, flags);
+        blockInformation.variant().ifPresent(variant -> {
+            providers.get(blockInformation.blockState().getBlock()).appendHoverText(variant, context, variantLines, flags);
         });
 
         if (!variantLines.isEmpty()) {

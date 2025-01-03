@@ -1,11 +1,12 @@
 package mod.chiselsandbits.api.variant.state;
 
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
+import com.mojang.serialization.Codec;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -21,6 +22,27 @@ import java.util.function.Supplier;
  */
 public interface IStateVariantManager
 {
+
+    /**
+     * The codec for the state variant provider.
+     * <p>
+     *     This codec is used to serialize and deserialize the state variant provider that created a given state variant.
+     *     It is used to store the state variant provider type in the serialized data.
+     *
+     * @return The codec.
+     */
+    Codec<IStateVariantProvider> byNameCodec();
+
+    /**
+     * The codec for the state variant provider.
+     * <p>
+     *     This codec is used to serialize and deserialize the state variant provider that created a given state variant.
+     *     It is used to store the state variant provider type in the serialized streaming data.
+     *
+     * @return The codec.
+     */
+    StreamCodec<RegistryFriendlyByteBuf, IStateVariantProvider> byNameStreamCodec();
+
     /**
      * The current instance of the state variant manager.
      *
@@ -80,39 +102,7 @@ public interface IStateVariantManager
      * @param state The block state.
      * @return The default variants.
      */
-    Collection<IBlockInformation> getAllDefaultVariants(final BlockState state);
-
-    /**
-     * Serializes the given state variant into a compound tag.
-     *
-     * @param variant The state variant.
-     * @return The serialized state variant.
-     */
-    CompoundTag serializeNBT(IStateVariant variant);
-
-    /**
-     * Deserializes the given compound tag into a state variant.
-     *
-     * @param tag The compound tag.
-     * @return The deserialized state variant.
-     */
-    IStateVariant deserializeNBT(CompoundTag tag);
-
-    /**
-     * Serializes the given state variant into a packet buffer.
-     *
-     * @param packetBuffer The packet buffer.
-     * @param variant The state variant.
-     */
-    void serializeInto(FriendlyByteBuf packetBuffer, IStateVariant variant);
-
-    /**
-     * Deserializes the given packet buffer into a state variant.
-     *
-     * @param packetBuffer The packet buffer.
-     * @return The deserialized state variant.
-     */
-    IStateVariant deserializeFrom(FriendlyByteBuf packetBuffer);
+    Collection<BlockInformation> getAllDefaultVariants(final BlockState state);
 
     /**
      * Returns the item stack for the given block information entry.
@@ -120,7 +110,7 @@ public interface IStateVariantManager
      * @param blockInformation The block information entry.
      * @return The item stack.
      */
-    Optional<ItemStack> getItemStack(IBlockInformation blockInformation);
+    Optional<ItemStack> getItemStack(BlockInformation blockInformation);
 
     /**
      * Returns the fluid information for the given block information entry.
@@ -129,7 +119,7 @@ public interface IStateVariantManager
      * @param amount The amount of fluid.
      * @return The fluid information.
      */
-    Optional<FluidInformation> getFluidInformation(IBlockInformation blockInformation, long amount);
+    Optional<FluidInformation> getFluidInformation(BlockInformation blockInformation, long amount);
 
     /**
      * returns the name of the contained variant if it is present.
@@ -137,5 +127,5 @@ public interface IStateVariantManager
      * @param blockInformation The block information with the variant for which a name is being looked up.
      * @return The name if present.
      */
-    Optional<Component> getName(IBlockInformation blockInformation);
+    Optional<Component> getName(BlockInformation blockInformation);
 }

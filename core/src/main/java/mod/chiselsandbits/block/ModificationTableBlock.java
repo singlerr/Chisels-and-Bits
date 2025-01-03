@@ -1,6 +1,5 @@
 package mod.chiselsandbits.block;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
@@ -10,12 +9,12 @@ import mod.chiselsandbits.utils.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -36,11 +35,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings("deprecation")
 public class ModificationTableBlock extends Block
 {
     private static final Component      CONTAINER_NAME = Component.translatable("block." + Constants.MOD_ID + ".modification_table");
@@ -85,13 +81,12 @@ public class ModificationTableBlock extends Block
         builder.add(FACING);
     }
 
-    @NotNull
     @Override
-    public InteractionResult use(@NotNull BlockState state, Level worldIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
-        if (worldIn.isClientSide()) {
+    protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult result) {
+        if (level.isClientSide()) {
             return InteractionResult.PASS;
         } else {
-            player.openMenu(state.getMenuProvider(worldIn, pos));
+            player.openMenu(state.getMenuProvider(level, pos));
             return InteractionResult.CONSUME;
         }
     }
@@ -103,11 +98,9 @@ public class ModificationTableBlock extends Block
     }
 
     @Override
-    public void appendHoverText(
-      final @NotNull ItemStack stack, @Nullable final BlockGetter worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
-    {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        HelpTextUtils.build(LocalStrings.ModificationTableHelp, tooltip);
+    public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> components, @NotNull TooltipFlag flags) {
+        super.appendHoverText(stack, context, components, flags);
+        HelpTextUtils.build(LocalStrings.ModificationTableHelp, components);
     }
 
     @Override

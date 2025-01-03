@@ -2,8 +2,7 @@ package mod.chiselsandbits.client.util;
 
 import com.communi.suggestu.scena.core.client.rendering.type.IRenderTypeManager;
 import com.google.common.collect.Sets;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.client.variant.state.IClientStateVariantManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -23,26 +22,26 @@ public final class BlockInformationUtils {
         throw new IllegalStateException("Can not instantiate an instance of: IMultiStateObjectStatisticsUtils. This is a utility class");
     }
 
-    public static Set<RenderType> extractRenderTypes(IBlockInformation blockInformation) {
+    public static Set<RenderType> extractRenderTypes(BlockInformation blockInformation) {
         return extractRenderTypes(Sets.newHashSet(blockInformation));
     }
 
-    public static Set<RenderType> extractRenderTypes(Set<IBlockInformation> blocks) {
+    public static Set<RenderType> extractRenderTypes(Set<BlockInformation> blocks) {
         final Set<RenderType> renderTypes = Sets.newHashSet();
-        for (IBlockInformation blockInformation : blocks) {
+        for (BlockInformation blockInformation : blocks) {
             if (blockInformation.isAir())
                 continue;
 
             if (blockInformation.isFluid()) {
-                renderTypes.add(ItemBlockRenderTypes.getRenderLayer(blockInformation.getBlockState().getFluidState()));
+                renderTypes.add(ItemBlockRenderTypes.getRenderLayer(blockInformation.blockState().getFluidState()));
                 continue;
             }
 
-            final BakedModel bakedModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockInformation.getBlockState());
+            final BakedModel bakedModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockInformation.blockState());
             renderTypes.addAll(
                     IRenderTypeManager.getInstance().getRenderTypesFor(
                             bakedModel,
-                            blockInformation.getBlockState(),
+                            blockInformation.blockState(),
                             RANDOM,
                             IClientStateVariantManager.getInstance().getBlockModelData(blockInformation)
                     )

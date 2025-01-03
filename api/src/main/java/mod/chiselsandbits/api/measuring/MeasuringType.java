@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 public enum MeasuringType implements IToolModeGroup
 {
     BIT(LocalStrings.TapeMeasureBit.getText(),
-      new ResourceLocation(Constants.MOD_ID, "textures/icons/bit.png"),
+      ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/bit.png"),
       blockHitResult -> BlockHitResultUtils.getCenterOfHitObject(blockHitResult, StateEntrySize.current().getSizePerBitScalingVector()), (from, to, hitFace) ->
       new Vec3(
         Math.min(from.x(), to.x()) - StateEntrySize.current().getSizePerHalfBit(),
@@ -32,7 +32,7 @@ public enum MeasuringType implements IToolModeGroup
           Math.max(from.z(), to.z()) + StateEntrySize.current().getSizePerHalfBit()
         ),
       true),
-    BLOCK(LocalStrings.TapeMeasureBlock.getText(), new ResourceLocation(Constants.MOD_ID, "textures/icons/block.png"),
+    BLOCK(LocalStrings.TapeMeasureBlock.getText(), ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/block.png"),
       blockHitResult -> BlockHitResultUtils.getCenterOfHitObject(blockHitResult, VectorUtils.ONE), (from, to, hitFace) ->
       new Vec3(
         Math.min(from.x(), to.x()) - 0.499,
@@ -47,7 +47,7 @@ public enum MeasuringType implements IToolModeGroup
           Math.max(from.z(), to.z()) + 0.499
         ),
       true),
-    DISTANCE( LocalStrings.TapeMeasureDistance.getText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/line.png"),
+    DISTANCE( LocalStrings.TapeMeasureDistance.getText(), ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID,"textures/icons/line.png"),
       IClickedPositionAdapter.identity(), (from, to, hitFace) -> from,
       (from, to, hitFace) -> to, false);
 

@@ -6,7 +6,7 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.logic.*;
-import mod.chiselsandbits.network.packets.UpdateChiseledBlockPacket;
+import mod.chiselsandbits.network.packets.UpdateBlockEntityPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -65,10 +65,12 @@ public final class ModEventHandler {
                         };
             }
         });
-        IGameEvents.getInstance().getPlayerJoinedWorldEvent().register((player, level) -> ChiselingManagerCountDownResetHandler.doResetFor(player));
-        IGameEvents.getInstance().getPlayerLoggedInEvent().register(player -> {
+        IGameEvents.getInstance().getDataPackSyncEvent().register((list, players) -> {
             MeasuringSynchronisationHandler.syncToAll();
+        });
+        IGameEvents.getInstance().getPlayerJoinedWorldEvent().register((player, level) -> {
             ChiselingManagerCountDownResetHandler.doResetFor(player);
+            MeasuringSynchronisationHandler.syncToAll();
         });
         IGameEvents.getInstance().getRegisterCommandsEvent().register(CommandRegistrationHandler::registerCommandsTo);
         IGameEvents.getInstance().getPlayerRightClickEvent().register(new IPlayerRightClickBlockEvent() {
@@ -122,7 +124,7 @@ public final class ModEventHandler {
                     .map(ChiseledBlockEntity.class::cast)
                     .forEach(chiseledBlockEntity -> {
                         ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
-                                new UpdateChiseledBlockPacket(chiseledBlockEntity),
+                                new UpdateBlockEntityPacket(chiseledBlockEntity),
                                 serverLevel.getChunkAt(chiseledBlockEntity.getBlockPos())
                         );
                     });

@@ -1,18 +1,60 @@
 package mod.chiselsandbits.measures;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import mod.chiselsandbits.api.measuring.IMeasurement;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
-import mod.chiselsandbits.api.util.IPacketBufferSerializable;
+import mod.chiselsandbits.api.serialization.CBStreamCodecs;
+import mod.chiselsandbits.api.serialization.Serializable;
+import mod.chiselsandbits.api.util.constants.NbtConstants;
 import net.minecraft.core.Direction;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.ByteBuffer;
 import java.util.UUID;
 
-public class Measurement implements IMeasurement, IPacketBufferSerializable
+public class Measurement implements IMeasurement, Serializable<Measurement, FriendlyByteBuf>
 {
+
+    public static final Codec<Measurement> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+      UUIDUtil.CODEC.fieldOf(NbtConstants.OWNER).forGetter(Measurement::getOwner),
+      Vec3.CODEC.fieldOf(NbtConstants.FROM).forGetter(Measurement::getFrom),
+      Vec3.CODEC.fieldOf(NbtConstants.TO).forGetter(Measurement::getTo),
+      MeasuringMode.CODEC.fieldOf(NbtConstants.MODE).forGetter(Measurement::getMode),
+      ResourceLocation.CODEC.fieldOf(NbtConstants.LEVEL).forGetter(Measurement::getWorldKey)
+    ).apply(instance, Measurement::new));
+
+    public static final MapCodec<Measurement> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+      UUIDUtil.CODEC.fieldOf(NbtConstants.OWNER).forGetter(Measurement::getOwner),
+      Vec3.CODEC.fieldOf(NbtConstants.FROM).forGetter(Measurement::getFrom),
+      Vec3.CODEC.fieldOf(NbtConstants.TO).forGetter(Measurement::getTo),
+      MeasuringMode.CODEC.fieldOf(NbtConstants.MODE).forGetter(Measurement::getMode),
+      ResourceLocation.CODEC.fieldOf(NbtConstants.LEVEL).forGetter(Measurement::getWorldKey)
+    ).apply(instance, Measurement::new));
+
+    public static final StreamCodec<FriendlyByteBuf, Measurement> STREAM_CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC,
+            Measurement::getOwner,
+            CBStreamCodecs.VEC_3,
+            Measurement::getFrom,
+            CBStreamCodecs.VEC_3,
+            Measurement::getTo,
+            MeasuringMode.STREAM_CODEC,
+            Measurement::getMode,
+            ResourceLocation.STREAM_CODEC,
+            Measurement::getWorldKey,
+            Measurement::new
+    );
 
     private UUID owner;
     private Vec3 from;
@@ -20,6 +62,13 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
     private MeasuringMode    mode;
     private ResourceLocation worldKey;
 
+    private Measurement(UUID owner, Vec3 from, Vec3 to, MeasuringMode mode, ResourceLocation worldKey) {
+        this.owner = owner;
+        this.from = from;
+        this.to = to;
+        this.mode = mode;
+        this.worldKey = worldKey;
+    }
 
     public Measurement(final UUID owner, final Vec3 from, final Vec3 to, final Direction hitFace, final MeasuringMode mode, final ResourceLocation worldKey) {
         this.owner = owner;
@@ -82,34 +131,17 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
     }
 
     @Override
-    public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
-    {
-        packetBuffer.writeUUID(getOwner());
-        packetBuffer.writeDouble(getFrom().x());
-        packetBuffer.writeDouble(getFrom().y());
-        packetBuffer.writeDouble(getFrom().z());
-        packetBuffer.writeDouble(getTo().x());
-        packetBuffer.writeDouble(getTo().y());
-        packetBuffer.writeDouble(getTo().z());
-        packetBuffer.writeVarInt(mode.ordinal());
-        packetBuffer.writeUtf(getWorldKey().toString(), Integer.MAX_VALUE / 4);
+    public Codec<Measurement> codec() {
+        return CODEC;
     }
 
     @Override
-    public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
-    {
-        owner = packetBuffer.readUUID();
-        from = new Vec3(
-          packetBuffer.readDouble(),
-          packetBuffer.readDouble(),
-          packetBuffer.readDouble()
-        );
-        to = new Vec3(
-          packetBuffer.readDouble(),
-          packetBuffer.readDouble(),
-          packetBuffer.readDouble()
-        );
-        mode = MeasuringMode.values()[packetBuffer.readVarInt()];
-        worldKey = new ResourceLocation(packetBuffer.readUtf(Integer.MAX_VALUE / 4));
+    public MapCodec<Measurement> mapCodec() {
+        return MAP_CODEC;
+    }
+
+    @Override
+    public StreamCodec<FriendlyByteBuf, Measurement> streamCodec() {
+        return STREAM_CODEC;
     }
 }

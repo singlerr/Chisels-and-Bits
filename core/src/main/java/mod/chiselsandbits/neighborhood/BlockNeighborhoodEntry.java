@@ -1,26 +1,25 @@
 package mod.chiselsandbits.neighborhood;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 
 import java.util.Objects;
 
 public final class BlockNeighborhoodEntry
 {
-    private final IBlockInformation blockInformation;
+    private final BlockInformation blockInformation;
     private final IAreaAccessor    accessor;
     private final IAreaShapeIdentifier identifier;
 
-    public BlockNeighborhoodEntry(final IBlockInformation blockInformation, final IAreaAccessor accessor)
+    public BlockNeighborhoodEntry(final BlockInformation blockInformation, final IAreaAccessor accessor)
     {
         this.blockInformation = blockInformation;
         this.accessor = accessor;
         this.identifier = this.accessor.createNewShapeIdentifier();
     }
 
-    public BlockNeighborhoodEntry(final IBlockInformation blockInformation)
+    public BlockNeighborhoodEntry(final BlockInformation blockInformation)
     {
         this.blockInformation = blockInformation;
         this.accessor = null;
@@ -54,7 +53,7 @@ public final class BlockNeighborhoodEntry
         return Objects.equals(identifier, that.identifier);
     }
 
-    public IBlockInformation getBlockInformation()
+    public BlockInformation getBlockInformation()
     {
         return blockInformation;
     }

@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.util;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
@@ -35,29 +35,29 @@ public class SingleBlockLevelReader extends SingleBlockBlockReader implements Le
     @Nullable
     private final LevelReader reader;
 
-    public SingleBlockLevelReader(IBlockInformation blockInformation) {
+    public SingleBlockLevelReader(BlockInformation blockInformation) {
         this(blockInformation, null);
     }
 
-    public SingleBlockLevelReader(final IBlockInformation blockInformation, final Block blk, final @Nullable LevelReader reader)
+    public SingleBlockLevelReader(final BlockInformation blockInformation, final Block blk, final @Nullable LevelReader reader)
     {
         super(blockInformation, blk, reader);
         this.reader = reader;
     }
 
-    public SingleBlockLevelReader(final IBlockInformation blockInformation, final @Nullable LevelReader reader)
+    public SingleBlockLevelReader(final BlockInformation blockInformation, final @Nullable LevelReader reader)
     {
-        super(blockInformation, blockInformation.getBlockState().getBlock(), reader);
+        super(blockInformation, blockInformation.blockState().getBlock(), reader);
         this.reader = reader;
     }
 
-    public SingleBlockLevelReader(final IBlockInformation blockInformation, final Block blk, final BlockPos pos, final @Nullable LevelReader reader)
+    public SingleBlockLevelReader(final BlockInformation blockInformation, final Block blk, final BlockPos pos, final @Nullable LevelReader reader)
     {
         super(blockInformation, blk, pos, reader);
         this.reader = reader;
     }
 
-    public SingleBlockLevelReader(final IBlockInformation blockInformation, final BlockPos pos, final @Nullable LevelReader reader)
+    public SingleBlockLevelReader(final BlockInformation blockInformation, final BlockPos pos, final @Nullable LevelReader reader)
     {
         super(blockInformation, pos, reader);
         this.reader = reader;
@@ -200,7 +200,7 @@ public class SingleBlockLevelReader extends SingleBlockBlockReader implements Le
     {
         if (pos == this.pos && blk instanceof EntityBlock)
         {
-            return ((EntityBlock) blk).newBlockEntity(this.pos, blockInformation.getBlockState());
+            return ((EntityBlock) blk).newBlockEntity(this.pos, blockInformation.blockState());
         }
 
         if (this.reader == null)
@@ -215,7 +215,7 @@ public class SingleBlockLevelReader extends SingleBlockBlockReader implements Le
     {
         if (pos == this.pos)
         {
-            return blockInformation.getBlockState();
+            return blockInformation.blockState();
         }
 
         if (this.reader == null)

@@ -19,6 +19,7 @@ import mod.chiselsandbits.item.UnsealItem;
 import mod.chiselsandbits.item.WrenchItem;
 import mod.chiselsandbits.item.bit.BitItem;
 import mod.chiselsandbits.materials.LegacyMaterialManager;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -87,19 +88,6 @@ public final class ModItems {
     }
 
     public static void onModConstruction() {
-        LegacyMaterialManager.getInstance().getMaterialNames()
-                .forEach(materialName -> {
-                    LEGACY_MATERIAL_CHISELED_BLOCKS.add(
-                            ITEM_REGISTRAR.register(
-                                    "chiseled" + materialName,
-                                    () -> new ChiseledBlockItem(
-                                            ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.get(materialName).get(),
-                                            new Item.Properties()
-                                    )
-                            )
-                    );
-                });
-
         LOGGER.info("Loaded item configuration.");
     }
 }

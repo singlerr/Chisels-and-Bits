@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.multistate.accessor.identifier;
 
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 
 import java.util.List;
 
@@ -23,5 +23,5 @@ public interface IArrayBackedAreaShapeIdentifier extends IAreaShapeIdentifier
      *
      * @return The palette list.
      */
-    List<IBlockInformation> getPalette();
+    List<BlockInformation> getPalette();
 }

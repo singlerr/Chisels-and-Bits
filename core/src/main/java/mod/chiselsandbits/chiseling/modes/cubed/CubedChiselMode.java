@@ -3,7 +3,7 @@ package mod.chiselsandbits.chiseling.modes.cubed;
 import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
@@ -37,6 +37,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -83,11 +84,11 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
               try (IBatchMutation ignored =
                      mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
               {
-                  final Map<IBlockInformation, Integer> resultingBitCount = Maps.newHashMap();
+                  final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                   final int totalItemDamage = mutator.inWorldMutableStream()
                     .mapToInt(state -> {
-                        final IBlockInformation currentState = state.getBlockInformation();
+                        final BlockInformation currentState = state.getBlockInformation();
                         return context.tryDamageItemAndDoOrSetBrokenError(
                           () -> {
                               resultingBitCount.putIfAbsent(currentState, 0);
@@ -132,7 +133,7 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
         }
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
-              final IBlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
+              final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
               if (heldBlockState.isAir())
               {
                   return ClickProcessingState.DEFAULT;
@@ -162,7 +163,7 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
               }
               else
               {
-                  context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlockState().getBlock().getName()));
+                  context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.blockState().getBlock().getName()));
               }
 
               if (missingBitCount == 0)

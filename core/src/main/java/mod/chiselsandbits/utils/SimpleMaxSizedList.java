@@ -46,4 +46,11 @@ public class SimpleMaxSizedList<E> extends AbstractList<E>
             return delegate.size();
         }
     }
+
+    @Override
+    public E remove(int index) {
+        synchronized (delegate) {
+            return delegate.remove(index);
+        }
+    }
 }

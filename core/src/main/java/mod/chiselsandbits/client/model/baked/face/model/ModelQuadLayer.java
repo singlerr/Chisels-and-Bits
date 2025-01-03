@@ -3,8 +3,7 @@ package mod.chiselsandbits.client.model.baked.face.model;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.client.model.baked.BakedQuadBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -21,7 +20,7 @@ public record ModelQuadLayer(VertexData[] vertexData, TextureAtlasSprite sprite,
 
     @SuppressWarnings("UnusedReturnValue")
     public static final class Builder extends BaseModelReader {
-        private final IBlockInformation blockInformation;
+        private final BlockInformation blockInformation;
         private final Collection<VertexData> manualVertexData = new ArrayList<>();
         private final ModelLightMapReader lightValueExtractor;
         private final ModelVertexDataReader uvExtractor;
@@ -33,13 +32,13 @@ public record ModelQuadLayer(VertexData[] vertexData, TextureAtlasSprite sprite,
         private Direction cullDirection;
         private BakedQuad sourceQuad;
 
-        private Builder(final IBlockInformation blockInformation) {
+        private Builder(final BlockInformation blockInformation) {
             this.lightValueExtractor = new ModelLightMapReader();
             this.uvExtractor = new ModelVertexDataReader();
             this.blockInformation = blockInformation;
         }
 
-        public static Builder create(final IBlockInformation blockInformation) {
+        public static Builder create(final BlockInformation blockInformation) {
             return new Builder(blockInformation);
         }
 
@@ -125,7 +124,7 @@ public record ModelQuadLayer(VertexData[] vertexData, TextureAtlasSprite sprite,
 
             if (0x00 <= tint && tint <= 0xff) {
                 color = 0xffffffff;
-                tint = (IBlockStateIdManager.getInstance().getIdFrom(blockInformation.getBlockState()) << 8) | tint;
+                tint = (IBlockStateIdManager.getInstance().getIdFrom(blockInformation.blockState()) << 8) | tint;
             } else {
                 tint = -1;
             }
@@ -152,7 +151,7 @@ public record ModelQuadLayer(VertexData[] vertexData, TextureAtlasSprite sprite,
 
                 for (int elementIndex = 0; elementIndex < DefaultVertexFormat.BLOCK.getElements().size(); elementIndex++) {
                     final VertexFormatElement element = DefaultVertexFormat.BLOCK.getElements().get(elementIndex);
-                    switch (element.getUsage()) {
+                    switch (element.usage()) {
                         case POSITION:
                             builder.put(vertexIndex, elementIndex, vertexData.positionData());
                             break;
@@ -163,9 +162,9 @@ public record ModelQuadLayer(VertexData[] vertexData, TextureAtlasSprite sprite,
                             builder.put(vertexIndex, elementIndex, cullDirection.getStepX(), cullDirection.getStepY(), cullDirection.getStepZ());
                             break;
                         case UV:
-                            if (element.getIndex() == 0) {
+                            if (element.index() == 0) {
                                 builder.put(vertexIndex, elementIndex, vertexData.uvData());
-                            } else if (element.getIndex() == 1) {
+                            } else if (element.index() == 1) {
                                 builder.put(vertexIndex, elementIndex, 0, 0);
                             } else {
                                 builder.put(vertexIndex, elementIndex, 1, 1);

@@ -6,7 +6,7 @@ import com.communi.suggestu.scena.core.fluid.IFluidManager;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
@@ -22,11 +22,10 @@ import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
 import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
+import mod.chiselsandbits.registrars.ModDataComponentTypes;
 import mod.chiselsandbits.registrars.ModCreativeTabs;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
@@ -34,9 +33,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -44,21 +41,14 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -125,36 +115,22 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     @Override
     public IChiselMode getMode(final ItemStack stack)
     {
-        final CompoundTag stackNbt = stack.getOrCreateTag();
-        if (stackNbt.contains(NbtConstants.CHISEL_MODE))
-        {
-            final String chiselModeName = stackNbt.getString(NbtConstants.CHISEL_MODE);
-            try {
-                final Optional<IChiselMode> registryMode = IChiselMode.getRegistry().get(new ResourceLocation(chiselModeName));
-                return registryMode.orElseGet(IChiselMode::getDefaultMode);
-            }
-            catch (IllegalArgumentException illegalArgumentException) {
-                LOGGER.error(String.format("An ItemStack got loaded with a name that is not a valid chisel mode: %s", chiselModeName));
-                this.setMode(stack, IChiselMode.getDefaultMode());
-            }
-        }
-
-        return IChiselMode.getDefaultMode();
+        return stack.getOrDefault(ModDataComponentTypes.CHISEL_MODE.get(), IChiselMode.getDefaultMode());
     }
 
     @NotNull
     @Override
     public Component getName(@NotNull final ItemStack stack)
     {
-        final IBlockInformation containedStack = getBlockInformation(stack);
-        final Block block = containedStack.getBlockState().getBlock();
+        final BlockInformation containedStack = getBlockInformation(stack);
+        final Block block = containedStack.blockState().getBlock();
 
         Component stateName = block.asItem().getName(new ItemStack(block));
         if (block instanceof final LiquidBlock flowingFluidBlock) {
-            stateName = IFluidManager.getInstance().getDisplayName(flowingFluidBlock.getFluidState(flowingFluidBlock.defaultBlockState()).getType());
+            stateName = IFluidManager.getInstance().getDisplayName(flowingFluidBlock.fluid);
         }
 
-        if (containedStack.getVariant().isPresent()) {
+        if (containedStack.variant().isPresent()) {
             stateName = IStateVariantManager.getInstance().getName(containedStack).orElse(stateName);
         }
 
@@ -162,9 +138,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     }
 
     @Override
-    public void appendHoverText(
-      @NotNull final ItemStack stack, @Nullable final Level worldIn, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
-    {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
         final IChiselMode mode = getMode(stack);
         if (mode.getGroup().isPresent()) {
             tooltip.add(TranslationUtils.build("chiselmode.mode_grouped", mode.getGroup().get().getDisplayName(), mode.getDisplayName()));
@@ -173,13 +147,13 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
             tooltip.add(TranslationUtils.build("chiselmode.mode", mode.getDisplayName()));
         }
 
-        final IBlockInformation blockInformation = getBlockInformation(stack);
+        final BlockInformation blockInformation = getBlockInformation(stack);
         DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> {
-            IClientStateVariantManager.getInstance().appendHoverText(blockInformation, worldIn, tooltip, flagIn);
+            IClientStateVariantManager.getInstance().appendHoverText(blockInformation, context, tooltip, flagIn);
         });
 
 
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, context, tooltip, flagIn);
     }
 
     @Override
@@ -188,7 +162,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         if (mode == null)
             return;
 
-        stack.getOrCreateTag().putString(NbtConstants.CHISEL_MODE, Objects.requireNonNull(mode.getRegistryName()).toString());
+        stack.set(ModDataComponentTypes.CHISEL_MODE.get(), mode);
     }
 
     @NotNull
@@ -269,12 +243,9 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     }
 
     @Override
-    public @NotNull IBlockInformation getBlockInformation(final ItemStack stack)
+    public @NotNull BlockInformation getBlockInformation(final ItemStack stack)
     {
-        if (!stack.hasTag())
-            return BlockInformation.AIR;
-
-        return new BlockInformation(stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_INFORMATION));
+        return stack.getOrDefault(ModDataComponentTypes.BLOCK_INFORMATION.get(), BlockInformation.AIR);
     }
 
     @Override
@@ -519,7 +490,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
           .stream()
           .filter(stack -> !stack.isEmpty())
           .collect(Collectors.toMap(
-            stack -> "bit_" + IPlatformRegistryManager.getInstance().getBlockRegistry().getKey(this.getBlockInformation(stack).getBlockState().getBlock()).toString().replace(":", "_"),
+            stack -> "bit_" + IPlatformRegistryManager.getInstance().getBlockRegistry().getKey(this.getBlockInformation(stack).blockState().getBlock()).toString().replace(":", "_"),
             Function.identity()
           ));
     }

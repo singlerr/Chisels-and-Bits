@@ -15,8 +15,12 @@ import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.SimpleInstanceCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
@@ -24,6 +28,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -33,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BitBagItem extends Item implements IBitInventoryItem
 {
@@ -62,9 +68,8 @@ public class BitBagItem extends Item implements IBitInventoryItem
     }
 
     @Override
-    public void appendHoverText(final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
-    {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, TooltipContext $$1, List<Component> tooltip, TooltipFlag $$3) {
+        super.appendHoverText(stack, $$1, tooltip, $$3);
         HelpTextUtils.build(LocalStrings.HelpBitBag, tooltip);
 
         if (tooltipCache.needsUpdate(stack))
@@ -113,18 +118,12 @@ public class BitBagItem extends Item implements IBitInventoryItem
     public IBitInventoryItemStack create(final ItemStack stack)
     {
         if (stack.getItem() != this)
-            return new SlottedBitInventoryItemStack(0, (nbt) -> ItemStack.EMPTY);
+            return new SlottedBitInventoryItemStack(ItemStack.EMPTY, 0);
 
-        final SlottedBitInventoryItemStack inventoryItemStack = new SlottedBitInventoryItemStack(
-          BAG_STORAGE_SLOTS,
-          nbt -> {
-              stack.getOrCreateTag().put(NbtConstants.INVENTORY, nbt);
-              return stack;
-          }
+        return new SlottedBitInventoryItemStack(
+          stack,
+          BAG_STORAGE_SLOTS
         );
-
-        inventoryItemStack.deserializeNBT(stack.getOrCreateTagElement(NbtConstants.INVENTORY));
-        return inventoryItemStack;
     }
 
     @SuppressWarnings("unused")
@@ -158,16 +157,16 @@ public class BitBagItem extends Item implements IBitInventoryItem
     {
         ItemStack copy = bag.copy();
 
-        if (!copy.hasTag())
+        if (!copy.has(DataComponents.CUSTOM_DATA))
         {
-            copy.setTag(new CompoundTag());
+            CustomData.set(DataComponents.CUSTOM_DATA, copy, new CompoundTag());
         }
 
         if (color == null && bag.getItem() == ModItems.ITEM_BIT_BAG_DYED.get())
         {
             final ItemStack unColoredStack = new ItemStack(ModItems.ITEM_BIT_BAG_DEFAULT.get());
-            unColoredStack.setTag(copy.getTag());
-            unColoredStack.getOrCreateTag().remove("color");
+            CustomData.set(DataComponents.CUSTOM_DATA, unColoredStack, copy.get(DataComponents.CUSTOM_DATA).copyTag());
+            CustomData.update(DataComponents.CUSTOM_DATA, unColoredStack, compoundTag -> compoundTag.remove("color"));
             return unColoredStack;
         }
         else if (color != null)
@@ -176,10 +175,10 @@ public class BitBagItem extends Item implements IBitInventoryItem
             if (coloredStack.getItem() == ModItems.ITEM_BIT_BAG_DEFAULT.get())
             {
                 coloredStack = new ItemStack(ModItems.ITEM_BIT_BAG_DYED.get());
-                coloredStack.setTag(copy.getTag());
+                CustomData.set(DataComponents.CUSTOM_DATA, coloredStack, copy.get(DataComponents.CUSTOM_DATA).copyTag());
             }
 
-            coloredStack.getOrCreateTag().putString("color", color.getName());
+            CustomData.update(DataComponents.CUSTOM_DATA, coloredStack, compoundTag -> compoundTag.putString("color", color.getName()));
             return coloredStack;
         }
 
@@ -194,9 +193,16 @@ public class BitBagItem extends Item implements IBitInventoryItem
             return null;
         }
 
-        if (stack.getOrCreateTag().contains("color"))
+        if (!stack.has(DataComponents.CUSTOM_DATA))
         {
-            String name = stack.getOrCreateTag().getString("color");
+            return null;
+        }
+
+        final CompoundTag tag = stack.get(DataComponents.CUSTOM_DATA).getUnsafe();
+
+        if (tag.contains("color"))
+        {
+            String name = tag.getString("color");
             for (DyeColor color : DyeColor.values())
             {
                 if (name.equals(color.getSerializedName()))

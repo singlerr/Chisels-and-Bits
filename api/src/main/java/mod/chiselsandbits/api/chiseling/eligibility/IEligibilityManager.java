@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.chiseling.eligibility;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +23,7 @@ public interface IEligibilityManager
      *
      * @return True when chiselable or already chiseled.
      */
-    default boolean canBeChiseled(@NotNull final IBlockInformation blockInformation) {
+    default boolean canBeChiseled(@NotNull final BlockInformation blockInformation) {
         return analyse(blockInformation).canBeChiseled() || analyse(blockInformation).isAlreadyChiseled();
     }
 
@@ -46,7 +46,7 @@ public interface IEligibilityManager
      *
      * @return The analysis result.
      */
-    IEligibilityAnalysisResult analyse(@NotNull final IBlockInformation blockInformation);
+    IEligibilityAnalysisResult analyse(@NotNull final BlockInformation blockInformation);
 
     /**
      * Performs a chiselability analysis on the given {@link ItemStack}.

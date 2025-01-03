@@ -33,7 +33,7 @@ public interface IGlueingOperation extends ICustomRegistryEntry, IToolMode<IGlue
     /**
      * Performs a glueing on the given snapshots.
      * The given collection contains the individual pieces that are needed to be glued together.
-     *
+     * <p>
      * In total a maximum 64 pieces can be given.
      *
      * @param sources The accessors to glue.

@@ -2,8 +2,7 @@ package mod.chiselsandbits.block.entities;
 
 import com.communi.suggestu.scena.core.item.IItemComparisonHelper;
 import com.google.common.collect.ImmutableList;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
@@ -12,14 +11,20 @@ import mod.chiselsandbits.api.item.pattern.IPatternItem;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.block.ChiseledPrinterBlock;
 import mod.chiselsandbits.container.ChiseledPrinterContainer;
 import mod.chiselsandbits.registrars.ModBlockEntityTypes;
 import mod.chiselsandbits.utils.container.SimpleContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainer;
@@ -38,17 +43,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvider, WorldlyContainer {
 
     private final MutableObject<ItemStack> currentRealisedWorkingStack = new MutableObject<>(ItemStack.EMPTY);
-    private final Optional<SimpleContainer> tool_handler = Optional.of(new SimpleContainer(1));
-    private final Optional<SimpleContainer> pattern_handler = Optional.of(new SimpleContainer(1));
-    private final Optional<SimpleContainer> result_handler = Optional.of(new SimpleContainer(1));
+    private SimpleContainer tool_handler = new SimpleContainer(1);
+    private SimpleContainer pattern_handler = new SimpleContainer(1);
+    private SimpleContainer result_handler = new SimpleContainer(1);
     private int progress = 0;
     protected final ContainerData stationData = new ContainerData() {
 
@@ -76,28 +79,33 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
     }
 
     @Override
-    public void load(final @NotNull CompoundTag nbt) {
-        super.load(nbt);
+    protected void loadAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider loader) {
+        super.loadAdditional(nbt, loader);
 
-        tool_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("tool")));
-        pattern_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("pattern")));
-        result_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("result")));
+        final RegistryOps<Tag> registryOps = RegistryOps.create(NbtOps.INSTANCE, loader);
 
-        progress = nbt.getInt("progress");
+        tool_handler = SimpleContainer.CODEC.decode(registryOps, nbt.get(NbtConstants.TOOL)).getOrThrow().getFirst();
+        pattern_handler = SimpleContainer.CODEC.decode(registryOps, nbt.get(NbtConstants.PATTERN)).getOrThrow().getFirst();
+        result_handler = SimpleContainer.CODEC.decode(registryOps, nbt.get(NbtConstants.RESULT)).getOrThrow().getFirst();
+
+        progress = nbt.getInt(NbtConstants.PROGRESS);
     }
 
     @Override
-    public void saveAdditional(final @NotNull CompoundTag compound) {
-        tool_handler.ifPresent(h -> compound.put("tool", h.serializeNBT()));
-        pattern_handler.ifPresent(h -> compound.put("pattern", h.serializeNBT()));
-        result_handler.ifPresent(h -> compound.put("result", h.serializeNBT()));
+    public void saveAdditional(final @NotNull CompoundTag compound, HolderLookup.@NotNull Provider loader) {
+        super.saveAdditional(compound, loader);
 
-        compound.putInt("progress", progress);
+        final RegistryOps<Tag> registryOps = RegistryOps.create(NbtOps.INSTANCE, loader);
+        compound.put(NbtConstants.TOOL, SimpleContainer.CODEC.encodeStart(registryOps, tool_handler).getOrThrow());
+        compound.put(NbtConstants.PATTERN, SimpleContainer.CODEC.encodeStart(registryOps, pattern_handler).getOrThrow());
+        compound.put(NbtConstants.RESULT, SimpleContainer.CODEC.encodeStart(registryOps, result_handler).getOrThrow());
+
+        compound.putInt(NbtConstants.PROGRESS, progress);
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag() {
-        return saveWithFullMetadata();
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider loader) {
+        return saveWithFullMetadata(loader);
     }
 
     public void tick() {
@@ -111,14 +119,11 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
             if (canWork()) {
                 progress++;
                 if (progress >= 100) {
-                    result_handler.ifPresent(h -> {
-                        if (h.getItem(0).isEmpty()) {
-                            h.setItem(0, realisePattern(true));
-                            return;
-                        }
+                    if (result_handler.getItem(0).isEmpty()) {
+                        result_handler.setItem(0, realisePattern(true));
+                        return;
+                    }
 
-                        h.getItem(0).setCount(h.getItem(0).getCount() + realisePattern(true).getCount());
-                    });
                     currentRealisedWorkingStack.setValue(ItemStack.EMPTY);
                     progress = 0;
                     damageChisel();
@@ -260,7 +265,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
 
     private void damageChisel() {
         if (getLevel() != null && !getLevel().isClientSide()) {
-            getToolStack().hurt(1, getLevel().getRandom(), null);
+            getToolStack().hurtAndBreak(1, (ServerLevel) getLevel(), null, (item) -> {});
         }
     }
 
@@ -277,15 +282,15 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
     }
 
     public SimpleContainer getPatternHandler() {
-        return pattern_handler.orElseThrow(() -> new IllegalStateException("Missing empty handler."));
+        return pattern_handler;
     }
 
     public SimpleContainer getToolHandler() {
-        return tool_handler.orElseThrow(() -> new IllegalStateException("Missing tool handler."));
+        return tool_handler;
     }
 
     public SimpleContainer getResultHandler() {
-        return result_handler.orElseThrow(() -> new IllegalStateException("Missing result handler."));
+        return result_handler;
     }
 
     @Override
@@ -359,15 +364,15 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
     }
 
     public ItemStack getToolStack() {
-        return tool_handler.map(h -> h.getItem(0)).orElse(ItemStack.EMPTY);
+        return tool_handler.getItem(0);
     }
 
     public ItemStack getOutputStack() {
-        return result_handler.map(h -> h.getItem(0)).orElse(ItemStack.EMPTY);
+        return result_handler.getItem(0);
     }
 
     public ItemStack getPatternStack() {
-        return pattern_handler.map(h -> h.getItem(0)).orElse(ItemStack.EMPTY);
+        return pattern_handler.getItem(0);
     }
 
     @Override
@@ -381,7 +386,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
 
     @Override
     public boolean canPlaceItemThroughFace(final int index, final @NotNull ItemStack itemStack,final Direction direction) {
-        return switch (direction) {
+        return switch (Objects.requireNonNull(direction)) {
             case DOWN -> false;
             case UP -> itemStack.getItem() instanceof IChiselItem;
             case NORTH, SOUTH, WEST, EAST -> itemStack.getItem() instanceof IMultiUsePatternItem;
@@ -389,7 +394,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
     }
 
     @Override
-    public boolean canTakeItemThroughFace(final int index, final ItemStack itemStack, final @NotNull Direction direction) {
+    public boolean canTakeItemThroughFace(final int index, final @NotNull ItemStack itemStack, final @NotNull Direction direction) {
         return switch (direction) {
             case DOWN -> true;
             case UP -> itemStack.getItem() instanceof IChiselItem;
@@ -450,7 +455,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
 
     @Override
     public boolean stillValid(final @NotNull Player player) {
-        if (this.level.getBlockEntity(this.worldPosition) != this) {
+        if (Objects.requireNonNull(this.level).getBlockEntity(this.worldPosition) != this) {
             return false;
         } else {
             return player.distanceToSqr((double) this.worldPosition.getX() + 0.5D, (double) this.worldPosition.getY() + 0.5D, (double) this.worldPosition.getZ() + 0.5D) <= 64.0D;
@@ -466,8 +471,8 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
 
     public record PositionAndCount(BlockPos pos, int count) {}
 
-    public record BlockInformationSource(IBlockInformation blockInformation, int count, BlockPos pos) {}
+    public record BlockInformationSource(BlockInformation blockInformation, int count, BlockPos pos) {}
 
-    public record BlockInformationSources(IBlockInformation blockInformation, int totalCount, Set<PositionAndCount> posses) {}
+    public record BlockInformationSources(BlockInformation blockInformation, int totalCount, Set<PositionAndCount> posses) {}
 
 }

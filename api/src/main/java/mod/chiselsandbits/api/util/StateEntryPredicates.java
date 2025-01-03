@@ -16,7 +16,7 @@ public class StateEntryPredicates
         @Override
         public boolean test(final IStateEntryInfo iStateEntryInfo)
         {
-            return BlockStatePredicates.NOT_AIR.test(iStateEntryInfo.getBlockInformation().getBlockState());
+            return BlockStatePredicates.NOT_AIR.test(iStateEntryInfo.getBlockInformation().blockState());
         }
 
         @Override
@@ -58,7 +58,7 @@ public class StateEntryPredicates
         @Override
         public boolean test(final IStateEntryInfo iStateEntryInfo)
         {
-            return BlockStatePredicates.COLLIDEABLE_ONLY.test(iStateEntryInfo.getBlockInformation().getBlockState());
+            return BlockStatePredicates.COLLIDEABLE_ONLY.test(iStateEntryInfo.getBlockInformation().blockState());
         }
 
         @Override

@@ -32,7 +32,7 @@ project.dependencies.mappings loom.layered() { layer ->
 
 project.loom.accessWidenerPath = project(':common').file("accesswidener.accesswidener")
 project.tasks.processResources.from project(':common').file("accesswidener.accesswidener")
-setupResourceProcessing(project.tasks.processResources)
+setupResourceProcessing(project.sourceSets.main)
 
 project.remapJar.addNestedDependencies = true
 
@@ -82,5 +82,53 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
         mainArtifact.changelogType = 'markdown'
 
         dependsOn rootProject.tasks.createChangelog
+    }
+}
+
+if (project.hasProperty("runsWithIdea") && Boolean.parseBoolean(project.property("runsWithIdea").toString())) {
+    //We are in a special mode that requires us to redirect the process resources tasks to the idea out directory.
+    //We only care for our own output for now, dependency projects will need to be handled separately.
+    def copyIdeaResources = project.tasks.register("copyIdeaResources", Copy) {
+        from project.tasks.named("processResources", Copy).map { it.destinationDir }
+        into project.file("out/production/resources")
+    }
+
+    project.tasks.processResources.finalizedBy(copyIdeaResources)
+}
+
+def ideaSyncRunModifier = project.tasks.register("ideaSyncRunModifier") {
+    doLast {
+        def runConfigurationsDir = project.rootProject.file(".idea/runConfigurations")
+        runConfigurationsDir.listFiles().each { file ->
+            if (!file.name.endsWith(".xml")) {
+                return
+            }
+
+            def content = file.text
+            def targetContent = "<option name=\"Gradle.BeforeRunTask\" enabled=\"true\" tasks=\"processResources\" externalProjectPath=\"\$PROJECT_DIR\$/fabric\" vmOptions=\"\" scriptParameters=\"-PrunsWithIdea=true\" />"
+            def alternativeTarget = "<option enabled=\"true\" externalProjectPath=\"\$PROJECT_DIR\$/fabric\" name=\"Gradle.BeforeRunTask\" scriptParameters=\"-PrunsWithIdea=true\" tasks=\"processResources\" vmOptions=\"\"/>"
+            def beforeMarker = "</method>"
+            if (content.contains(targetContent) || content.contains(alternativeTarget)) {
+                return
+            }
+
+            def contentParts = content.split(beforeMarker)
+            if (contentParts.size() != 2) {
+                return
+            }
+
+            def newContent = contentParts[0] + targetContent + beforeMarker + contentParts[1]
+            file.write(newContent)
+        }
+    }
+}
+
+tasks.named("ideaSyncTask") {
+    finalizedBy(ideaSyncRunModifier)
+}
+
+idea {
+    module {
+        excludeDirs += file("src/main/templates")
     }
 }

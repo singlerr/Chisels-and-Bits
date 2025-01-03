@@ -1,8 +1,10 @@
 package mod.chiselsandbits.client.model.baked.bit;
 
 import com.communi.suggestu.scena.core.client.models.IModelManager;
+import com.communi.suggestu.scena.core.client.models.baked.IDataAwareBakedModel;
+import com.communi.suggestu.scena.core.client.models.data.IBlockModelData;
 import com.communi.suggestu.scena.core.client.rendering.type.IRenderTypeManager;
-import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedPerspectiveSmartModel;
 import mod.chiselsandbits.client.util.BlockInformationUtils;
@@ -27,8 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class  BitBlockBakedModel extends BaseBakedPerspectiveSmartModel
-{
+public class  BitBlockBakedModel extends BaseBakedPerspectiveSmartModel implements IDataAwareBakedModel {
 
     private static final float BIT_BEGIN = 4f / 16;
     public static final Vector3f FROM = new Vector3f(BIT_BEGIN, BIT_BEGIN, BIT_BEGIN);
@@ -38,7 +39,7 @@ public class  BitBlockBakedModel extends BaseBakedPerspectiveSmartModel
     final List<BakedQuad> generic = new ArrayList<>(6);
 
     public BitBlockBakedModel(
-      final IBlockInformation blockInformation)
+      final BlockInformation blockInformation)
     {
         for (final Direction myFace : Direction.values())
         {
@@ -84,7 +85,7 @@ public class  BitBlockBakedModel extends BaseBakedPerspectiveSmartModel
 
     @Override
     public @NotNull Collection<RenderType> getSupportedRenderTypes(ItemStack itemStack, boolean b) {
-        final IBlockInformation blockInformation = ((IBitItem) itemStack.getItem()).getBlockInformation(itemStack);
+        final BlockInformation blockInformation = ((IBitItem) itemStack.getItem()).getBlockInformation(itemStack);
 
         if (blockInformation.isFluid())
             return BlockInformationUtils.extractRenderTypes(blockInformation);
@@ -98,7 +99,6 @@ public class  BitBlockBakedModel extends BaseBakedPerspectiveSmartModel
 
     @Override
     public BakedModel handleItemStack(ItemStack stack) {
-        //return IModelManager.getInstance().adaptToPlatform(this);
         return this;
     }
 }
