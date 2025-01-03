@@ -167,7 +167,7 @@ public record ModelQuadLayer(VertexData[] vertexData, TextureAtlasSprite sprite,
                             } else if (element.index() == 1) {
                                 builder.put(vertexIndex, elementIndex, 0, 0);
                             } else {
-                                builder.put(vertexIndex, elementIndex, 1, 1);
+                                builder.put(vertexIndex, elementIndex, 0, 0);
                             }
                             break;
                         default:

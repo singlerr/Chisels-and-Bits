@@ -129,6 +129,10 @@ public final class CreativeClipboardManager implements ICreativeClipboardManager
     @Override
     public void removeEntry(int index, HolderLookup.Provider provider) {
         synchronized (cache) {
+            if (index < 0 || index >= cache.size()) {
+                return;
+            }
+
             cache.remove(index);
             writeContentsToDisk(provider);
 

@@ -216,6 +216,6 @@ public class GreedyMeshBuilder {
     }
 
     private static boolean isSeeThrough(BlockInformation blockInformation) {
-        return blockInformation.isAir() || blockInformation.isFluid() || (!ChiselRenderType.SOLID.isRequiredForRendering(blockInformation) && !ChiselRenderType.SOLID_FLUID.isRequiredForRendering(blockInformation));
+        return blockInformation.isAir() || ChiselRenderType.TRANSLUCENT.isRequiredForRendering(blockInformation) || ChiselRenderType.TRANSLUCENT_FLUID.isRequiredForRendering(blockInformation);
     }
 }
