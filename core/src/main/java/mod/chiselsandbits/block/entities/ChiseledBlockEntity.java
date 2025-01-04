@@ -41,6 +41,7 @@ import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.*;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.api.block.storage.StateEntryStorage;
+import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
 import mod.chiselsandbits.network.packets.UpdateBlockEntityPacket;
 import mod.chiselsandbits.registrars.ModBlockEntityTypes;
@@ -1196,11 +1197,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
                             Block.UPDATE_ALL
                     );
                 } else if (this.countMap.getOrDefault(primaryState, 0) == StateEntrySize.current().getBitsPerBlock()) {
-                    levelAccessor.setBlock(
-                            inWorldPos,
-                            this.primaryState.blockState(),
-                            Block.UPDATE_ALL
-                    );
+                    IStateVariantManager.getInstance().setFullBlock(levelAccessor, inWorldPos, primaryState);
                 } else if (currentPrimary != primaryState) {
                     final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(this.primaryState.blockState());
                     if (optionalWithConvertedBlock.isPresent()) {

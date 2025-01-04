@@ -1,17 +1,22 @@
 package mod.chiselsandbits.stateinfo.additional;
 
+import com.communi.suggestu.scena.core.blockstate.ILevelBasedPropertyAccessor;
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import mod.chiselsandbits.api.util.SingleBlockLevelReader;
 import mod.chiselsandbits.api.variant.state.IStateVariant;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.api.variant.state.IStateVariantProvider;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -66,14 +71,16 @@ public final class StateVariantManager implements IStateVariantManager
         };
     }
 
+    @SafeVarargs
     @Override
-    public IStateVariantManager registerProvider(Supplier<Block> block, IStateVariantProvider provider) {
+    public final IStateVariantProvider registerProvider(IStateVariantProvider provider, Supplier<Block>... block) {
         if (providersByNames.containsKey(provider.getRegistryName()))
             throw new IllegalStateException("Provider with name " + provider.getRegistryName() + " already exists!");
 
         providersByNames.put(provider.getRegistryName(), provider);
-        preBakeProviders.put(block, provider);
-        return this;
+        for (Supplier<Block> blockSupplier : block)
+            preBakeProviders.put(blockSupplier, provider);
+        return provider;
     }
 
     private void bakeProviders() {
@@ -147,7 +154,7 @@ public final class StateVariantManager implements IStateVariantManager
         if (!providers.containsKey(blockInformation.blockState().getBlock()))
             return Optional.empty();
 
-        return blockInformation.variant().flatMap(stateVariant -> providers.get(blockInformation.blockState().getBlock()).getItemStack(stateVariant));
+        return blockInformation.variant().flatMap(stateVariant -> providers.get(blockInformation.blockState().getBlock()).getItemStack(blockInformation));
     }
 
     @Override
@@ -166,6 +173,41 @@ public final class StateVariantManager implements IStateVariantManager
         if (!providers.containsKey(blockInformation.blockState().getBlock()))
             return Optional.empty();
 
-        return blockInformation.variant().flatMap(variant -> providers.get(blockInformation.blockState().getBlock()).getName(variant));
+        return blockInformation.variant().flatMap(variant -> providers.get(blockInformation.blockState().getBlock()).getName(blockInformation));
+    }
+
+    @Override
+    public void setFullBlock(LevelAccessor levelAccessor, BlockPos inWorldPos, BlockInformation primaryState) {
+        bakeProviders();
+        if (primaryState.variant().isEmpty()) {
+            levelAccessor.setBlock(
+                    inWorldPos,
+                    primaryState.blockState(),
+                    Block.UPDATE_ALL
+            );
+            return;
+        }
+
+        primaryState.variant().ifPresent(variant -> providers.get(primaryState.blockState().getBlock()).setFullBlock(levelAccessor, inWorldPos, primaryState));
+    }
+
+    @Override
+    public Optional<Integer> getBeaconColorMultiplier(BlockInformation blockInformation, LevelReader levelReader, BlockPos pos, BlockPos beaconPos) {
+        bakeProviders();
+
+        if (!providers.containsKey(blockInformation.blockState().getBlock()))
+        {
+            return Optional.ofNullable(ILevelBasedPropertyAccessor.getInstance().getBeaconColorMultiplier(
+                    new SingleBlockLevelReader(
+                            blockInformation,
+                            pos,
+                            levelReader
+                    ),
+                    pos,
+                    beaconPos
+            ));
+        }
+
+        return blockInformation.variant().flatMap(variant -> providers.get(blockInformation.blockState().getBlock()).getBeaconColorMultiplier(blockInformation, levelReader, pos, beaconPos));
     }
 }

@@ -4,10 +4,13 @@ import com.communi.suggestu.scena.core.fluid.FluidInformation;
 import com.mojang.serialization.Codec;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -59,7 +62,7 @@ public interface IStateVariantManager
      * @param provider The provider to register.
      * @return The manager instance.
      */
-    IStateVariantManager registerProvider(final Supplier<Block> block, final IStateVariantProvider provider);
+    public IStateVariantProvider registerProvider(IStateVariantProvider provider, Supplier<Block>... block);
 
     /**
      * Returns the state variant, if one exists, for the blockstate and block entity combination.
@@ -128,4 +131,23 @@ public interface IStateVariantManager
      * @return The name if present.
      */
     Optional<Component> getName(BlockInformation blockInformation);
+
+    /**
+     * Sets the full block at the given position to the given primary state.
+     *
+     * @param levelAccessor The level accessor.
+     * @param inWorldPos The position in the world.
+     * @param primaryState The primary state.
+     */
+    void setFullBlock(LevelAccessor levelAccessor, BlockPos inWorldPos, BlockInformation primaryState);
+
+    /**
+     * Calculates and returns the beacon color multiplier for the given block information.
+     *
+     * @param blockInformation The block information.
+     * @param levelReader The level reader.
+     * @param pos The position.
+     * @param beaconPos The beacon position.
+     */
+    Optional<Integer> getBeaconColorMultiplier(BlockInformation blockInformation, LevelReader levelReader, BlockPos pos, BlockPos beaconPos);
 }

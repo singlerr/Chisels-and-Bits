@@ -402,34 +402,35 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
 
     @Override
     public Integer getBeaconColorMultiplier(final BlockState state, final LevelReader levelReader, final BlockPos pos, final BlockPos beaconPos) {
+        /**
+         *
+         *
+         *
+         *
+         *
+         *
+         *
+         *
+         *
+         */
+
         return getBlockEntity(levelReader, pos)
                 .filter(e -> e.getStatistics().getStateCounts().keySet()
                         .stream()
                         .filter(entryState -> !entryState.isAir())
-                        .allMatch(entryState -> ILevelBasedPropertyAccessor.getInstance().getBeaconColorMultiplier(
-                                new SingleBlockLevelReader(
-                                        e.getStatistics().getPrimaryState(),
-                                        pos,
-                                        levelReader
-                                ),
-                                pos,
-                                beaconPos
-                        ) != null)
+                        .allMatch(entryState -> IStateVariantManager.getInstance().getBeaconColorMultiplier(entryState, levelReader, pos, beaconPos).isPresent())
                 )
                 .flatMap(e -> e.getStatistics().getStateCounts().entrySet()
                         .stream()
                         .filter(entryState -> !entryState.getKey().isAir())
-                        .map(entryState -> ArrayUtils.multiply(
-                                ColorUtils.unpack(ILevelBasedPropertyAccessor.getInstance().getBeaconColorMultiplier(
-                                        new SingleBlockLevelReader(
-                                                entryState.getKey(),
-                                                pos,
-                                                levelReader
-                                        ),
-                                        pos,
-                                        beaconPos
-                                )),
-                                entryState.getValue())).reduce((floats, floats2) -> {
+                        .map(entryState ->
+                                IStateVariantManager.getInstance().getBeaconColorMultiplier(entryState.getKey(), levelReader, pos, beaconPos)
+                                        .map(color -> ArrayUtils.multiply(
+                                                ColorUtils.unpack(color),
+                                                entryState.getValue())))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .reduce((floats, floats2) -> {
                             if (floats.length != floats2.length)
                                 return new float[0];
 
@@ -505,7 +506,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
 
     @Override
     protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack itemStack, @NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult blockHitResult) {
-           if (itemStack.is(Items.SPONGE)) {
+        if (itemStack.is(Items.SPONGE)) {
             return getBlockEntity(level, blockPos)
                     .map(blockEntity -> {
                         try (IBatchMutation mutation = blockEntity.batch(IChangeTrackerManager.getInstance().getChangeTracker(player))) {

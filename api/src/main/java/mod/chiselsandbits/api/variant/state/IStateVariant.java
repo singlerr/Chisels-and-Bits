@@ -29,8 +29,7 @@ public interface IStateVariant extends Comparable<IStateVariant>, ISnapshotable<
      * The stream codec that can be used to serialize a state variant.
      */
     StreamCodec<RegistryFriendlyByteBuf, IStateVariant> STREAM_CODEC = IStateVariantManager.getInstance().byNameStreamCodec()
-            .dispatch(IStateVariant::provider,
-                    Serializable::streamCodec);
+            .dispatch(IStateVariant::provider, IStateVariantProvider::streamCodec);
 
 
     /**
