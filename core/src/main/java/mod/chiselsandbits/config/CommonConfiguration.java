@@ -18,7 +18,7 @@ public class CommonConfiguration implements ICommonConfiguration
 
     public CommonConfiguration() {
         final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(
-          ConfigurationType.NOT_SYNCED, Constants.MOD_ID + "-common"
+          ConfigurationType.NOT_SYNCED, Constants.MOD_ID + "-common", "mod.chiselsandbits.config"
         );
 
         enableHelp = builder.defineBoolean("help.enabled-in-tooltips", true);

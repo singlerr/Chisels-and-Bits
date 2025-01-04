@@ -19,10 +19,11 @@ public class ServerConfiguration implements IServerConfiguration
     private final Supplier<Integer>        changeTrackerSize;
     private final Supplier<Boolean>        deleteExcessBits;
     private final Supplier<Double> lightFactorMultiplier;
+    private final Supplier<Boolean> requireChiselInOffHandForBitBreaking;
 
     public ServerConfiguration() {
         final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(
-          ConfigurationType.SYNCED, Constants.MOD_ID + "-server"
+          ConfigurationType.SYNCED, Constants.MOD_ID + "-server", "mod.chiselsandbits.config"
         );
 
         blockListRandomTickingBlocks = builder.defineBoolean("balancing.blacklist-random-ticking-blocks", false);
@@ -32,6 +33,7 @@ public class ServerConfiguration implements IServerConfiguration
         changeTrackerSize = builder.defineInteger("balancing.change-tracker-size", 20, 10, 40);
         deleteExcessBits = builder.defineBoolean("balancing.delete-excess-bits", true);
         lightFactorMultiplier = builder.defineDouble("balancing.light-factor-multiplier", 1,0, 4096);
+        requireChiselInOffHandForBitBreaking = builder.defineBoolean("balancing.require-chisel-in-off-hand-for-bit-breaking", false);
 
         builder.setup();
     }
@@ -76,5 +78,10 @@ public class ServerConfiguration implements IServerConfiguration
     public Supplier<Double> getLightFactorMultiplier()
     {
         return lightFactorMultiplier;
+    }
+
+    @Override
+    public Supplier<Boolean> getRequireChiselInOffHandForBitBreaking() {
+        return requireChiselInOffHandForBitBreaking;
     }
 }

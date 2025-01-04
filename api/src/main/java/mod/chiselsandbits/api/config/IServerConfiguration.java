@@ -71,4 +71,11 @@ public interface IServerConfiguration
      * @return A supplier that determines the factor with which the bit light strength is multiplied.
      */
     Supplier<Double> getLightFactorMultiplier();
+
+    /**
+     * Indicates if the player should be required to have a chisel in their offhand to break bits with a bit block.
+     *
+     * @return A supplier that determines if the player should be required to have a chisel in their offhand to break bits.
+     */
+    Supplier<Boolean> getRequireChiselInOffHandForBitBreaking();
 }

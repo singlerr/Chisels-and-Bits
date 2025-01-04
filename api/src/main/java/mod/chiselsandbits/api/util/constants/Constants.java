@@ -43,4 +43,6 @@ public final class Constants
     }
 
     public static final int TICKS_BETWEEN_CHISEL_USAGE = 3;
+
+    public static final int TICKS_BETWEEN_CHISEL_ERRORS = 15;
 }

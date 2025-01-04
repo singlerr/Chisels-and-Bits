@@ -47,7 +47,8 @@ public class ClientConfiguration implements IClientConfiguration
 
     public ClientConfiguration()
     {
-        final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(ConfigurationType.CLIENT_ONLY, Constants.MOD_ID + "-client");
+        final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(
+                ConfigurationType.CLIENT_ONLY, Constants.MOD_ID + "-client", "mod.chiselsandbits.config");
 
         bitBagFullness = builder.defineBoolean("settings.bit-bag.invert-durability-bar-indication", false);
         successfulPlacementRenderMode = builder.defineEnum("settings.placement.render-mode.success", PlacementPreviewRenderMode.GHOST_BLOCK_MODEL);

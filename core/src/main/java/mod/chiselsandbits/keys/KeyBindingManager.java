@@ -23,6 +23,7 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Collection;
 import java.util.List;
 
 public class KeyBindingManager {
@@ -329,5 +330,11 @@ public class KeyBindingManager {
 
     public boolean isDeleteFromClipboardPressed() {
         return isKeyDown(getRemoveFromClipboardKeyBinding());
+    }
+
+    public Collection<KeyMapping> getAllKeyBinds() {
+        return List.of(getOpenToolMenuKeybinding(), getCycleToolMenuRightKeybinding(), getCycleToolMenuLeftKeybinding(),
+                getResetMeasuringTapeKeyBinding(), getUndoOperationKeyBinding(), getRedoOperationKeyBinding(),
+                getScopingKeyBinding(), getResetCachesKeyBinding(), getRemoveFromClipboardKeyBinding());
     }
 }

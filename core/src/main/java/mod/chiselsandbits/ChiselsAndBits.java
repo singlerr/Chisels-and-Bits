@@ -12,7 +12,6 @@ import mod.chiselsandbits.config.ChiselsAndBitsConfiguration;
 import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.plugin.PluginManger;
 import mod.chiselsandbits.registrars.*;
-import mod.chiselsandbits.utils.LanguageHandler;
 
 public class ChiselsAndBits
 {
@@ -27,7 +26,6 @@ public class ChiselsAndBits
             IPluginDiscoverer pluginDiscoverer)
 	{
 	    instance = this;
-        LanguageHandler.loadLangPath("assets/chiselsandbits/lang/%s.json");
 
         this.configuration = new ChiselsAndBitsConfiguration();
         IChiselsAndBitsAPI.Holder.setInstance(new ChiselsAndBitsAPI(

@@ -36,15 +36,13 @@ public class ConfigLangGenerator implements DataProvider
 
     @Override
     public CompletableFuture<?> run(@NotNull final CachedOutput cache) {
-
-
         final List<String> langKeys = new ArrayList<>(ForgeConfigurationManager.getInstance().getAvailableKeys());
         langKeys.sort(Comparator.comparing(s -> s.replace(".comment", "")));
         final JsonObject returnValue = new JsonObject();
 
         for (String langKey : langKeys)
         {
-            returnValue.addProperty("mod.chiselsandbits.config." + langKey, "");
+            returnValue.addProperty(langKey, "");
         }
 
         final Path configLangFolder = this.packOutput.getOutputFolder().resolve(Constants.DataGenerator.CONFIG_LANG_DIR);

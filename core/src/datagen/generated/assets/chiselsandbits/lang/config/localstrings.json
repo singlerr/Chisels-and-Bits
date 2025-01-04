@@ -8,6 +8,7 @@
   "mod.chiselsandbits.chisel.attempt.failed.attempt-too-high": "",
   "mod.chiselsandbits.chisel.attempt.failed.attempt-too-low": "",
   "mod.chiselsandbits.chisel.attempt.failed.chisel-broke": "",
+  "mod.chiselsandbits.chisel.attempt.failed.missing-chisel-in-offhand": "",
   "mod.chiselsandbits.chisel.attempt.failed.no-block": "",
   "mod.chiselsandbits.chisel.attempt.failed.no-placeable-bit-held": "",
   "mod.chiselsandbits.chisel.attempt.failed.no-valid-state-found": "",

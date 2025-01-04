@@ -15,7 +15,9 @@ import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.client.variant.state.IClientStateVariantManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
+import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.item.bit.IBitItem;
+import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
@@ -213,6 +215,19 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         final ItemStack itemStack = playerEntity.getItemInHand(hand);
         if (itemStack.isEmpty() || itemStack.getItem() != this)
             return currentState;
+
+        if (modeOfOperation.isChiseling() && IServerConfiguration.getInstance().getRequireChiselInOffHandForBitBreaking().get()) {
+            final ItemStack offHandStack = playerEntity.getItemInHand(InteractionHand.OFF_HAND);
+            if (offHandStack.isEmpty() || !(offHandStack.getItem() instanceof IChiselItem)) {
+                playerEntity.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_ERRORS);
+                INotificationManager.getInstance().notify(
+                        getMode(itemStack).getIcon(),
+                        new Vec3(1, 0, 0),
+                        LocalStrings.ChiselAttemptMissingChiselInOffhand.getText()
+                );
+                return currentState;
+            }
+        }
 
         final IChiselingItem chiselingItem = (IChiselingItem) itemStack.getItem();
         final IChiselMode chiselMode = chiselingItem.getMode(itemStack);
