@@ -11,6 +11,7 @@ import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.network.packets.MeasurementsUpdatedPacket;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -72,6 +73,14 @@ public class MeasuringManager implements IMeasuringManager
     {
         ChiselsAndBits.getInstance().getNetworkChannel().sendToEveryone(
           new MeasurementsUpdatedPacket(this.measurements)
+        );
+    }
+
+    public void syncTo(final ServerPlayer player)
+    {
+        ChiselsAndBits.getInstance().getNetworkChannel().sendToPlayer(
+          new MeasurementsUpdatedPacket(this.measurements),
+          player
         );
     }
 

@@ -9,6 +9,7 @@ import mod.chiselsandbits.logic.*;
 import mod.chiselsandbits.network.packets.UpdateBlockEntityPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -70,7 +71,9 @@ public final class ModEventHandler {
         });
         IGameEvents.getInstance().getPlayerJoinedWorldEvent().register((player, level) -> {
             ChiselingManagerCountDownResetHandler.doResetFor(player);
-            MeasuringSynchronisationHandler.syncToAll();
+            if (player instanceof ServerPlayer serverPlayer) {
+                MeasuringSynchronisationHandler.syncTo(serverPlayer);
+            }
         });
         IGameEvents.getInstance().getRegisterCommandsEvent().register(CommandRegistrationHandler::registerCommandsTo);
         IGameEvents.getInstance().getPlayerRightClickEvent().register(new IPlayerRightClickBlockEvent() {
