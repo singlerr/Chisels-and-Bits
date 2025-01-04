@@ -4,6 +4,7 @@ import com.communi.suggestu.scena.core.dist.Dist;
 import com.communi.suggestu.scena.core.dist.DistExecutor;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.measuring.IMeasurement;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 
@@ -30,7 +32,10 @@ public class MeasuringManager implements IMeasuringManager
         return INSTANCE;
     }
 
-    private final Table<ResourceLocation, UUID, Map<MeasuringMode, Measurement>> measurements = HashBasedTable.create();
+    private final Table<ResourceLocation, UUID, Map<MeasuringMode, Measurement>> measurements = Tables.newCustomTable(
+            new ConcurrentHashMap<>(),
+            ConcurrentHashMap::new
+    );
 
     private MeasuringManager()
     {
