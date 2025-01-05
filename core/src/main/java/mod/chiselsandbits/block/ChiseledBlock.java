@@ -402,18 +402,6 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
 
     @Override
     public Integer getBeaconColorMultiplier(final BlockState state, final LevelReader levelReader, final BlockPos pos, final BlockPos beaconPos) {
-        /**
-         *
-         *
-         *
-         *
-         *
-         *
-         *
-         *
-         *
-         */
-
         return getBlockEntity(levelReader, pos)
                 .filter(e -> e.getStatistics().getStateCounts().keySet()
                         .stream()

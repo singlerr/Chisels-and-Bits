@@ -20,7 +20,7 @@ project.version = opc.buildVersionNumberWithOffset(
 
 allprojects { Project project ->
     project.ext.isRunningWithIdea = {
-        final File DotIdeaDirectory = new File(project.getProjectDir(), ".idea");
+        final File DotIdeaDirectory = new File(project.rootProject.getProjectDir(), ".idea");
         final File GradleXml = new File(DotIdeaDirectory, "gradle.xml");
         try {
             return new String(Files.readAllBytes(GradleXml.toPath())).contains("<option name=\"delegatedBuild\" value=\"false\" />");

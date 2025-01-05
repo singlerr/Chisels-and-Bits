@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
 import com.communi.suggestu.scena.core.client.models.IModelManager;
+import com.communi.suggestu.scena.core.client.models.baked.BlockStateAwareQuad;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
@@ -195,7 +196,15 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
                     target = builder.getList(cullDirection);
                 }
 
-                QuadGenerationUtils.generateQuads(target, primaryStateRenderSeed, chiselRenderType.layer, region.faceValue(), cullDirection, region.lowerLeft(), region.upperRight());
+                QuadGenerationUtils.generateQuads(target,
+                        primaryStateRenderSeed,
+                        chiselRenderType.layer,
+                        region.faceValue(),
+                        cullDirection,
+                        region.lowerLeft(),
+                        region.upperRight(),
+                        bakedQuad -> new BlockStateAwareQuad(bakedQuad, region.faceValue().blockState())
+                );
             }
         }
     }

@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client.model.baked.bit;
 
 import com.communi.suggestu.scena.core.client.models.IModelManager;
+import com.communi.suggestu.scena.core.client.models.baked.BlockStateAwareQuad;
 import com.communi.suggestu.scena.core.client.models.baked.IDataAwareBakedModel;
 import com.communi.suggestu.scena.core.client.models.data.IBlockModelData;
 import com.communi.suggestu.scena.core.client.rendering.type.IRenderTypeManager;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 public class  BitBlockBakedModel extends BaseBakedPerspectiveSmartModel implements IDataAwareBakedModel {
 
@@ -52,7 +54,8 @@ public class  BitBlockBakedModel extends BaseBakedPerspectiveSmartModel implemen
                         blockInformation,
                         myFace,
                         myFace.getAxisDirection() == Direction.AxisDirection.POSITIVE ? TO : FROM,
-                        myFace.getAxisDirection() == Direction.AxisDirection.NEGATIVE ? TO : FROM
+                        myFace.getAxisDirection() == Direction.AxisDirection.NEGATIVE ? TO : FROM,
+                        bakedQuad -> new BlockStateAwareQuad(bakedQuad, blockInformation.blockState())
                 );
             }
         }
