@@ -55,7 +55,16 @@ public class  BitBlockBakedModel extends BaseBakedPerspectiveSmartModel implemen
                         myFace,
                         myFace.getAxisDirection() == Direction.AxisDirection.POSITIVE ? TO : FROM,
                         myFace.getAxisDirection() == Direction.AxisDirection.NEGATIVE ? TO : FROM,
-                        bakedQuad -> new BlockStateAwareQuad(bakedQuad, blockInformation.blockState())
+                        (modelLayer, quad) -> {
+                            if (modelLayer.sourceQuad() instanceof BlockStateAwareQuad blockStateAwareQuad) {
+                                return new BlockStateAwareQuad(
+                                        quad,
+                                        blockStateAwareQuad.getBlockState()
+                                );
+                            }
+
+                            return new BlockStateAwareQuad(quad, blockInformation.blockState());
+                        }
                 );
             }
         }

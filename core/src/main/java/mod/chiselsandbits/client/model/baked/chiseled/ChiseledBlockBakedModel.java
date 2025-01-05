@@ -203,7 +203,16 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
                         cullDirection,
                         region.lowerLeft(),
                         region.upperRight(),
-                        bakedQuad -> new BlockStateAwareQuad(bakedQuad, region.faceValue().blockState())
+                        (quadLayer, bakedQuad) -> {
+                            if (quadLayer.sourceQuad() instanceof BlockStateAwareQuad blockStateAwareQuad) {
+                                return new BlockStateAwareQuad(
+                                        bakedQuad,
+                                        blockStateAwareQuad.getBlockState()
+                                );
+                            }
+
+                            return new BlockStateAwareQuad(bakedQuad, region.faceValue().blockState());
+                        }
                 );
             }
         }

@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -114,6 +115,12 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     public BlockState rotate(BlockState state, LevelAccessor levelAccessor, BlockPos pos, Rotation rotation) {
         markMethod();
         return state;
+    }
+
+    @Override
+    public BlockState mirror(BlockState blockState, LevelAccessor levelAccessor, BlockPos blockPos, Mirror mirror) {
+        markMethod();
+        return blockState;
     }
 
     @Override

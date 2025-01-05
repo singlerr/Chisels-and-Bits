@@ -14,6 +14,7 @@ import org.joml.Vector3f;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public final class QuadGenerationUtils {
@@ -22,7 +23,7 @@ public final class QuadGenerationUtils {
         throw new IllegalStateException("Tried to instantiate: 'QuadGenerationUtils', but this is a utility class.");
     }
 
-    public static void generateQuads(List<BakedQuad> target, long primaryStateRenderSeed, @NotNull RenderType renderType, BlockInformation blockInformation, Direction cullDirection, Vector3f from, Vector3f to, Function<BakedQuad, BakedQuad> resultAdapter) {
+    public static void generateQuads(List<BakedQuad> target, long primaryStateRenderSeed, @NotNull RenderType renderType, BlockInformation blockInformation, Direction cullDirection, Vector3f from, Vector3f to, BiFunction<ModelQuadLayer, BakedQuad, BakedQuad> resultAdapter) {
         final Collection<ModelQuadLayer> quadLayers = FaceManager.getInstance().getCachedLayersFor(blockInformation, cullDirection, renderType, primaryStateRenderSeed, renderType);
 
         if (quadLayers != null) {
@@ -43,7 +44,7 @@ public final class QuadGenerationUtils {
                 adapter.setQuadOrientation(cullDirection);
                 final BakedQuad quad = adapter.build();
 
-                target.add(resultAdapter.apply(quad));
+                target.add(resultAdapter.apply(layer, quad));
             }
         }
     }

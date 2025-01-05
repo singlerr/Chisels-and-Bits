@@ -102,6 +102,8 @@ public class ChiseledBlockEntity extends BlockEntity implements
     private CompletableFuture<Void> storageFuture = null;
     private final List<CompoundTag> deserializationQueue = Collections.synchronizedList(Lists.newArrayList());
     private final SingleBlockVoxelShapeCache voxelShapeCache = new SingleBlockVoxelShapeCache(this);
+    private boolean isLoading = false;
+    private final Deque<Runnable> afterCurrentLoad = new ArrayDeque<>();
 
     public ChiseledBlockEntity(BlockPos position, BlockState state) {
         super(ModBlockEntityTypes.CHISELED.get(), position, state);
@@ -298,11 +300,16 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
                     mutableStatistics.updatePrimaryState(level, shouldUpdateWorld());
 
+                    this.isLoading = false;
                     if (shouldUpdateWorld()) {
                         setChanged();
                     }
 
                     updateModelDataIfInLoadedChunk();
+
+                    while (!this.afterCurrentLoad.isEmpty()) {
+                        this.afterCurrentLoad.pop().run();
+                    }
                 }, getExecutor());
 
         synchronized (this.tagSyncHandle) {
@@ -371,6 +378,9 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
         super.setChanged();
 
+        if (this.isLoading)
+            return;
+
         getLevel().getLightEngine().checkBlock(getBlockPos());
         getLevel().sendBlockUpdated(getBlockPos(), Blocks.AIR.defaultBlockState(), getBlockState(), Block.UPDATE_ALL);
         getLevel().updateNeighborsAt(getBlockPos(), getLevel().getBlockState(getBlockPos()).getBlock());
@@ -406,6 +416,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
     }
 
     private CompletableFuture<Payload> readAsync(final Tag tag, HolderLookup.Provider provider) {
+        this.isLoading = true;
         return this.storageEngine.decodeAsync(tag, provider);
     }
 
@@ -623,17 +634,28 @@ public class ChiseledBlockEntity extends BlockEntity implements
         return mutableStatistics;
     }
 
+    private void executeWhenLoaded(Runnable runnable) {
+        if (!this.isLoading) {
+            runnable.run();
+            return;
+        }
+
+        this.afterCurrentLoad.add(runnable);
+    }
+
     @Override
     public void rotate(final Direction.Axis axis, final int rotationCount) {
         if (getLevel() == null) {
             return;
         }
 
-        //Large operation, better batch this together to prevent weird updates.
-        try (final IBatchMutation ignored = batch()) {
-            this.storage.rotate(axis, rotationCount);
-            this.mutableStatistics.recalculate(this.getLevel(), this.storage);
-        }
+        executeWhenLoaded(() -> {
+            //Large operation, better batch this together to prevent weird updates.
+            try (final IBatchMutation ignored = batch()) {
+                this.storage.rotate(axis, rotationCount);
+                this.mutableStatistics.recalculate(this.getLevel(), this.storage);
+            }
+        });
     }
 
     @Override
@@ -642,11 +664,13 @@ public class ChiseledBlockEntity extends BlockEntity implements
             return;
         }
 
-        //Large operation, better batch this together to prevent weird updates.
-        try (final IBatchMutation ignored = batch()) {
-            this.storage.mirror(axis);
-            this.mutableStatistics.recalculate(this.getLevel(), this.storage);
-        }
+        executeWhenLoaded(() -> {
+            //Large operation, better batch this together to prevent weird updates.
+            try (final IBatchMutation ignored = batch()) {
+                this.storage.mirror(axis);
+                this.mutableStatistics.recalculate(this.getLevel(), this.storage);
+            }
+        });
     }
 
     @Override

@@ -42,15 +42,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -168,16 +166,29 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
 
     @Override
     public BlockState rotate(final BlockState state, final LevelAccessor levelAccessor, final BlockPos pos, final Rotation rotation) {
-        for (final Direction.Axis axis : Direction.Axis.values()) {
-            if (rotation.rotation().inverts(axis)) {
-                getBlockEntity(levelAccessor, pos)
-                        .ifPresent(e -> e.rotate(axis));
+        if (rotation == Rotation.NONE)
+            return state;
 
-                return state;
-            }
-        }
+        getBlockEntity(levelAccessor, pos)
+                .ifPresent(e -> e.rotate(Direction.Axis.Y, 4 - rotation.ordinal()));
 
         return state;
+    }
+
+    @Override
+    public BlockState mirror(BlockState blockState, LevelAccessor levelAccessor, BlockPos blockPos, Mirror mirror) {
+        if (mirror == Mirror.NONE) {
+            return blockState;
+        }
+
+        getBlockEntity(levelAccessor, blockPos)
+                .ifPresent(e -> e.mirror(switch (mirror) {
+                    case NONE -> throw new IllegalArgumentException("Invalid mirror");
+                    case LEFT_RIGHT -> Direction.Axis.Z;
+                    case FRONT_BACK -> Direction.Axis.X;
+                }));
+
+        return blockState;
     }
 
     @Override
@@ -339,6 +350,10 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     @Override
     public boolean placeLiquid(final @NotNull LevelAccessor worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final @NotNull FluidState fluidStateIn) {
         final Fluid still = fluidStateIn.getType() instanceof FlowingFluid ? ((FlowingFluid) fluidStateIn.getType()).getSource() : fluidStateIn.getType();
+
+        if (Fluids.EMPTY.isSame(still)) {
+            return false;
+        }
 
         return getBlockEntity(worldIn, pos)
                 .map(entity -> {
