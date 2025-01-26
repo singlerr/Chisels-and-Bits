@@ -168,14 +168,17 @@ public class ChiseledBlockModelDataExecutor {
                 .thenAcceptAsync(tileEntity::setModelData, recalculationService)
                 .thenRunAsync(onCompleteCallback, recalculationService)
                 .thenRunAsync(() -> {
-                    if (Minecraft.getInstance().level == tileEntity.getLevel()) {
+                    try {
                         IModelDataManager.getInstance().requestModelDataRefresh(tileEntity);
-                        Objects.requireNonNull(Minecraft.getInstance().level).sendBlockUpdated(
-                                tileEntity.getBlockPos(),
-                                tileEntity.getBlockState(),
-                                tileEntity.getBlockState(),
-                                8
-                        );
+                        if (tileEntity.getLevel() != null) {
+                            tileEntity.getLevel().sendBlockUpdated(
+                                    tileEntity.getBlockPos(),
+                                    tileEntity.getBlockState(),
+                                    tileEntity.getBlockState(),
+                                    8
+                            );
+                        }
+                    } catch (Exception ignored) {
                     }
                 }, Minecraft.getInstance())
                 .exceptionally(throwable -> {
@@ -208,90 +211,90 @@ public class ChiseledBlockModelDataExecutor {
         );
 
         CompletableFuture.supplyAsync(new Supplier<Table<RenderType, BlockInformation, BakedModel>>() {
-            @Override
-            public Table<RenderType, BlockInformation, BakedModel> get() {
-                final HashBasedTable<RenderType, BlockInformation, BakedModel> result = HashBasedTable.create();
+                    @Override
+                    public Table<RenderType, BlockInformation, BakedModel> get() {
+                        final HashBasedTable<RenderType, BlockInformation, BakedModel> result = HashBasedTable.create();
 
-                for (BlockInformation blockInformation : tileEntity.getStatistics().getContainedStates()) {
-                    final Set<RenderType> renderTypes = BlockInformationUtils.extractRenderTypes(blockInformation);
+                        for (BlockInformation blockInformation : tileEntity.getStatistics().getContainedStates()) {
+                            final Set<RenderType> renderTypes = BlockInformationUtils.extractRenderTypes(blockInformation);
 
-                    final IAreaAccessor filtered = new RenderingAreaAccessor(blockInformation, tileEntity);
+                            final IAreaAccessor filtered = new RenderingAreaAccessor(blockInformation, tileEntity);
 
-                    for (RenderType renderType : renderTypes) {
-                        final ChiselRenderType solidType =
-                                ChiselRenderType.fromLayer(renderType, false);
-                        final ChiselRenderType fluidType =
-                                ChiselRenderType.fromLayer(renderType, true);
+                            for (RenderType renderType : renderTypes) {
+                                final ChiselRenderType solidType =
+                                        ChiselRenderType.fromLayer(renderType, false);
+                                final ChiselRenderType fluidType =
+                                        ChiselRenderType.fromLayer(renderType, true);
 
-                        if (tileEntity.getStatistics().getStateCounts().isEmpty() ||
-                                (tileEntity.getStatistics().getStateCounts().size() == 1 && tileEntity.getStatistics().getStateCounts().containsKey(BlockInformation.AIR))) {
-                            continue;
-                        }
+                                if (tileEntity.getStatistics().getStateCounts().isEmpty() ||
+                                        (tileEntity.getStatistics().getStateCounts().size() == 1 && tileEntity.getStatistics().getStateCounts().containsKey(BlockInformation.AIR))) {
+                                    continue;
+                                }
 
-                        BakedModel baked;
+                                BakedModel baked;
 
-                        try (IProfilerSection ignored3 = ProfilingManager.getInstance()
-                                .withSection("Known render layer model building for: " + solidType.name() + " and " + fluidType.name())) {
+                                try (IProfilerSection ignored3 = ProfilingManager.getInstance()
+                                        .withSection("Known render layer model building for: " + solidType.name() + " and " + fluidType.name())) {
 
-                            if (FluidRenderingManager.getInstance().isFluidRenderType(renderType)) {
-                                try (IProfilerSection ignored4 = ProfilingManager.getInstance().withSection("Combined model building")) {
+                                    if (FluidRenderingManager.getInstance().isFluidRenderType(renderType)) {
+                                        try (IProfilerSection ignored4 = ProfilingManager.getInstance().withSection("Combined model building")) {
 
-                                    final ChiseledBlockBakedModel solidModel;
-                                    try (IProfilerSection ignored5 = ProfilingManager.getInstance().withSection("Solid")) {
-                                        solidModel = ChiseledBlockBakedModelManager.getInstance().get(
-                                                filtered,
-                                                blockInformation,
-                                                solidType,
-                                                neighborhood,
-                                                tileEntity.getBlockPos(),
-                                                renderType
-                                        );
-                                    }
+                                            final ChiseledBlockBakedModel solidModel;
+                                            try (IProfilerSection ignored5 = ProfilingManager.getInstance().withSection("Solid")) {
+                                                solidModel = ChiseledBlockBakedModelManager.getInstance().get(
+                                                        filtered,
+                                                        blockInformation,
+                                                        solidType,
+                                                        neighborhood,
+                                                        tileEntity.getBlockPos(),
+                                                        renderType
+                                                );
+                                            }
 
-                                    final ChiseledBlockBakedModel fluidModel;
-                                    try (IProfilerSection ignored5 = ProfilingManager.getInstance().withSection("Fluid")) {
-                                        fluidModel = ChiseledBlockBakedModelManager.getInstance().get(
-                                                filtered,
-                                                blockInformation,
-                                                fluidType,
-                                                neighborhood,
-                                                tileEntity.getBlockPos(),
-                                                renderType
-                                        );
-                                    }
+                                            final ChiseledBlockBakedModel fluidModel;
+                                            try (IProfilerSection ignored5 = ProfilingManager.getInstance().withSection("Fluid")) {
+                                                fluidModel = ChiseledBlockBakedModelManager.getInstance().get(
+                                                        filtered,
+                                                        blockInformation,
+                                                        fluidType,
+                                                        neighborhood,
+                                                        tileEntity.getBlockPos(),
+                                                        renderType
+                                                );
+                                            }
 
-                                    try (IProfilerSection ignored5 = ProfilingManager.getInstance().withSection("Model combining")) {
-                                        if (solidModel.isEmpty()) {
-                                            baked = fluidModel;
-                                        } else if (fluidModel.isEmpty()) {
-                                            baked = solidModel;
-                                        } else {
-                                            baked = new CombinedModel(solidModel, fluidModel);
+                                            try (IProfilerSection ignored5 = ProfilingManager.getInstance().withSection("Model combining")) {
+                                                if (solidModel.isEmpty()) {
+                                                    baked = fluidModel;
+                                                } else if (fluidModel.isEmpty()) {
+                                                    baked = solidModel;
+                                                } else {
+                                                    baked = new CombinedModel(solidModel, fluidModel);
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        try (IProfilerSection ignored4 = ProfilingManager.getInstance().withSection("Singular model building")) {
+                                            baked = ChiseledBlockBakedModelManager.getInstance().get(
+                                                    filtered,
+                                                    blockInformation,
+                                                    ChiselRenderType.fromLayer(renderType, false),
+                                                    neighborhood,
+                                                    tileEntity.getBlockPos(),
+                                                    renderType
+                                            );
                                         }
                                     }
                                 }
-                            } else {
-                                try (IProfilerSection ignored4 = ProfilingManager.getInstance().withSection("Singular model building")) {
-                                    baked = ChiseledBlockBakedModelManager.getInstance().get(
-                                            filtered,
-                                            blockInformation,
-                                            ChiselRenderType.fromLayer(renderType, false),
-                                            neighborhood,
-                                            tileEntity.getBlockPos(),
-                                            renderType
-                                    );
-                                }
+
+                                result.put(renderType, blockInformation, baked);
                             }
                         }
 
-                        result.put(renderType, blockInformation, baked);
+                        return result;
                     }
-                }
-
-                return result;
-            }
-        }, recalculationService)
-        .thenAcceptAsync(resultConsumer, recalculationService);
+                }, recalculationService)
+                .thenAcceptAsync(resultConsumer, recalculationService);
     }
 
     private static synchronized void ensureThreadPoolSetup() {

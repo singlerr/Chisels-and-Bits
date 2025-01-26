@@ -114,11 +114,6 @@ public class ChiseledBlockEntity extends BlockEntity implements
     }
 
     @NotNull
-    public BlockPos getBlockPos() {
-        return super.getBlockPos();
-    }
-
-    @NotNull
     private static Executor createDefaultExecutor() {
         return DistExecutor.unsafeRunForDist(
                 () -> Minecraft::getInstance,
