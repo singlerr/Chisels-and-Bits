@@ -184,7 +184,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
                                         .map(IStateEntryInfo::getBlockInformation)
                                         .orElse(BlockInformation.AIR);
                         return blockInformation.blockState().skipRendering(blockInformation.blockState(), direction) ? blockInformation : BlockInformation.AIR;
-                    });
+                    }, chiselRenderType);
         }
 
         try (final IProfilerSection ignoredQuadGeneration = ProfilingManager.getInstance().withSection("quadGeneration")) {
