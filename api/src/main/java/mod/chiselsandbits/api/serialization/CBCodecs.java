@@ -2,18 +2,34 @@ package mod.chiselsandbits.api.serialization;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.*;
-import com.mojang.serialization.codecs.EitherCodec;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.MapLike;
+import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import net.jpountz.lz4.LZ4FrameInputStream;
 import net.jpountz.lz4.LZ4FrameOutputStream;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.ByteArrayTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import org.apache.commons.lang3.Validate;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -27,9 +43,7 @@ public interface CBCodecs {
     /**
      * Codec for a bit set.
      */
-    Codec<BitSet> BIT_SET = Codec.LONG_STREAM
-            .xmap(LongStream::toArray, LongStream::of)
-            .xmap(BitSet::valueOf, BitSet::toLongArray);
+    Codec<BitSet> BIT_SET = new NbtAwareBitsetCodec();
 
     /**
      * Creates a codec that attempts deserialization first using the first codec,
@@ -263,4 +277,29 @@ public interface CBCodecs {
         }
     }
 
+    record NbtAwareBitsetCodec() implements Codec<BitSet> {
+
+        private static final Codec<BitSet> BYTE_BASED_CODEC = Codec.BYTE_BUFFER
+                .xmap(ByteBuffer::array, ByteBuffer::wrap)
+                .xmap(BitSet::valueOf, BitSet::toByteArray);
+
+        private static final Codec<BitSet> DEFAULT_CODEC = Codec.LONG_STREAM
+                .xmap(LongStream::toArray, LongStream::of)
+                .xmap(BitSet::valueOf, BitSet::toLongArray);
+
+        @Override
+        public <T> DataResult<Pair<BitSet, T>> decode(DynamicOps<T> ops, T input) {
+            if (input instanceof ByteArrayTag) {
+                return BYTE_BASED_CODEC
+                        .decode(ops, input);
+            }
+
+            return DEFAULT_CODEC.decode(ops, input);
+        }
+
+        @Override
+        public <T> DataResult<T> encode(BitSet input, DynamicOps<T> ops, T prefix) {
+            return DEFAULT_CODEC.encode(input, ops, prefix);
+        }
+    }
 }
