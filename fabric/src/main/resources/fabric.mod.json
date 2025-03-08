@@ -24,8 +24,8 @@
   "accessWidener" : "accesswidener.accesswidener",
 
   "depends": {
-    "fabricloader": "$dependencies.net.fabricmc.fabric.loader.npm",
-    "fabric": "$dependencies.net.fabricmc.fabric_api.fabric.api.npm",
+    "fabricloader": ">=$project.fabric.loader.version",
+    "fabric": "=>$project.fabric.api.version",
     "minecraft": [${minecraft.range.fabric.get()}],
     "java": ">=${java.version.get()}",
     "scena": "$dependencies.com.communi_suggestu.scena.fabric.npm"
