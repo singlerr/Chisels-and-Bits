@@ -65,6 +65,8 @@ public class NbtConstants
     public static final String DATA = "data";
     public static final String HIGHLIGHT = "highlight";
 
+    public static final String LEGACY_CHISELED_DATA = "chiseledData";
+
     private NbtConstants()
     {
         throw new IllegalStateException("Can not instantiate an instance of: NbtConstants. This is a utility class");

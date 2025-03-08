@@ -24,6 +24,10 @@ public record StateEntryPalette(List<Entry> paletteEntries, Map<BlockInformation
                 Entry.CODEC.listOf().fieldOf(NbtConstants.ENTRIES).forGetter(StateEntryPalette::paletteEntries)
             ).apply(instance, StateEntryPalette::new));
 
+    public static final Codec<StateEntryPalette> LEGACY_CODEC =
+            Entry.LEGACY_CODEC.listOf()
+                    .xmap(StateEntryPalette::new, StateEntryPalette::paletteEntries);
+
     public static final MapCodec<StateEntryPalette> MAP_CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                 Entry.CODEC.listOf().fieldOf(NbtConstants.ENTRIES).forGetter(StateEntryPalette::paletteEntries)
@@ -148,6 +152,9 @@ public record StateEntryPalette(List<Entry> paletteEntries, Map<BlockInformation
     }
 
     public record Entry(BlockInformation blockInformation) implements Serializable.Registry<Entry> {
+
+        public static final Codec<Entry> LEGACY_CODEC = BlockInformation.LEGACY_CODEC
+                .xmap(Entry::new, Entry::blockInformation);
 
         public static final Codec<Entry> CODEC = RecordCodecBuilder.create(instance -> {
             return instance.group(

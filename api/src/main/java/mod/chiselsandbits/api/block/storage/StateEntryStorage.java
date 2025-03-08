@@ -37,6 +37,13 @@ public final class StateEntryStorage implements IMirrorAndRotateble, IWithBatcha
             ).apply(instance, StateEntryStorage::new)
     );
 
+    public static final Codec<StateEntryStorage> LEGACY_CODEC = RecordCodecBuilder.create(
+            instance -> instance.group(
+                    StateEntryPalette.LEGACY_CODEC.fieldOf(NbtConstants.PALETTE).forGetter(StateEntryStorage::palette),
+                    CBCodecs.BIT_SET.fieldOf(NbtConstants.DATA).forGetter(StateEntryStorage::getData)
+            ).apply(instance, StateEntryStorage::new)
+    );
+
     public static final MapCodec<StateEntryStorage> MAP_CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
                     StateEntryPalette.MAP_CODEC.fieldOf(NbtConstants.PALETTE).forGetter(StateEntryStorage::palette),

@@ -6,8 +6,8 @@ public interface IQuadFunction<T1,T2,T3,T4,R>
     /**
      * Applies to the function to the four arguments, getting the result out.
      *
-     * @param one The first argument.
-     * @param two The second argument.
+     * @param one The primary argument.
+     * @param two The fallback argument.
      * @param three The third argument.
      * @param four The fourth argument.
      * @return The result.

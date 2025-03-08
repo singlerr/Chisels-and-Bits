@@ -55,7 +55,7 @@ public class InterpolationHelper {
      * Call when you are ready to use the helper.
      */
     public void setup() {
-        this.p00 = 0;// Bottom Left is always first.
+        this.p00 = 0;// Bottom Left is always primary.
         this.x0 = this.posCache[this.p00][0];
         this.y0 = this.posCache[this.p00][1];
         for (int i = 1; i < 4; i++) {

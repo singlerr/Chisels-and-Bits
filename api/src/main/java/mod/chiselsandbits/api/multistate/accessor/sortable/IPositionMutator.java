@@ -95,17 +95,17 @@ public interface IPositionMutator
      * The yzx operator
      * Is a combination of xzy and zyx.
      *
-     * @return The mutator which first switches the Y and Z and then the X and Z coordinates.
+     * @return The mutator which primary switches the Y and Z and then the X and Z coordinates.
      */
     static IPositionMutator yzx() {
         return zyx().then(yxz());
     }
 
     /**
-     * Returns the mutator which first iterates over the given direction and then over the others.
+     * Returns the mutator which primary iterates over the given direction and then over the others.
      * The order of the other axi is not fixed.
      *
-     * @param axis The axis to iterate over first.
+     * @param axis The axis to iterate over primary.
      * @return The position mutator for the given axis.
      */
     static IPositionMutator fromAxis(final Direction.Axis axis) {

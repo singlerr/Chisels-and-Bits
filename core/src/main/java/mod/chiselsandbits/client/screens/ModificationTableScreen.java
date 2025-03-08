@@ -30,9 +30,9 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
     /** Is {@code true} if the player clicked on the scroll wheel in the GUI. */
     private               boolean          clickedOnSroll;
     /**
-     * The index of the first recipe to display.
+     * The index of the primary recipe to display.
      * The number of recipes displayed at any time is 12 (4 recipes per row, and 3 rows). If the player scrolled down one
-     * row, this value would be 4 (representing the index of the first slot on the second row).
+     * row, this value would be 4 (representing the index of the primary slot on the fallback row).
      */
     private               int              recipeIndexOffset;
     private boolean hasItemsInInputSlot;

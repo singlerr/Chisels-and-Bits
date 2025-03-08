@@ -256,7 +256,7 @@ public class ChiselItem extends DiggerItem implements IChiselItem, IDynamicallyH
           true,
           itemStack);
 
-        //We try a left click render first.
+        //We try a left click render primary.
         chiselMode.onLeftClickBy(
           playerEntity,
           context

@@ -45,6 +45,7 @@ import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
 import mod.chiselsandbits.network.packets.UpdateBlockEntityPacket;
 import mod.chiselsandbits.registrars.ModBlockEntityTypes;
+import mod.chiselsandbits.serialization.CompressedDataFindingCodec;
 import mod.chiselsandbits.storage.IMultiThreadedStorageEngine;
 import mod.chiselsandbits.storage.StorageEngineBuilder;
 import mod.chiselsandbits.utils.BlockPosUtils;
@@ -123,6 +124,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
     private void createStorageEngine() {
         storageEngine = StorageEngineBuilder.<Payload>create()
+                .with(Payload.LEGACY_MAP_CODEC)
                 .with(Payload.MAP_CODEC)
                 .buildMultiThreaded();
     }
@@ -290,7 +292,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
                     this.mutableStatistics = payload.mutableStatistics();
 
                     if (mutableStatistics.isRequiresRecalculation()) {
-                        mutableStatistics.recalculate(level, this.storage, shouldUpdateWorld());
+                        mutableStatistics.recalculate(level, this.storage, this.blockPos(), shouldUpdateWorld());
                     }
 
                     mutableStatistics.updatePrimaryState(level, shouldUpdateWorld());
@@ -648,7 +650,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             //Large operation, better batch this together to prevent weird updates.
             try (final IBatchMutation ignored = batch()) {
                 this.storage.rotate(axis, rotationCount);
-                this.mutableStatistics.recalculate(this.getLevel(), this.storage);
+                this.mutableStatistics.recalculate(this.getLevel(), this.storage, this.getBlockPos());
             }
         });
     }
@@ -663,7 +665,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             //Large operation, better batch this together to prevent weird updates.
             try (final IBatchMutation ignored = batch()) {
                 this.storage.mirror(axis);
-                this.mutableStatistics.recalculate(this.getLevel(), this.storage);
+                this.mutableStatistics.recalculate(this.getLevel(), this.storage, this.getBlockPos());
             }
         });
     }
@@ -944,6 +946,8 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 Codec.BOOL.fieldOf(NbtConstants.REQUIRES_RECALCULATION).forGetter(MutableStatistics::isRequiresRecalculation)
         ).apply(instance, MutableStatistics::new));
 
+        public static final Codec<MutableStatistics> LEGACY_CODEC = Codec.unit(MutableStatistics::new);
+
         public static final MapCodec<MutableStatistics> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 BlockPos.CODEC.fieldOf(NbtConstants.POSITION).forGetter(MutableStatistics::getInWorldPos),
                 CBCodecs.unboundedComplexMap(BlockInformation.CODEC, Codec.INT).fieldOf(NbtConstants.STATE_COUNTS).forGetter(MutableStatistics::getStateCounts),
@@ -987,10 +991,10 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 MutableStatistics::new
         );
 
-        private final BlockPos inWorldPos;
         private final Map<BlockInformation, Integer> countMap;
         private final Table<Integer, Integer, ColumnStatistics> columnStatisticsTable;
         private final Map<CollisionType, BitSet> collisionData;
+        private BlockPos inWorldPos;
         private BlockInformation primaryState;
         private int totalUsedBlockCount = 0;
         private int totalUsedChecksWeakPowerCount = 0;
@@ -1002,10 +1006,17 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
         private MutableStatistics(BlockPos inWorldPos) {
             this.inWorldPos = inWorldPos;
-            countMap = Maps.newConcurrentMap();
-            columnStatisticsTable = HashBasedTable.create();
-            collisionData = Maps.newConcurrentMap();
-            primaryState = BlockInformation.AIR;
+            this.countMap = Maps.newConcurrentMap();
+            this.columnStatisticsTable = HashBasedTable.create();
+            this.collisionData = Maps.newConcurrentMap();
+            this.primaryState = BlockInformation.AIR;
+            this.requiresRecalculation = true;
+        }
+
+        public MutableStatistics() {
+            this(
+                    BlockPos.ZERO
+            );
         }
 
         public MutableStatistics(BlockPos inWorldPos,
@@ -1314,15 +1325,17 @@ public class ChiseledBlockEntity extends BlockEntity implements
             return requiresRecalculation;
         }
 
-        private void recalculate(LevelAccessor levelAccessor, final StateEntryStorage source) {
-            recalculate(levelAccessor, source, true);
+        private void recalculate(LevelAccessor levelAccessor, final StateEntryStorage source, BlockPos position) {
+            recalculate(levelAccessor, source, position, true);
         }
 
-        private void recalculate(LevelAccessor levelAccessor, final StateEntryStorage source, final boolean mayUpdateWorld) {
+        private void recalculate(LevelAccessor levelAccessor, final StateEntryStorage source, BlockPos position, final boolean mayUpdateWorld) {
             if (!mayUpdateWorld) {
                 this.requiresRecalculation = true;
                 return;
             }
+
+            this.inWorldPos = position;
 
             this.requiresRecalculation = false;
             clear();
@@ -1634,7 +1647,16 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 ).apply(instance, Payload::new))
         );
 
+        private static final Codec<Payload> LEGACY_CODEC = CompressedDataFindingCodec.of(CBCodecs.readLegacyCompressed(
+                RecordCodecBuilder.create(instance -> instance.group(
+                        StateEntryStorage.LEGACY_CODEC.fieldOf(NbtConstants.LEGACY_CHISELED_DATA).forGetter(Payload::storage),
+                        MutableStatistics.LEGACY_CODEC.fieldOf(NbtConstants.STATISTICS).forGetter(Payload::mutableStatistics)
+                ).apply(instance, Payload::new))
+        ));
+
         public static final MapCodec<Payload> MAP_CODEC = CODEC.fieldOf(NbtConstants.PAYLOAD);
+
+        private static final MapCodec<Payload> LEGACY_MAP_CODEC = LEGACY_CODEC.fieldOf(NbtConstants.DATA);
 
         public static final StreamCodec<RegistryFriendlyByteBuf, Payload> STREAM_CODEC = StreamCodec.composite(
                 StateEntryStorage.STREAM_CODEC,

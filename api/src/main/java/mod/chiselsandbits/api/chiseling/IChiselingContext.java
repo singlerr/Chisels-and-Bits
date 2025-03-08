@@ -28,7 +28,7 @@ public interface IChiselingContext extends IStateAccessor
      * If a new chiseling operation is started no {@link IWorldAreaMutator} is available,
      * as such an empty {@link Optional} will be returned in that case.
      *
-     * Only after the first call to {@link #include(Vec3)} or {@link #include(BlockPos, Vec3)}
+     * Only after the primary call to {@link #include(Vec3)} or {@link #include(BlockPos, Vec3)}
      * the returned {@link Optional} can contain a {@link IWorldAreaMutator}.
      *
      * @return The {@link Optional} containing the {@link IWorldAreaMutator}.

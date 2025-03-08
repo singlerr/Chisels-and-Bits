@@ -1,9 +1,14 @@
 package mod.chiselsandbits.api.blockinformation;
 
+import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.util.BlockStateSerializationUtils;
 import mod.chiselsandbits.api.util.ComparatorUtils;
 import mod.chiselsandbits.api.util.ISnapshotable;
 import mod.chiselsandbits.api.serialization.Serializable;
@@ -23,6 +28,10 @@ import java.util.Optional;
 public record BlockInformation(BlockState blockState,
                                Optional<IStateVariant> variant) implements Serializable.Registry<BlockInformation>, ISnapshotable<BlockInformation>, Comparable<BlockInformation> {
 
+    public static final Codec<BlockInformation> LEGACY_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BlockStateSerializationUtils.LEGACY_BLOCK_STATE_CODEC.fieldOf(NbtConstants.STATE).forGetter(BlockInformation::blockState),
+            IStateVariant.CODEC.optionalFieldOf(NbtConstants.VARIANT).forGetter(BlockInformation::variant)
+    ).apply(instance, BlockInformation::new));
 
     public static final Codec<BlockInformation> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BlockState.CODEC.fieldOf(NbtConstants.STATE).forGetter(BlockInformation::blockState),

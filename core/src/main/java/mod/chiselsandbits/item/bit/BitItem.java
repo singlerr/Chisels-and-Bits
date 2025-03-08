@@ -345,7 +345,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
           true,
           itemStack);
 
-        //We try a left click render first.
+        //We try a left click render primary.
         chiselMode.onLeftClickBy(
           playerEntity,
           context
