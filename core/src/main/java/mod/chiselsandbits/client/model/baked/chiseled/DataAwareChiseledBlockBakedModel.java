@@ -5,6 +5,7 @@ import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
+import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
 import mod.chiselsandbits.client.model.baked.base.BaseSmartModel;
 import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
@@ -84,30 +85,35 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
         if (!(item instanceof final IMultiStateItem multiStateItem))
             return NullBakedModel.instance;
 
+        if (Minecraft.getInstance().level == null)
+            return buildModel(stack, multiStateItem);
+
         final Tag cacheKey = stack.save(Minecraft.getInstance().level.registryAccess());
-        return STACK_MODEL_CACHE.get(cacheKey, () -> {
-            final IMultiStateItemStack multiStateItemStack = multiStateItem.createItemStack(stack);
+        return STACK_MODEL_CACHE.get(cacheKey, () -> buildModel(stack, multiStateItem));
+    }
 
-            final BakedModel[] typedModels;
-            try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Building individual render type models"))
-            {
-                typedModels = BlockInformationUtils.extractRenderTypes(multiStateItemStack.getStatistics().getContainedStates())
-                        .stream()
-                        .flatMap(type -> {
-                            final BakedModel fluidModel = ChiseledBlockBakedModelManager.getInstance().get(multiStateItemStack, ChiselRenderType.fromLayer(type, true), type);
-                            final BakedModel solidModel = ChiseledBlockBakedModelManager.getInstance().get(multiStateItemStack, ChiselRenderType.fromLayer(type, false), type);
-                            return Stream.of(fluidModel, solidModel);
-                        })
-                        .toArray(BakedModel[]::new);
-            }
+    private static @NotNull BaseBakedBlockModel buildModel(ItemStack stack, IMultiStateItem multiStateItem) {
+        final IMultiStateItemStack multiStateItemStack = multiStateItem.createItemStack(stack);
 
-            if (typedModels.length == 0)
-                return ChiseledBlockBakedModel.EMPTY;
+        final BakedModel[] typedModels;
+        try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Building individual render type models"))
+        {
+            typedModels = BlockInformationUtils.extractRenderTypes(multiStateItemStack.getStatistics().getContainedStates())
+                    .stream()
+                    .flatMap(type -> {
+                        final BakedModel fluidModel = ChiseledBlockBakedModelManager.getInstance().get(multiStateItemStack, ChiselRenderType.fromLayer(type, true), type);
+                        final BakedModel solidModel = ChiseledBlockBakedModelManager.getInstance().get(multiStateItemStack, ChiselRenderType.fromLayer(type, false), type);
+                        return Stream.of(fluidModel, solidModel);
+                    })
+                    .toArray(BakedModel[]::new);
+        }
 
-            try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Combining model data"))
-            {
-                return new CombinedModel(typedModels);
-            }
-        });
+        if (typedModels.length == 0)
+            return ChiseledBlockBakedModel.EMPTY;
+
+        try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Combining model data"))
+        {
+            return new CombinedModel(typedModels);
+        }
     }
 }

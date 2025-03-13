@@ -6,8 +6,6 @@ import com.google.common.collect.Multimap;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.client.culling.ICullTest;
-import mod.chiselsandbits.client.culling.MCCullTest;
 import net.minecraft.client.renderer.RenderType;
 
 import java.security.InvalidParameterException;
@@ -107,10 +105,4 @@ public enum ChiselRenderType
     public static Collection<ChiselRenderType> getRenderTypes(final VoxelType voxelType) {
         return TYPED_RENDER_TYPES.get(voxelType);
     }
-
-    public ICullTest getTest()
-    {
-        return new MCCullTest();
-    }
-
 }

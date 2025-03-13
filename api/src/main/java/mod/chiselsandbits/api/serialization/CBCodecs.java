@@ -70,8 +70,7 @@ public interface CBCodecs {
      * @param <T>      The type of the codec.
      * @return The codec.
      */
-    static <T> Codec<T> versioned(Map<Integer, MapCodec<T>> versions) {
-        final int minVersion = versions.keySet().stream().min(Integer::compareTo).orElse(0);
+    static <T> Codec<T> versioned(Map<Integer, MapCodec<T>> versions, MapCodec<T> fallback) {
         final int maxVersion = versions.keySet().stream().max(Integer::compareTo).orElse(0);
         return withFallback(Codec.INT.dispatch(NbtConstants.VERSION,
                         t -> maxVersion,
@@ -81,7 +80,7 @@ public interface CBCodecs {
                             }
                             return versions.get(key);
                         }),
-                versions.get(minVersion).codec()
+                fallback.codec()
         );
     }
 

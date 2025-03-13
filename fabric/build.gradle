@@ -1,6 +1,7 @@
 plugins {
-    id 'com.ldtteam.tableau.maven-publishing' version '0.0.63'
-    id 'com.communi-suggestu.obumbratio' version '0.0.4'
+    id 'com.ldtteam.tableau.maven-publishing' version '0.0.69'
+    id 'com.ldtteam.tableau.curseforge' version '0.0.69'
+    id 'com.communi-suggestu.obumbratio' version '0.0.7'
 }
 
 platform {
@@ -13,6 +14,7 @@ platform {
 
 tableau {
     project {
+        modId = "chiselsandbits"
         group = "mod.chiselsandbits"
         publisher = "chisels-and-bits"
         versioning {
@@ -28,6 +30,14 @@ tableau {
             usingMitLicense()
             usingGit()
         })
+    }
+    curse {
+        id = Integer.parseInt(rootProject.property('curse.id.fabric'))
+    }
+    sourceSets {
+        main {
+            isSourcesPublished = false
+        }
     }
 }
 

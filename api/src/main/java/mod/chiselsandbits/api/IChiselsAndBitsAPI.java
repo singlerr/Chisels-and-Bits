@@ -179,7 +179,12 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     default StateEntrySize getStateEntrySize() {
-        return getConfiguration().getServer().getBitSize().get();
+        try {
+            return getConfiguration().getServer().getBitSize().get();
+        }
+        catch (Exception ignored) {
+            return StateEntrySize.ONE_SIXTEENTH;
+        }
     }
 
     /**

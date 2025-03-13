@@ -59,7 +59,13 @@ public class ServerConfiguration implements IServerConfiguration
     @Override
     public Supplier<StateEntrySize> getBitSize()
     {
-        return bitSize;
+        return () -> {
+            try {
+                return bitSize.get();
+            } catch (Exception ignored) {
+                return StateEntrySize.ONE_SIXTEENTH;
+            }
+        };
     }
 
     @Override

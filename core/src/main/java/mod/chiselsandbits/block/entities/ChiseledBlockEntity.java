@@ -124,7 +124,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
     private void createStorageEngine() {
         storageEngine = StorageEngineBuilder.<Payload>create()
-                .with(Payload.LEGACY_MAP_CODEC)
+                .fallback(Payload.LEGACY_MAP_CODEC)
                 .with(Payload.MAP_CODEC)
                 .buildMultiThreaded();
     }
@@ -310,7 +310,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 }, getExecutor());
 
         synchronized (this.tagSyncHandle) {
-            this.lastTag = nbt;
+            this.lastTag = data;
         }
     }
 

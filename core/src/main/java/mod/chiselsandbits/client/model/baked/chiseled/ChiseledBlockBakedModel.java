@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
 import mod.chiselsandbits.client.model.meshing.GreedyMeshBuilder;
 import mod.chiselsandbits.client.model.meshing.GreedyMeshFace;
@@ -18,6 +19,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -164,26 +166,11 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
         try (final IProfilerSection ignoredFaceProcessing = ProfilingManager.getInstance().withSection("processing")) {
             faces =
                     GreedyMeshBuilder.buildMesh((x, y, z) -> {
-                        Vec3 pos = new Vec3(
-                                x * StateEntrySize.current().getSizePerBit(),
-                                y * StateEntrySize.current().getSizePerBit(),
-                                z * StateEntrySize.current().getSizePerBit()
+                        return getBlockInformationForOffset(
+                                accessor,
+                                blockNeighborhood,
+                                x, y, z
                         );
-                        if (isInBlock(pos)) {
-                            return accessor.getInAreaTarget(pos)
-                                    .map(iStateEntryInfo -> chiselRenderType.isRequiredForRendering(iStateEntryInfo) ? iStateEntryInfo.getBlockInformation() : null)
-                                    .orElse(BlockInformation.AIR);
-                        }
-                        Direction direction = getDirectionFromPosition(pos);
-                        if (direction == null || blockNeighborhood == null)
-                            return BlockInformation.AIR;
-                        pos = pos.subtract(Vec3.atLowerCornerOf(direction.getNormal()));
-                        BlockInformation blockInformation = blockNeighborhood.getAreaAccessor(direction) == null ?
-                                blockNeighborhood.getBlockInformation(direction) :
-                                Objects.requireNonNull(blockNeighborhood.getAreaAccessor(direction)).getInAreaTarget(pos)
-                                        .map(IStateEntryInfo::getBlockInformation)
-                                        .orElse(BlockInformation.AIR);
-                        return blockInformation.blockState().skipRendering(blockInformation.blockState(), direction) ? blockInformation : BlockInformation.AIR;
                     }, chiselRenderType);
         }
 
@@ -233,5 +220,40 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
     @Override
     public TextureAtlasSprite getParticleIcon() {
         return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation());
+    }
+
+    private static BlockInformation getBlockInformationForOffset(
+            IAreaAccessor accessor,
+            IBlockNeighborhood blockNeighborhood,
+            int x, int y, int z) {
+        final Vec3 targetOffset = new Vec3(x, y, z).multiply(StateEntrySize.current().getSizePerBitScalingVector());
+        final Vec3 nominalTargetOffset = Vec3.ZERO.add(targetOffset);
+        final BlockPos nominalTargetBlockOffset = VectorUtils.toBlockPos(nominalTargetOffset);
+        final Vec3 inBlockOffset = nominalTargetOffset.subtract(Vec3.atLowerCornerOf(nominalTargetBlockOffset));
+        final Vec3 inBlockOffsetTarget = VectorUtils.makePositive(inBlockOffset);
+
+        final Direction offsetDirection = Direction.getNearest(
+                nominalTargetBlockOffset.getX(),
+                nominalTargetBlockOffset.getY(),
+                nominalTargetBlockOffset.getZ()
+        );
+
+        IAreaAccessor neighborAccessor;
+        if (targetOffset.x() >= 0 && targetOffset.x() < 1 &&
+                targetOffset.y() >= 0 && targetOffset.y() < 1 &&
+                targetOffset.z() >= 0 && targetOffset.z() < 1
+        ) {
+            neighborAccessor = accessor;
+        } else {
+            neighborAccessor = blockNeighborhood.getAreaAccessor(offsetDirection);
+        }
+
+        if (neighborAccessor != null) {
+            return neighborAccessor.getInAreaTarget(inBlockOffsetTarget)
+                    .map(IStateEntryInfo::getBlockInformation)
+                    .orElse(BlockInformation.AIR);
+        }
+
+        return blockNeighborhood.getBlockInformation(offsetDirection);
     }
 }
