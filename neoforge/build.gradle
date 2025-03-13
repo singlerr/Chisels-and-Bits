@@ -17,6 +17,7 @@ tableau {
         modId = "chiselsandbits"
         group = "mod.chiselsandbits"
         publisher = "chisels-and-bits"
+        minecraftVersion = rootProject.property('minecraft.version')
         versioning {
             version = environmentVariable("VERSION")
                     .orElse(property("local.version"))
