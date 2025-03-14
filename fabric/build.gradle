@@ -55,3 +55,11 @@ dependencies {
     modImplementation "com.communi-suggestu.scena:fabric:${project.property('communi.suggestu.scena.version')}"
     include "com.communi-suggestu.scena:fabric:${project.property('communi.suggestu.scena.version')}"
 }
+
+def debugArgs = [
+   "-Dmixin.debug=true"
+]
+
+loom.runs.configureEach {
+    vmArgs(debugArgs)
+}
