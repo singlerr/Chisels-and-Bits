@@ -54,9 +54,11 @@ public class BitStorageBlockEntity extends BlockEntity implements Container {
         super.loadAdditional(nbt, lookup);
 
         final CompoundTag tag = nbt.getCompound(NbtConstants.BLOCK_INFORMATION);
-        final RegistryOps<Tag> ops = RegistryOps.create(NbtOps.INSTANCE, lookup);
-        state = BlockInformation.CODEC.decode(ops, tag).getOrThrow().getFirst();
-        bits = nbt.getInt(NbtConstants.BITS);
+        if (!tag.isEmpty()) {
+            final RegistryOps<Tag> ops = RegistryOps.create(NbtOps.INSTANCE, lookup);
+            state = BlockInformation.CODEC.decode(ops, tag).getOrThrow().getFirst();
+            bits = nbt.getInt(NbtConstants.BITS);
+        }
     }
 
     @Override
