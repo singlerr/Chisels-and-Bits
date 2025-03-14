@@ -272,6 +272,10 @@ public class ChiselingContext implements IChiselingContext
             return 0;
         }
 
+        if (world instanceof ServerLevel && playerEntity instanceof ServerPlayer player && player.hasInfiniteMaterials()) {
+            return damage;
+        }
+
         final AtomicBoolean broken = new AtomicBoolean(false);
         final int currentDamage = causingItemStack.getDamageValue();
         if (world instanceof ServerLevel level && playerEntity instanceof ServerPlayer player) {
