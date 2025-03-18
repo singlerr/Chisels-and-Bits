@@ -21,11 +21,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class SlottedBitInventory extends AbstractBitInventory implements IWatchableBitInventory
 {
     protected final int size;
-    protected final Int2ObjectMap<BitSlot> slotMap = new Int2ObjectArrayMap<>();
+    protected final Int2ObjectMap<ItemStack> slotMap = new Int2ObjectArrayMap<>();
 
     private final Map<UUID, Runnable> onChangeCallbacks = Maps.newConcurrentMap();
 
@@ -38,14 +40,7 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
     @Override
     protected ItemStack getItem(final int index)
     {
-        final BitSlot bitSlot = slotMap.get(index);
-        if (bitSlot == null)
-            return ItemStack.EMPTY;
-
-        return IChiselsAndBitsAPI.getInstance().getBitItemManager().create(
-            bitSlot.getBlockInformation(),
-            bitSlot.getCount()
-        );
+        return slotMap.getOrDefault(index, ItemStack.EMPTY);
     }
 
     @Override
@@ -64,20 +59,10 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
             return;
         }
 
-        if (!(stack.getItem() instanceof final IBitItem bitItem))
+        if (!(stack.getItem() instanceof IBitItem))
             throw new IllegalArgumentException("Can not insert a none bit item into the inventory.");
 
-        final BlockInformation state = bitItem.getBlockInformation(stack);
-
-        BitSlot slot = slotMap.get(index);
-        if (slot == null)
-            slot = new BitSlot();
-
-        slot.setBlockInformation(state);
-        slot.setCount(stack.getCount());
-
-        if (!slotMap.containsKey(index))
-            slotMap.put(index, slot);
+        slotMap.put(index, stack);
 
         onChange();
     }
@@ -90,8 +75,15 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         return () -> this.onChangeCallbacks.remove(id);
     }
 
-    protected Collection<BitSlot> getContents() {
-        return this.slotMap.values();
+    protected Stream<BitSlot> getContents() {
+        return this.slotMap.values().stream()
+                .filter(Predicate.not(ItemStack::isEmpty))
+                .map(
+                stack -> new BitSlot(
+                        ((IBitItem) stack.getItem()).getBlockInformation(stack),
+                        stack.getCount()
+                )
+        );
     }
 
     protected void onChange() {

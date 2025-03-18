@@ -279,7 +279,7 @@ public class SimpleContainer implements Container, Serializable.Registry<SimpleC
         static Codec<SlotData> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
                 Codec.INT.fieldOf("index").forGetter(SlotData::index),
-                ItemStack.CODEC.fieldOf("stack").forGetter(SlotData::stack)
+                ItemStack.OPTIONAL_CODEC.fieldOf("stack").forGetter(SlotData::stack)
             ).apply(instance, SlotData::new)
         );
 

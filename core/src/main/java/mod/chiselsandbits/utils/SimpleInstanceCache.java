@@ -5,6 +5,9 @@ public class SimpleInstanceCache<X, Y>
     X equalityValue;
     Y cacheInstance;
 
+    public SimpleInstanceCache() {
+    }
+
     public SimpleInstanceCache(
       final X defaultEquality,
       final Y defaultValue)

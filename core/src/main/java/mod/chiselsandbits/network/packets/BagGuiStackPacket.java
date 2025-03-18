@@ -8,7 +8,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 public final class BagGuiStackPacket extends ModPacket
@@ -47,7 +46,7 @@ public final class BagGuiStackPacket extends ModPacket
         final AbstractContainerMenu cc = Minecraft.getInstance().player.containerMenu;
         if (cc instanceof BagContainer)
         {
-            ((BagContainer) cc).customSlots.get(index).set(stack);
+            ((BagContainer) cc).bitSlots.get(index).set(stack);
         }
     }
 

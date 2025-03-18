@@ -3,6 +3,7 @@ package mod.chiselsandbits.api.item.withmode;
 import mod.chiselsandbits.api.util.IWithColor;
 import mod.chiselsandbits.api.util.IWithDisplayName;
 import mod.chiselsandbits.api.util.IWithIcon;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,5 +44,13 @@ public interface IRenderableMode extends IWithDisplayName, IWithIcon, IWithColor
     @NotNull
     default Vec3 getColorVector() {
         return new Vec3(1d, 1d,1d);
+    }
+
+    default Vec2 getPositionVector() {
+        return new Vec2(0, 0);
+    }
+
+    default Vec2 getScaleVector() {
+        return new Vec2(0.35f, 0.35f);
     }
 }

@@ -10,6 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec2;
 
 public class RootGroupTopLeftSelectedToolModeIconRenderer implements ISelectedToolModeIconRenderer
 {
@@ -30,9 +31,12 @@ public class RootGroupTopLeftSelectedToolModeIconRenderer implements ISelectedTo
         final IToolMode<?> mode = modeItem.getMode(stack);
         final IRenderableMode renderableMode = getRootRenderableMode(mode);
 
+        final Vec2 positionVector = renderableMode.getPositionVector();
+        final Vec2 scaleVector = renderableMode.getScaleVector();
+
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(11, 1, 0);
-        guiGraphics.pose().scale(1/3f, 1/3f, 1);
+        guiGraphics.pose().translate(positionVector.x, positionVector.y, 1000);
+        guiGraphics.pose().scale(scaleVector.x, scaleVector.y, 1);
         guiGraphics.pose().pushPose();
 
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);

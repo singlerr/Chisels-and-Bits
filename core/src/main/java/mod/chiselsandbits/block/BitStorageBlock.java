@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import mod.chiselsandbits.api.block.bitbag.IBitBagAcceptingBlock;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
+import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
@@ -157,16 +158,16 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
     }
 
     @Override
-    public void onBitBagInteraction(final ItemStack bitBagStack, final Player player, final BlockHitResult blockRayTraceResult)
+    public ItemStack onBitBagInteraction(final ItemStack bitBagStack, final Player player, final BlockHitResult blockRayTraceResult)
     {
         if (player == null)
-            return;
+            return bitBagStack;
 
         final BlockEntity tileEntity = player.level().getBlockEntity(blockRayTraceResult.getBlockPos());
         if (!(tileEntity instanceof final BitStorageBlockEntity storage))
-            return;
+            return bitBagStack;
 
-        final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(bitBagStack);
+        final IBitInventoryItemStack bitInventory = IBitInventoryManager.getInstance().create(bitBagStack);
 
         final BlockInformation containedState = storage.getContainedBlockInformation();
 
@@ -200,5 +201,7 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
                 bitInventory.extract(toExtractState, bitCountToInsert);
             }
         }
+
+        return bitInventory.toItemStack();
     }
 }

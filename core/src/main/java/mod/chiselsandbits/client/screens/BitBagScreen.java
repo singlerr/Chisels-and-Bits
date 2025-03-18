@@ -1,24 +1,20 @@
 package mod.chiselsandbits.client.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.icon.IconManager;
 import mod.chiselsandbits.client.screens.widgets.GuiIconButton;
 import mod.chiselsandbits.container.BagContainer;
-import mod.chiselsandbits.inventory.wrapping.WrappingInventory;
-import mod.chiselsandbits.network.packets.BagGuiPacket;
 import mod.chiselsandbits.network.packets.ClearBagGuiPacket;
 import mod.chiselsandbits.network.packets.ConvertBagGuiPacket;
 import mod.chiselsandbits.network.packets.SortBagGuiPacket;
 import mod.chiselsandbits.registrars.ModItems;
+import mod.chiselsandbits.slots.BitSlot;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.language.I18n;
@@ -118,7 +114,10 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
                 this.trashBtn.setTooltip(Tooltip.create(LocalStrings.TrashInvalidItem.getText(getInHandItem().getHoverName().getString())));
             }
         }
+
+        this.getBagContainer().bitSlots.forEach(slot -> slot.setActive(false));
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.getBagContainer().bitSlots.forEach(slot -> slot.setActive(true));
     }
 
     @SuppressWarnings("deprecation")
@@ -145,13 +144,29 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
         hoveredBitSlot = null;
         guiGraphics.pose().pushPose();
 
-        for (int slotIdx = 0; slotIdx < getBagContainer().customSlots.size(); ++slotIdx) {
-            final Slot slot = getBagContainer().customSlots.get(slotIdx);
-
-            final Font defaultFontRenderer = font;
+        for (int slotIdx = 0; slotIdx < getBagContainer().bitSlots.size(); ++slotIdx) {
+            final BitSlot slot = getBagContainer().bitSlots.get(slotIdx);
+            slot.setActive(true);
 
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
+
+            final int count = slot.getItem().getCount();
+            slot.set(slot.getItem().copyWithCount(1));
             renderSlot(guiGraphics, slot);
+            slot.set(slot.getItem().copyWithCount(count));
+
+            if (count != 0) {
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
+
+                String s = String.valueOf(count);
+                guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
+                guiGraphics.pose().scale(0.5f, 0.5f, 1);
+                guiGraphics.drawString(font, s, (slot.x + 19 - 3) * 2 - font.width(s), (slot.y + 9 + 3) * 2, 16777215, true);
+
+                guiGraphics.pose().popPose();
+            }
+
 
             if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
                 final int xDisplayPos = slot.x;
@@ -165,6 +180,8 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
                 RenderSystem.colorMask(true, true, true, true);
                 RenderSystem.enableDepthTest();
             }
+
+            slot.setActive(false);
         }
 
         posestack.popMatrix();
@@ -174,26 +191,6 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
         if (!trashBtn.isMouseOver(mouseX, mouseY)) {
             requireConfirm = true;
         }
-    }
-
-    @Override
-    public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        // This is what vanilla does...
-        final boolean duplicateButton = button == Minecraft.getInstance().options.keyPickItem.key.getValue() + 100;
-
-        Slot slot = hoveredSlot;
-        if (slot == null)
-            slot = hoveredBitSlot;
-        if (slot != null && slot.container instanceof WrappingInventory && Minecraft.getInstance().player != null) {
-            final BagGuiPacket bagGuiPacket = new BagGuiPacket(slot.index, button, duplicateButton, (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()));
-            bagGuiPacket.doAction(Minecraft.getInstance().player);
-
-            ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(bagGuiPacket);
-
-            return true;
-        }
-
-        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private ItemStack getInHandItem() {

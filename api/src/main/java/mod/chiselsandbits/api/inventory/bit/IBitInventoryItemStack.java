@@ -15,6 +15,8 @@ import java.util.List;
 public interface IBitInventoryItemStack extends IBitInventory, Container
 {
 
+    record DisplayContents(List<Component> displayComponents, boolean isEmpty, boolean clipped) {};
+
     /**
      * Converts this bit inventory into an itemstack.
      *
@@ -27,7 +29,7 @@ public interface IBitInventoryItemStack extends IBitInventory, Container
      *
      * @return The contents.
      */
-    List<Component> listContents();
+    DisplayContents listContents();
 
     /**
      * Calculates the fullness ratio of the itemstack inventory.

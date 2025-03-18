@@ -39,7 +39,7 @@ public final class BagGuiPacket extends ModPacket
 	public void server(
 			final ServerPlayer player )
 	{
-		doAction( player );
+		//doAction( player );
 	}
 
     @Override
@@ -50,16 +50,6 @@ public final class BagGuiPacket extends ModPacket
         buffer.writeBoolean( duplicateButton );
         buffer.writeBoolean( holdingShift );
     }
-
-    public void doAction(
-			final Player player )
-	{
-		final AbstractContainerMenu c = player.containerMenu;
-		if (c instanceof final BagContainer bc)
-		{
-            bc.handleCustomSlotAction( slotNumber, mouseButton, duplicateButton, holdingShift );
-		}
-	}
 
 	@Override
 	public void readPayload(

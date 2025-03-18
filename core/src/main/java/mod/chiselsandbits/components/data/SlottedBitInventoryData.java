@@ -21,8 +21,11 @@ public record SlottedBitInventoryData(Map<Integer, BitSlotData> data) {
 
     public static final SlottedBitInventoryData EMPTY = new SlottedBitInventoryData(Collections.emptyMap());
 
+    private static final Codec<Integer> KEY_CODEC = Codec.STRING
+            .xmap(Integer::parseInt, Object::toString);
+
     public static final Codec<SlottedBitInventoryData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Codec.unboundedMap(Codec.INT, BitSlotData.CODEC).fieldOf(NbtConstants.DATA).forGetter(SlottedBitInventoryData::data)
+        Codec.unboundedMap(KEY_CODEC, BitSlotData.CODEC).fieldOf(NbtConstants.DATA).forGetter(SlottedBitInventoryData::data)
     ).apply(instance, SlottedBitInventoryData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SlottedBitInventoryData> STREAM_CODEC = StreamCodec.composite(

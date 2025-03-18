@@ -273,6 +273,7 @@ public class ChiselingContext implements IChiselingContext
         }
 
         if (world instanceof ServerLevel && playerEntity instanceof ServerPlayer player && player.hasInfiniteMaterials()) {
+            onDamaged.run();
             return damage;
         }
 

@@ -244,8 +244,8 @@ public final class FaceManager {
             final long primaryStateRenderSeed,
             final RenderType renderType) {
         // try to get block model...
-        RANDOM.setSeed(primaryStateRenderSeed);
         try {
+            RANDOM.setSeed(primaryStateRenderSeed);
             if (model instanceof IDataAwareBakedModel dataAwareBakedModel) {
                 return dataAwareBakedModel.getQuads(state.blockState(), f, RANDOM, IClientStateVariantManager.getInstance().getBlockModelData(state), renderType);
             } else {
@@ -255,6 +255,7 @@ public final class FaceManager {
         }
 
         try {
+            RANDOM.setSeed(primaryStateRenderSeed);
             // try to get item model?
             if (model instanceof IDataAwareBakedModel dataAwareBakedModel) {
                 return dataAwareBakedModel.getQuads(null, f, RANDOM, IClientStateVariantManager.getInstance().getBlockModelData(state), renderType);
@@ -270,6 +271,7 @@ public final class FaceManager {
 
             if (secondModel != null) {
                 try {
+                    RANDOM.setSeed(primaryStateRenderSeed);
                     if (secondModel instanceof IDataAwareBakedModel dataAwareBakedModel) {
                         return dataAwareBakedModel.getQuads(state.blockState(), f, RANDOM, IClientStateVariantManager.getInstance().getBlockModelData(state), renderType);
                     } else {

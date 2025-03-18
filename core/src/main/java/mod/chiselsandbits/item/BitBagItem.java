@@ -45,7 +45,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
 
     private static final int BAG_STORAGE_SLOTS = 63;
 
-    SimpleInstanceCache<ItemStack, List<Component>> tooltipCache = new SimpleInstanceCache<>(null, new ArrayList<>());
+    SimpleInstanceCache<ItemStack, IBitInventoryItemStack> tooltipCache = new SimpleInstanceCache<>();
 
     public BitBagItem(Properties properties)
     {
@@ -71,22 +71,22 @@ public class BitBagItem extends Item implements IBitInventoryItem
     public void appendHoverText(ItemStack stack, TooltipContext $$1, List<Component> tooltip, TooltipFlag $$3) {
         super.appendHoverText(stack, $$1, tooltip, $$3);
         HelpTextUtils.build(LocalStrings.HelpBitBag, tooltip);
+        if (!Screen.hasShiftDown()) {
+            tooltip.add(LocalStrings.ShiftDetails.getText());
+            return;
+        }
 
+        final IBitInventoryItemStack inventoryItemStack;
         if (tooltipCache.needsUpdate(stack))
         {
-            final IBitInventoryItemStack inventoryItemStack = create(stack);
-            tooltipCache.updateCachedValue(inventoryItemStack.listContents());
+            inventoryItemStack = create(stack);
+            tooltipCache.updateCachedValue(inventoryItemStack);
+        } else {
+            inventoryItemStack = tooltipCache.getCached();
         }
 
-        final List<Component> details = tooltipCache.getCached();
-        if (details.size() <= 2 || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()))
-        {
-            tooltip.addAll(details);
-        }
-        else
-        {
-            tooltip.add(LocalStrings.ShiftDetails.getText());
-        }
+        var contents = inventoryItemStack.listContents();
+        tooltip.addAll(contents.displayComponents());
     }
 
     @Override
@@ -100,9 +100,9 @@ public class BitBagItem extends Item implements IBitInventoryItem
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerIn);
         if (rayTraceResult.getType() == HitResult.Type.BLOCK && rayTraceResult instanceof final BlockHitResult blockRayTraceResult) {
             final BlockState hitBlockState = worldIn.getBlockState(blockRayTraceResult.getBlockPos());
-            if (hitBlockState.getBlock() instanceof IBitBagAcceptingBlock) {
-                ((IBitBagAcceptingBlock) hitBlockState.getBlock()).onBitBagInteraction(itemStackIn, playerIn, blockRayTraceResult);
-                return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStackIn);
+            if (hitBlockState.getBlock() instanceof IBitBagAcceptingBlock bitBagAcceptingBlock) {
+                return new InteractionResultHolder<>(InteractionResult.SUCCESS,
+                        bitBagAcceptingBlock.onBitBagInteraction(itemStackIn, playerIn, blockRayTraceResult));
             }
         }
 

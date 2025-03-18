@@ -3,6 +3,7 @@ package mod.chiselsandbits.inventory.management;
 import mod.chiselsandbits.api.inventory.bit.IAdaptingBitInventoryManager;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItem;
+import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.inventory.bit.IInventoryBitInventory;
 import mod.chiselsandbits.inventory.bit.IllegalBitInventory;
@@ -47,12 +48,12 @@ public class BitInventoryManager implements IBitInventoryManager
     }
 
     @Override
-    public IBitInventory create(final ItemStack stack)
+    public IBitInventoryItemStack create(final ItemStack stack)
     {
-        if (stack.getItem() instanceof IBitInventoryItem) {
-            return ((IBitInventoryItem) stack.getItem()).create(stack);
+        if (stack.getItem() instanceof IBitInventoryItem bitInventoryItem) {
+            return bitInventoryItem.create(stack);
         }
 
-        return new IllegalBitInventory();
+        throw new IllegalArgumentException("The given ItemStack is not supported on the current platform!");
     }
 }

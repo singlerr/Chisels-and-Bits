@@ -23,8 +23,13 @@ public class BakedModelCacheKeyCalculatorRegistry implements IBakedModelCacheKey
 
     private final Map<Class<? extends BakedModel>, IBakedModelCacheKeyCalculator<?>> calculatorMap = new ConcurrentHashMap<>();
 
+    private BakedModelCacheKeyCalculatorRegistry() {
+        registerFor(new WeightedBakedModelCacheKeyCalculator(), WeightedBakedModel.class);
+    }
+
+    @SafeVarargs
     @Override
-    public <T extends BakedModel> void registerFor(IBakedModelCacheKeyCalculator<T> calculator, Class<? extends T>... keyType) {
+    public final <T extends BakedModel> void registerFor(IBakedModelCacheKeyCalculator<T> calculator, Class<? extends T>... keyType) {
         for (final Class<? extends BakedModel> type : keyType) {
             if (calculatorMap.put(type, calculator) != null) {
                 throw new IllegalArgumentException("The calculator for key type: " + type + " is already registered!");

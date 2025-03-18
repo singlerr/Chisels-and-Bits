@@ -244,7 +244,10 @@ public enum LocalStrings
     PatternCuttingAcrossZAxis("pattern.cutting.across.axis.z"),
     DefaultChiseledBlockItemName("default-chiseled-block-item.name"),
     ChiseledBlockItemName("chiseled-block-item.name"),
-    ChiselsAndBitsName("name");
+    ChiselsAndBitsName("name"),
+    BitBagEmpty("bit-bag-empty"),
+    BitBagEntry("bit-bag-entry"),
+    BitBagMoreEntries("bit-bag-more-entries");
 
     private final String string;
 
