@@ -10,6 +10,7 @@ import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedPerspectiveSmartModel;
 import mod.chiselsandbits.client.util.BlockInformationUtils;
 import mod.chiselsandbits.client.util.QuadGenerationUtils;
+import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;

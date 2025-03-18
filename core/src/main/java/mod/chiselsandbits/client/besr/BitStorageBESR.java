@@ -80,7 +80,7 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
         poseStack.translate(2 / 16f, 2 / 16f, 2 / 16f);
         poseStack.scale(12 / 16f, 12 / 16f, 12 / 16f);
         final StateEntryStorage finalInnerModelBlob = innerModelBlob;
-        final Set<RenderType> renderTypes = BlockInformationUtils.extractRenderTypes(Sets.newHashSet(blockInformation));
+        final Set<RenderType> renderTypes = BlockInformationUtils.extractRenderTypes(blockInformation);
         renderTypes.forEach(renderType -> {
             final ChiseledBlockBakedModel innerModel = ChiseledBlockBakedModelManager.getInstance().get(MultiStateSnapshotUtils.createFromStorage(finalInnerModelBlob), blockInformation, ChiselRenderType.fromLayer(renderType, te.containsFluid()), null, null, te.getBlockPos(), renderType);
 
