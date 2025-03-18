@@ -5,6 +5,7 @@ import com.communi.suggestu.scena.core.registries.deferred.IRegistryObject;
 import mod.chiselsandbits.client.colors.BitBagItemColor;
 import mod.chiselsandbits.client.colors.BitItemItemColor;
 import mod.chiselsandbits.client.colors.ChiseledBlockItemItemColor;
+import mod.chiselsandbits.compact.legacy.MateriallyChiseledConversionItem;
 import mod.chiselsandbits.item.ChiseledBlockItem;
 import mod.chiselsandbits.registrars.ModItems;
 
@@ -21,7 +22,7 @@ public final class ItemColors
         IColorManager.getInstance().setupItemColors(
           configuration -> {
               configuration
-                .register(new ChiseledBlockItemItemColor(), ModItems.LEGACY_MATERIAL_CHISELED_BLOCKS.stream().map(IRegistryObject::get).toArray(ChiseledBlockItem[]::new));
+                .register(new ChiseledBlockItemItemColor(), ModItems.LEGACY_MATERIAL_CHISELED_BLOCKS.stream().map(IRegistryObject::get).toArray(MateriallyChiseledConversionItem[]::new));
               configuration
                 .register(new ChiseledBlockItemItemColor(), ModItems.CHISELED_BLOCK.get());
               configuration

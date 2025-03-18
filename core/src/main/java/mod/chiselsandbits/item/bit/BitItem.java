@@ -27,6 +27,7 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
+import mod.chiselsandbits.compact.legacy.UpgradeUtils;
 import mod.chiselsandbits.registrars.ModDataComponentTypes;
 import mod.chiselsandbits.registrars.ModCreativeTabs;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -35,6 +36,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -117,6 +119,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     @Override
     public IChiselMode getMode(final ItemStack stack)
     {
+        UpgradeUtils.upgradeBitItem(stack);
         return stack.getOrDefault(ModDataComponentTypes.CHISEL_MODE.get(), IChiselMode.getDefaultMode());
     }
 
@@ -260,6 +263,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     @Override
     public @NotNull BlockInformation getBlockInformation(final ItemStack stack)
     {
+        UpgradeUtils.upgradeBitItem(stack);
         return stack.getOrDefault(ModDataComponentTypes.BLOCK_INFORMATION.get(), BlockInformation.AIR);
     }
 

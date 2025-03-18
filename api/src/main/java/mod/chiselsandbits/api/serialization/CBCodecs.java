@@ -61,6 +61,26 @@ public interface CBCodecs {
         return new FallbackCodec<>(first, second);
     }
 
+    /**
+     * Creates a codec that is versioned, but currently only has a single version.
+     * The version is stored as an integer in the payload, its value will always be 0
+     *
+     * @param singleVersionCodec The versions to use.
+     * @param <T>      The type of the codec.
+     * @return The codec.
+     */
+    static <T> Codec<T> versioned(MapCodec<T> singleVersionCodec, Codec<T> fallback) {
+        return withFallback(Codec.INT.dispatch(NbtConstants.VERSION,
+                        t -> 0,
+                        key -> {
+                            if (key != 0) {
+                                throw new IllegalStateException("Wrong version stored for single version codec.");
+                            }
+                            return singleVersionCodec;
+                        }),
+                fallback
+        );
+    }
 
     /**
      * Creates a codec that is versioned.
@@ -232,13 +252,19 @@ public interface CBCodecs {
     }
 
     static <K, V> Codec<Map<K, V>> unboundedComplexMap(Codec<K> keyCodec, Codec<V> valueCodec) {
+        return unboundedComplexMap("key", keyCodec, "value", valueCodec);
+    }
+
+    static <K, V> Codec<Map<K, V>> unboundedComplexMap(String key, Codec<K> keyCodec, String value, Codec<V> valueCodec) {
         Validate.notNull(keyCodec, "Key codec cannot be null");
         Validate.notNull(valueCodec, "Value codec cannot be null");
+        Validate.notNull(key, "Key cannot be null");
+        Validate.notNull(value, "Value cannot be null");
 
         return RecordCodecBuilder.<Map.Entry<K, V>>create(instance ->
                 instance.group(
-                        keyCodec.fieldOf("key").forGetter(Map.Entry::getKey),
-                        valueCodec.fieldOf("value").forGetter(Map.Entry::getValue)
+                        keyCodec.fieldOf(key).forGetter(Map.Entry::getKey),
+                        valueCodec.fieldOf(value).forGetter(Map.Entry::getValue)
                 ).apply(instance, Map::entry)
         ).listOf().xmap(
                 entries -> {

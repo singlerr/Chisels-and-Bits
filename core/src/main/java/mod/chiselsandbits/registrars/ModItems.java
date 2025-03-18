@@ -4,6 +4,8 @@ import com.communi.suggestu.scena.core.registries.deferred.IRegistrar;
 import com.communi.suggestu.scena.core.registries.deferred.IRegistryObject;
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.compact.legacy.LegacyMaterialManager;
+import mod.chiselsandbits.compact.legacy.MateriallyChiseledConversionItem;
 import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.item.BitStorageBlockItem;
 import mod.chiselsandbits.item.ChiselItem;
@@ -18,8 +20,6 @@ import mod.chiselsandbits.item.SingleUsePatternItem;
 import mod.chiselsandbits.item.UnsealItem;
 import mod.chiselsandbits.item.WrenchItem;
 import mod.chiselsandbits.item.bit.BitItem;
-import mod.chiselsandbits.materials.LegacyMaterialManager;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -30,7 +30,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 
 public final class ModItems {
-    public static final List<IRegistryObject<ChiseledBlockItem>> LEGACY_MATERIAL_CHISELED_BLOCKS = Lists.newArrayList();
     private static final Logger LOGGER = LogManager.getLogger();
     private final static IRegistrar<Item> ITEM_REGISTRAR = IRegistrar.create(Registries.ITEM, Constants.MOD_ID);
     public static final IRegistryObject<ChiselItem> ITEM_CHISEL_STONE =
@@ -83,11 +82,26 @@ public final class ModItems {
     public static final IRegistryObject<ChiseledBlockItem> CHISELED_BLOCK =
             ITEM_REGISTRAR.register("chiseled_block", () -> new ChiseledBlockItem(ModBlocks.CHISELED_BLOCK.get(), new Item.Properties()));
 
+    @Deprecated
+    public static final List<IRegistryObject<MateriallyChiseledConversionItem>> LEGACY_MATERIAL_CHISELED_BLOCKS = Lists.newArrayList();
+
     private ModItems() {
         throw new IllegalStateException("Tried to initialize: ModItems but this is a Utility class.");
     }
 
     public static void onModConstruction() {
+        LegacyMaterialManager.getInstance().getMaterialNames()
+                .forEach(materialName -> {
+                    LEGACY_MATERIAL_CHISELED_BLOCKS.add(
+                            ITEM_REGISTRAR.register(
+                                    "chiseled" + materialName,
+                                    () -> new MateriallyChiseledConversionItem(
+                                            new Item.Properties()
+                                    )
+                            )
+                    );
+                });
+
         LOGGER.info("Loaded item configuration.");
     }
 }

@@ -38,6 +38,13 @@ public class ChiselBlockItemModelGenerator extends ItemModelProvider implements 
     protected void registerModels() {
         actOnBlockWithLoader(ModBlocks.CHISELED_BLOCK.get());
         actOnItemWithLoader(ModItems.CHISELED_BLOCK.get());
+
+        ModItems.LEGACY_MATERIAL_CHISELED_BLOCKS.stream()
+                        .map(IRegistryObject::get)
+                                .forEach(item -> {
+                                    getBuilder(Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item)).getPath())
+                                            .parent(getExistingFile(ResourceLocation.withDefaultNamespace("item/generated")));
+                                });
     }
 
     public void actOnBlockWithLoader(final Block block) {

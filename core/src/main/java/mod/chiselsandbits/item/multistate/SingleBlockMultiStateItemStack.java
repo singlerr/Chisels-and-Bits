@@ -24,6 +24,7 @@ import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.compact.legacy.UpgradeUtils;
 import mod.chiselsandbits.components.data.MultiStateItemStackData;
 import mod.chiselsandbits.item.ChiseledBlockItem;
 import mod.chiselsandbits.registrars.ModDataComponentTypes;

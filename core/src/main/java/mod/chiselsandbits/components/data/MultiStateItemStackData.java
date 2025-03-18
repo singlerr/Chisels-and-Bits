@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.block.storage.StateEntryStorage;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.serialization.CBCodecs;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.serialization.CompressedDataFindingCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -16,10 +17,29 @@ import java.util.Map;
 
 public record MultiStateItemStackData(StateEntryStorage storage, Statistics statistics) {
 
-    public static final Codec<MultiStateItemStackData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        StateEntryStorage.CODEC.fieldOf(NbtConstants.STORAGE).forGetter(MultiStateItemStackData::storage),
-        Statistics.CODEC.fieldOf(NbtConstants.STATISTICS).forGetter(MultiStateItemStackData::statistics)
+    private static final Codec<MultiStateItemStackData> INTERNAL_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            StateEntryStorage.CODEC.fieldOf(NbtConstants.STORAGE).forGetter(MultiStateItemStackData::storage),
+            Statistics.CODEC.fieldOf(NbtConstants.STATISTICS).forGetter(MultiStateItemStackData::statistics)
     ).apply(instance, MultiStateItemStackData::new));
+
+    private static final Codec<MultiStateItemStackData> LEGACY_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            StateEntryStorage.LEGACY_CODEC.fieldOf(NbtConstants.LEGACY_CHISELED_DATA).forGetter(MultiStateItemStackData::storage),
+            Statistics.LEGACY_CODEC.fieldOf(NbtConstants.STATISTICS).forGetter(MultiStateItemStackData::statistics)
+    ).apply(instance, MultiStateItemStackData::new));
+
+    private static final Codec<MultiStateItemStackData> LEGACY_DECOMPPRESSION_CODEC = CompressedDataFindingCodec.of(
+            CBCodecs.readLegacyCompressed(
+                    LEGACY_CODEC
+            )
+    ).fieldOf(NbtConstants.DATA).codec();
+
+    public static final Codec<MultiStateItemStackData> CODEC = CBCodecs.versioned(
+            CBCodecs.compressed(INTERNAL_CODEC).fieldOf(NbtConstants.PAYLOAD),
+            CBCodecs.withFallback(
+                    INTERNAL_CODEC,
+                    LEGACY_DECOMPPRESSION_CODEC
+            )
+    );
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MultiStateItemStackData> STREAM_CODEC = StreamCodec.composite(
         StateEntryStorage.STREAM_CODEC,
@@ -44,9 +64,14 @@ public record MultiStateItemStackData(StateEntryStorage storage, Statistics stat
     }
 
     public record Statistics(BlockInformation primaryState, Map<BlockInformation, Integer> counts) {
-        private static final Codec<Statistics> CODEC = RecordCodecBuilder.create(instance ->  instance.group(
+        public static final Codec<Statistics> CODEC = RecordCodecBuilder.create(instance ->  instance.group(
                 BlockInformation.CODEC.fieldOf(NbtConstants.PRIMARY_STATE).forGetter(Statistics::primaryState),
                 CBCodecs.unboundedComplexMap(BlockInformation.CODEC, Codec.INT).fieldOf(NbtConstants.BLOCK_STATES).forGetter(Statistics::counts)
+        ).apply(instance, Statistics::new));
+
+        private static final Codec<Statistics> LEGACY_CODEC = RecordCodecBuilder.create(instance ->  instance.group(
+                BlockInformation.LEGACY_CODEC.fieldOf("primaryState").forGetter(Statistics::primaryState),
+                CBCodecs.unboundedComplexMap("block_information", BlockInformation.LEGACY_CODEC, "count", Codec.INT).fieldOf("blockStates").forGetter(Statistics::counts)
         ).apply(instance, Statistics::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, Statistics> STREAM_CODEC = StreamCodec.composite(

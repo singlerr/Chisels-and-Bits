@@ -17,40 +17,35 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
-public class ChiseledBlockBlockStateGenerator extends BlockStateProvider implements DataProvider
-{
+public class ChiseledBlockBlockStateGenerator extends BlockStateProvider implements DataProvider {
 
     private static final ResourceLocation CHISELED_BLOCK_MODEL = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "block/chiseled");
 
-    public ChiseledBlockBlockStateGenerator(final DataGenerator gen, final ExistingFileHelper exFileHelper)
-    {
+    public ChiseledBlockBlockStateGenerator(final DataGenerator gen, final ExistingFileHelper exFileHelper) {
         super(gen.getPackOutput(), Constants.MOD_ID, exFileHelper);
     }
 
     @SubscribeEvent
-    public static void dataGeneratorSetup(final GatherDataEvent event)
-    {
+    public static void dataGeneratorSetup(final GatherDataEvent event) {
         event.getGenerator().addProvider(true, new ChiseledBlockBlockStateGenerator(event.getGenerator(), event.getExistingFileHelper()));
     }
 
     @Override
-    protected void registerStatesAndModels()
-    {
+    protected void registerStatesAndModels() {
         actOnBlock(ModBlocks.CHISELED_BLOCK.get());
+
+        ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values().stream().map(IRegistryObject::get).forEach(block -> {
+            getVariantBuilder(block).forAllStates(blockState -> ConfiguredModel.builder().modelFile(models().getExistingFile(ResourceLocation.withDefaultNamespace("air"))).build());
+        });
     }
 
     @NotNull
     @Override
-    public String getName()
-    {
+    public String getName() {
         return "Chiseled block blockstate generator";
     }
 
-    public void actOnBlock(final Block block)
-    {
-        getVariantBuilder(block)
-          .forAllStates(blockState -> ConfiguredModel.builder()
-            .modelFile(models().getExistingFile(CHISELED_BLOCK_MODEL))
-            .build());
+    public void actOnBlock(final Block block) {
+        getVariantBuilder(block).forAllStates(blockState -> ConfiguredModel.builder().modelFile(models().getExistingFile(CHISELED_BLOCK_MODEL)).build());
     }
 }

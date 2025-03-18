@@ -6,11 +6,16 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.block.entities.ChiseledPrinterBlockEntity;
+import mod.chiselsandbits.compact.legacy.block.entity.MateriallyChiseledConversionBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Set;
 
 @SuppressWarnings("ConstantConditions")
 public final class ModBlockEntityTypes
@@ -47,4 +52,18 @@ public final class ModBlockEntityTypes
         ModBlocks.CHISELED_PRINTER.get()
       ).build(null)
     );
+
+    @Deprecated
+    public static final IRegistryObject<BlockEntityType<MateriallyChiseledConversionBlockEntity>> MATERIAL_CHISELED_CONVERSION = REGISTRAR.register("chiseled", () -> new BlockEntityType<>(
+            MateriallyChiseledConversionBlockEntity::new,
+            Set.of(),
+            null
+    ) {
+        @Override
+        public boolean isValid(@NotNull BlockState state) {
+            return ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values()
+                    .stream()
+                    .anyMatch(blockRegistryEntry -> blockRegistryEntry.get() == state.getBlock());
+        }
+    });
 }

@@ -1,10 +1,10 @@
-package mod.chiselsandbits.materials;
+package mod.chiselsandbits.compact.legacy;
 
 import com.google.common.collect.Lists;
 
 import java.util.List;
-import java.util.Map;
 
+@Deprecated
 public class LegacyMaterialManager
 {
     private static final LegacyMaterialManager INSTANCE = new LegacyMaterialManager();

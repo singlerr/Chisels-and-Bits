@@ -5,6 +5,8 @@ import com.communi.suggestu.scena.core.registries.deferred.IRegistryObject;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.block.*;
+import mod.chiselsandbits.compact.legacy.LegacyMaterialManager;
+import mod.chiselsandbits.compact.legacy.block.MateriallyChiseledConversionBlock;
 import mod.chiselsandbits.utils.ReflectionHelperBlock;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
@@ -92,6 +94,16 @@ public final class ModBlocks
 
     public static void onModConstruction()
     {
+        LegacyMaterialManager.getInstance()
+                .getMaterialNames()
+                .forEach((name) -> {
+                    MATERIAL_TO_BLOCK_CONVERSIONS.put(name, BLOCK_REGISTRAR.register("chiseled" + name, () -> new MateriallyChiseledConversionBlock(BlockBehaviour.Properties.of()
+                            .strength(1.5f, 6f)
+                            .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
+                            .isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
+                            .isSuffocating((p_test_1_, p_test_2_, p_test_3_) -> false)
+                            .noOcclusion())));
+                });
         LOGGER.info("Loaded block configuration.");
     }
 }
