@@ -3,6 +3,7 @@ package mod.chiselsandbits.client.model.baked.chiseled;
 import com.communi.suggestu.scena.core.client.rendering.type.IRenderTypeManager;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.world.level.material.Fluid;
 
 import java.util.BitSet;
@@ -48,6 +49,11 @@ public class FluidRenderingManager
 
     public boolean isFluidRenderType(final RenderType renderType) {
         setupRenderTypes();
-        return renderTypes.get(RenderType.chunkBufferLayers().indexOf(renderType));
+        return renderTypes.stream()
+                .mapToObj(RenderType.chunkBufferLayers()::get)
+                .anyMatch(fancyRenderType ->
+                        fancyRenderType.equals(renderType) || //Fancy render mode.
+                        ChiselRenderType.fromLayer(fancyRenderType, true).has(fancyRenderType) //Fabulous render mode.
+                );
     }
 }

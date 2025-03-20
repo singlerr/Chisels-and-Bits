@@ -7,21 +7,23 @@ import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 
 import java.security.InvalidParameterException;
 import java.util.Collection;
 
 public enum ChiselRenderType
 {
-    SOLID( RenderType.solid(), VoxelType.SOLID ),
-    SOLID_FLUID( RenderType.solid(), VoxelType.FLUID ),
-    CUTOUT( RenderType.cutout(), VoxelType.UNKNOWN ),
-    CUTOUT_MIPPED( RenderType.cutoutMipped(), VoxelType.UNKNOWN ),
-    TRANSLUCENT( RenderType.translucent(), VoxelType.UNKNOWN ),
-    TRANSLUCENT_FLUID( RenderType.translucent(), VoxelType.FLUID ),
-    TRIPWIRE (RenderType.tripwire(), VoxelType.UNKNOWN);
+    SOLID( RenderType.solid(), RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS), VoxelType.SOLID ),
+    SOLID_FLUID( RenderType.solid(), RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS), VoxelType.FLUID),
+    CUTOUT( RenderType.cutout(), RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS), VoxelType.UNKNOWN),
+    CUTOUT_MIPPED( RenderType.cutoutMipped(), RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS), VoxelType.UNKNOWN),
+    TRANSLUCENT( RenderType.translucent(), RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS), VoxelType.UNKNOWN),
+    TRANSLUCENT_FLUID( RenderType.translucent(), RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS), VoxelType.FLUID),
+    TRIPWIRE (RenderType.tripwire(), RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS), VoxelType.UNKNOWN);
 
     public final RenderType layer;
+    public final RenderType entityLayer;
     public final VoxelType type;
 
     private static final Multimap<VoxelType, ChiselRenderType> TYPED_RENDER_TYPES = HashMultimap.create();
@@ -33,11 +35,16 @@ public enum ChiselRenderType
     }
 
     ChiselRenderType(
-      final RenderType layer,
-      final VoxelType type)
+            final RenderType layer, RenderType entityLayer,
+            final VoxelType type)
     {
         this.layer = layer;
+        this.entityLayer = entityLayer;
         this.type = type;
+    }
+
+    public boolean has(RenderType type) {
+        return layer.equals(type) || entityLayer.equals(type);
     }
 
     public boolean isRequiredForRendering(
@@ -78,23 +85,23 @@ public enum ChiselRenderType
         if (layerInfo == null)
             layerInfo = RenderType.solid();
 
-        if (ChiselRenderType.CUTOUT.layer.equals(layerInfo))
+        if (ChiselRenderType.CUTOUT.has(layerInfo))
         {
             return CUTOUT;
         }
-        else if (ChiselRenderType.CUTOUT_MIPPED.layer.equals(layerInfo))
+        else if (ChiselRenderType.CUTOUT_MIPPED.has(layerInfo))
         {
             return CUTOUT_MIPPED;
         }
-        else if (ChiselRenderType.SOLID.layer.equals(layerInfo))
+        else if (ChiselRenderType.SOLID.has(layerInfo))
         {
             return isFluid ? SOLID_FLUID : SOLID;
         }
-        else if (ChiselRenderType.TRANSLUCENT.layer.equals(layerInfo))
+        else if (ChiselRenderType.TRANSLUCENT.has(layerInfo))
         {
             return isFluid ? TRANSLUCENT_FLUID : TRANSLUCENT;
         }
-        else if (ChiselRenderType.TRIPWIRE.layer.equals(layerInfo))
+        else if (ChiselRenderType.TRIPWIRE.has(layerInfo))
         {
             return TRIPWIRE;
         }
