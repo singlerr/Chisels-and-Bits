@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'version/*'
+  workflow_dispatch:
 
 jobs:
   publish:
