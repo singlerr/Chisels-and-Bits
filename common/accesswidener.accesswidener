@@ -57,3 +57,4 @@ accessible field net/minecraft/client/gui/screens/inventory/CreativeModeInventor
 accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen hoveredSlot Lnet/minecraft/world/inventory/Slot;
 accessible method net/minecraft/client/gui/screens/inventory/CreativeModeInventoryScreen isCreativeSlot (Lnet/minecraft/world/inventory/Slot;)Z
 accessible method net/minecraft/client/gui/screens/inventory/CreativeModeInventoryScreen refreshCurrentTabContents (Ljava/util/Collection;)V
+accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UUID;
