@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.pattern.IMultiUsePatternItem;
 import mod.chiselsandbits.api.item.pattern.IPatternItem;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.LocalStrings;
@@ -265,7 +266,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
 
     private void damageChisel() {
         if (getLevel() != null && !getLevel().isClientSide()) {
-            getToolStack().hurtAndBreak(1, (ServerLevel) getLevel(), null, (item) -> {});
+            getToolStack().hurtAndBreak(StateEntrySize.ONE_SIXTEENTH.getBitsPerBlock(), (ServerLevel) getLevel(), null, (item) -> {});
         }
     }
 
