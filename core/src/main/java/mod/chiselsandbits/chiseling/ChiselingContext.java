@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.metadata.IMetadataKey;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
@@ -280,6 +281,7 @@ public class ChiselingContext implements IChiselingContext
         final AtomicBoolean broken = new AtomicBoolean(false);
         final int currentDamage = causingItemStack.getDamageValue();
         if (world instanceof ServerLevel level && playerEntity instanceof ServerPlayer player) {
+            final int appliedDamage = damage * StateEntrySize.current().getDamageFactor();
             this.causingItemStack.hurtAndBreak(damage, level, player, item -> {
                 broken.set(true);
 

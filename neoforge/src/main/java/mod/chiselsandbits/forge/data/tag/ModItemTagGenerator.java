@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
+@SuppressWarnings("unchecked")
 public class ModItemTagGenerator extends ItemTagsProvider
 {
 
@@ -35,5 +36,7 @@ public class ModItemTagGenerator extends ItemTagsProvider
         );
         this.tag(ModTags.Items.FORGE_PAPER).add(Items.PAPER);
         this.tag(ItemTags.PIGLIN_LOVED).add(ModItems.ITEM_CHISEL_GOLD.get());
+
+        this.tag(ItemTags.DURABILITY_ENCHANTABLE).addTags(ModTags.Items.CHISEL);
     }
 }

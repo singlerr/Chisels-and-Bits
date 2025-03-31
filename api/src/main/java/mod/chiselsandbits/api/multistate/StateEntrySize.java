@@ -53,6 +53,7 @@ public enum StateEntrySize
     private final int   bitsPerLayer;
     private final float sizePerBit;
     private final float sizePerHalfBit;
+    private final int damageScaleFactor;
 
     StateEntrySize(final int bitsPerBlockSide)
     {
@@ -61,6 +62,7 @@ public enum StateEntrySize
         this.bitsPerLayer = this.bitsPerBlockSide * this.bitsPerBlockSide;
         this.sizePerBit = 1 / ((float) bitsPerBlockSide);
         this.sizePerHalfBit = this.sizePerBit / 2f;
+        this.damageScaleFactor = (16 / bitsPerBlockSide) ^ 3;
     }
 
     /**
@@ -195,5 +197,20 @@ public enum StateEntrySize
           Math.floor(pos.y * getBitsPerBlockSide()) / getBitsPerBlockSide(),
           Math.floor(pos.z * getBitsPerBlockSide()) / getBitsPerBlockSide()
         );
+    }
+
+    /**
+     * Calculates how much damage should be applied to tools for the harvest of a given bit within this size.
+     * <p>
+     *     The scale factor is 1 for 1/16, and grows with the cubicly per level, with the amount of 1/16 bits that the size represents.
+     *     So for 1/8, it is 8 (as 2x2x2 1/16th bits fit in one 1/8 bit)
+     *     For 1/4, it is 64 (as 4x4x4 1/16th bits fit in one 1/4 bit)
+     *     etc.
+     * </p>
+     *
+     * @return The damage scale factor per one bit harvested.
+     */
+    public int getDamageFactor() {
+        return this.damageScaleFactor;
     }
 }

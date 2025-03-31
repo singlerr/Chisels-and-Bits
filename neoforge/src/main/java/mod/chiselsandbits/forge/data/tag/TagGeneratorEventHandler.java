@@ -28,10 +28,6 @@ public class TagGeneratorEventHandler
 
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
-        NeoForgeBlockTagsProvider forgeBlockTags = new NeoForgeBlockTagsProvider(packOutput, lookupProvider, existingFileHelper);
-        event.getGenerator().addProvider(true, forgeBlockTags);
-        event.getGenerator().addProvider(true, new NeoForgeItemTagsProvider(packOutput, lookupProvider, forgeBlockTags.contentsGetter(), existingFileHelper));
-
         ModBlockTagGenerator modBlockTags = new ModBlockTagGenerator(packOutput, lookupProvider, existingFileHelper);
         event.getGenerator().addProvider(true, modBlockTags);
         event.getGenerator().addProvider(true, new ModItemTagGenerator(packOutput, lookupProvider, modBlockTags.contentsGetter(), existingFileHelper));
